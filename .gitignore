@@ -23,6 +23,7 @@ __pycache__/
 .vscode/
 web-build/
 dist/
+.history
 
 # IDEA / IntelliJ
 .idea/
@@ -34,3 +35,6 @@ bin/
 
 # MacOS
 .DS_Store
+
+# Legal
+*AUTOSAR*.txt
