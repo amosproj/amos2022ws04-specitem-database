@@ -38,3 +38,6 @@ bin/
 
 # Legal
 *AUTOSAR*.txt
+
+code/specitem-database.iml
+code/target
