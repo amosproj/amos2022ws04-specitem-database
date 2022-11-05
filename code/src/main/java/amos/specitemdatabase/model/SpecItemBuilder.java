@@ -1,9 +1,19 @@
 package amos.specitemdatabase.model;
 
+import static amos.specitemdatabase.utils.SpecItemConstants.CATEGORY;
+import static amos.specitemdatabase.utils.SpecItemConstants.CONTENT;
+import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
+import static amos.specitemdatabase.utils.SpecItemConstants.LONG_NAME;
+import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
+
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 
+/**
+ * This classes uses the builder pattern which is late used to construct
+ * an instance of the SpecItem class.
+ */
 @Getter
 public class SpecItemBuilder {
 
@@ -28,7 +38,11 @@ public class SpecItemBuilder {
     }
 
     public SpecItemBuilder fromMap(final Map<String, String> fieldToValue) {
-        this.shortName = fieldToValue.get("ABC");
+        this.shortName = fieldToValue.get(SHORT_NAME);
+        this.category = Category.get(fieldToValue.get(CATEGORY));
+        this.lcStatus = LcStatus.get(fieldToValue.get(LC_STATUS));
+        this.longName = fieldToValue.get(LONG_NAME);
+        this.content = fieldToValue.get(CONTENT);
         return this;
     }
 

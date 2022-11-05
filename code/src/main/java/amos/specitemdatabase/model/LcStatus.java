@@ -14,7 +14,7 @@ public enum LcStatus {
 
     private static final Map<String, LcStatus> STRING_TO_LC_STATUS;
 
-    LcStatus (String name) {
+    LcStatus (final String name) {
         this.name = name;
     }
 
@@ -23,14 +23,14 @@ public enum LcStatus {
     }
 
     static {
-        Map<String, LcStatus> map = new HashMap<>();
-        for (LcStatus instance : LcStatus.values()) {
+        final Map<String, LcStatus> map = new HashMap<>();
+        for (final LcStatus instance : LcStatus.values()) {
             map.put(instance.getName().toLowerCase(),instance);
         }
         STRING_TO_LC_STATUS = Collections.unmodifiableMap(map);
     }
 
-    public static LcStatus get(String name) {
+    public static LcStatus get(final String name) {
         return STRING_TO_LC_STATUS.get(name.toLowerCase());
     }
 

@@ -4,11 +4,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 // TODO: implement the corrent logic for this class
-public class SpecItemParserMap {
+@Service
+public class ParserService {
 
-    public static List<Map<String, String>> parse(final File textFile) {
+    public ParserService() {
+    }
+
+    public List<Map<String, String>> parse(final String fileName) {
+        // TODO: access a file from its name
+        //File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "testfile.txt");
         final List<Map<String, String>> specItems = new ArrayList<>();
         final Map<String, String> specItem1 =  Map.of(
             "Fingerprint", "abc",

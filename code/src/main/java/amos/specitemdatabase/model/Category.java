@@ -14,7 +14,7 @@ public enum Category {
 
     private static final Map<String, Category> STRING_TO_CATEGORY;
 
-    Category (String name) {
+    Category (final String name) {
         this.name = name;
     }
 
@@ -24,13 +24,13 @@ public enum Category {
 
     static {
         Map<String, Category> map = new HashMap<>();
-        for (Category instance : Category.values()) {
+        for (final Category instance : Category.values()) {
             map.put(instance.getName().toLowerCase(),instance);
         }
         STRING_TO_CATEGORY = Collections.unmodifiableMap(map);
     }
 
-    public static Category get(String name) {
+    public static Category get(final String name) {
         return STRING_TO_CATEGORY.get(name.toLowerCase());
     }
 }
