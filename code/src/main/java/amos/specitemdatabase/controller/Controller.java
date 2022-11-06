@@ -1,13 +1,15 @@
-package amos.specitemdatabase;
+package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
 
-@org.springframework.web.bind.annotation.RestController
-public class RestController {
-    private final Service service;
+@RestController
+public class Controller {
+    private final SpecItemService service;
 
     @Autowired
-    public RestController(Service service) {
+    public Controller(SpecItemService service) {
         this.service = service;
     }
 }
