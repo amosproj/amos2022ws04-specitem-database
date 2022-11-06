@@ -1,4 +1,4 @@
-package amos.specitemdatabase;
+package amos.specitemdatabase.importer;
 
 import java.io.BufferedReader;
 import java.io.File;
