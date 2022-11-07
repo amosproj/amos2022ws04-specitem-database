@@ -1,3 +1,11 @@
+CommitHash: #asdf
+CommitDate: 12.02.2022
+CommitMsg: asdfaf
+CommitAuthor: asdfasdf
+
+
+
+
 Fingerprint: abc
 ShortName: ID1
 Category:  Cat1
@@ -20,3 +28,6 @@ UseInstead:
 TraceRefs: ID2, ID3, ID4
 LongName:  bla bla bla bla bal abla
 Content:  fdasfasdfds:
+
+
+
