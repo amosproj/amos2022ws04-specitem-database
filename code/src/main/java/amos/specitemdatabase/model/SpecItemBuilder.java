@@ -37,6 +37,12 @@ public class SpecItemBuilder {
         return this;
     }
 
+    /**
+     * The builder for setting mandatory fields of a spec item
+     * TODO: Ask the industry partner about the mandatory and optional fields
+     * @param fieldToValue a mapping between attributes and their values
+     * @return a builder with mandatory fields set
+     */
     public SpecItemBuilder fromMap(final Map<String, String> fieldToValue) {
         this.shortName = fieldToValue.get(SHORT_NAME);
         this.category = Category.get(fieldToValue.get(CATEGORY));

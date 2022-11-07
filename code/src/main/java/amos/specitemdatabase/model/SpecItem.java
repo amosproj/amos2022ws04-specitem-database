@@ -19,8 +19,7 @@ public class SpecItem {
     private final String content;
     private final Commit commit;
 
-    //TODO: Add the versioning mechanism
-    // private final short version;
+    private short version;
 
     // TODO: ask the client about the tags; where do they come from? shall they be included in the .txt file?
     public SpecItem(final SpecItemBuilder specItemBuilder) {

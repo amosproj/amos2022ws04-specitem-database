@@ -7,8 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-// TODO: implement the corrent logic for this class
-@Service
+
 public class ParserService {
 
     public ParserService() {
@@ -21,12 +20,12 @@ public class ParserService {
         final Map<String, String> specItem1 =  Map.of(
             "Fingerprint", "abc",
             "ShortName", "ID1",
-            "Category", "Cat1",
-            "LC-Status", "VALID",
+            "Category", "CONSTRAINT_ITEM",
+            "LC-Status", "Status1",
             "UseInstead", "",
             "TraceRefs", "ID2, ID3, ID4",
             "LongName", "LongName1",
-            "Content", "fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g");
+            "Content", "Content1");
         final Map<String, String> specItem2 =  Map.of(
             "Fingerprint", "def",
             "ShortName", "ID2",
