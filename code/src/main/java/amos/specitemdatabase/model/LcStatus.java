@@ -7,8 +7,8 @@ import java.util.Map;
 public enum LcStatus {
 
     // TODO: find out what are the values
-    CONSTRAINT_ITEM("CONSTRAINT_ITEM"),
-    UNCONSTRAINED_ITEM("UNCONSTRAINED_ITEM");
+    STATUS1("Status1"),
+    STATUS2("Status2");
 
     private final String name;
 
