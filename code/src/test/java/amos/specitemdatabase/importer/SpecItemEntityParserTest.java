@@ -30,6 +30,5 @@ public class SpecItemEntityParserTest {
                 "TraceRefs: ID2, ID3, ID4\n" +
                 "LongName:  bla bla bla bla bal abla\n" +
                 "Content:  fdasfasdfds:", specItems.get(2), "Second SpecItem was not split correctly");
-
     }
 }
