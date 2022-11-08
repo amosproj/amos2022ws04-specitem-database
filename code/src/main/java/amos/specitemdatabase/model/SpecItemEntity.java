@@ -15,6 +15,8 @@ public class SpecItemEntity {
     private String commitHash;
     private int version;
 
+    // TODO: we might need
+
     public void setId(final Long id) {
         this.id = id;
     }
