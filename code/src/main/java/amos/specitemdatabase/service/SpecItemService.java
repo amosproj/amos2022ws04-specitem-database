@@ -20,30 +20,26 @@ public class SpecItemService {
         this.specItemRepo = specItemRepo;
     }
 
-    // @PostMapping("/savespecitem")
-    // public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
-    //     specItemEntity = new SpecItemEntity();
-    //     specItemEntity.setId(1L);
-    //     System.out.println("Shit happens");
-    //     specItemRepo.save(specItemEntity);
-    //     return ResponseEntity.ok(specItemEntity);
-    // }
-
-    @Bean
-    CommandLineRunner commandLineRunner(
-        SpecItemRepo specItemRepo
-    ) {
-        return args -> {
-            System.out.println("Shit happens");
-            SpecItemEntity specItemEntity = new SpecItemEntity();
-            specItemEntity.setId(1L);
-            specItemEntity.setCategory("When I grow up");
-            specItemEntity.setLcStatus("I want to be an army");
-            specItemEntity.setLongName("And");
-            specItemEntity.setContent("Save");
-            specItemEntity.setCommitHash("Pakistan");
-            specItemEntity.setVersion(666);
-            specItemRepo.save(specItemEntity);
-        };
+    public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
+        specItemRepo.save(specItemEntity);
+        return ResponseEntity.ok(specItemEntity);
     }
+
+    // Test the save method
+    // @Bean
+    // CommandLineRunner commandLineRunner(
+    //     SpecItemRepo specItemRepo
+    // ) {
+    //     return args -> {
+    //         SpecItemEntity specItemEntity = new SpecItemEntity();
+    //         specItemEntity.setId(1L);
+    //         specItemEntity.setCategory("When I grow up");
+    //         specItemEntity.setLcStatus("I want to be an army");
+    //         specItemEntity.setLongName("And");
+    //         specItemEntity.setContent("Save");
+    //         specItemEntity.setCommitHash("Pakistan");
+    //         specItemEntity.setVersion(666);
+    //         specItemRepo.save(specItemEntity);
+    //     };
+    // }
 }
