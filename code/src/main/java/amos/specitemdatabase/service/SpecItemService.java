@@ -23,6 +23,20 @@ public class SpecItemService {
         specItemRepo.save(specItemEntity);
         return ResponseEntity.ok(specItemEntity);
     }
+    
+    public ResponseEntity<SpecItemEntity> deleteSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
+        specItemRepo.delete(specItemEntity);
+        return ResponseEntity.ok(specItemEntity);
+    }
+    
+    public ResponseEntity<SpecItemEntity> getSpecItemEntity(@RequestBody long id) {
+        for(SpecItemEntity e : specItemRepo.findAll()) {
+            if(e.getId().equals(id)) {
+                return ResponseEntity.ok(e);
+            }
+        }
+        return null;
+    }
 
     // Test the save method
     // @Bean
