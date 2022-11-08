@@ -11,26 +11,40 @@ export default function Documents({doc, setSelectDocument}) {
     const handleClick = (specitem)=>{ 
         setSelectSpecItem(true);
         setSpecItem(specitem);
-        console.log(specitem)
         
     }
     return(
-        <div className="Documents-header">
+        <div className="App-tb">
             {
             !selectSpecItem &&
-                <div>
-                    
+                <div className="App-tb">
                     <div>{'DOC_ID: '+doc.id}</div>
                     <div>{'DOC_Name: '+doc.name}</div>
                     <div>{'DOC_Version: '+doc.commit}</div>
-                    <div>
+                    
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Content</th>
+                        </tr>
+                        {doc.specItems.map((val,key) => {
+                        return (
+                                <tr key={key}>
+                                    <td>{val.name}</td>
+                                    <td>{val.content}</td>
+                                </tr>
+                                )
+            })}
+      </table>
+      <div>
                         {doc.specItems.map((specItem)=>
-                            <button onClick={() => handleClick(specItem)}>{specItem.name}</button>
+                            <button className='button' onClick={() => handleClick(specItem)}>{specItem.name}</button>
                         )}
                     </div>
-                    <div><button onClick={()=>{setSelectDocument(false)}}>Close</button></div>
+                    <div><button className='button-close' onClick={()=>{setSelectDocument(false)}}>Close</button></div>
                     
                 </div>
+                
             } {
                 selectSpecItem &&
                 <SpecItem specItem = {specItem} setSelectSpecItem = {setSelectSpecItem}/>

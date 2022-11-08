@@ -18,7 +18,6 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -105,4 +104,25 @@ input[type="file"] {
   margin-bottom: 15px;
   height: 20px;
   width: 135px;
+}
+
+table {
+  border: 2px solid forestgreen;
+  width: 800px;
+  height: 200px;
+}
+  
+th {
+  border-bottom: 1px solid black;
+}
+  
+td {
+  text-align: center;
+}
+
+.App-tb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

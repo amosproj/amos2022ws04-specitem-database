@@ -2,6 +2,8 @@ import Documents from '../components/documents'
 import '../App.css';
 import { useEffect, useState } from 'react';
 
+const model = require('../model.js')
+
 export default function MainPage() {
 
     const doclist = [
@@ -33,8 +35,27 @@ export default function MainPage() {
             {
             !selectDocument &&
             <div className='App-logo'>  
+                
                 {docListVisible &&
-                <div style={{marginTop:'30px'}} className='App-header'> 
+                <div style={{marginTop:'30px'}} className='App-tb'> 
+                    <div className='App-tb'>
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Commit</th>
+                        </tr>
+                        {doclist.map((val,key) => {
+                        return (
+                                <tr key={key}>
+                                    <td>{val.id}</td>
+                                    <td>{val.name}</td>
+                                    <td>{val.commit}</td>
+                                </tr>
+                                )
+                            })}
+                    </table>
+                </div>
                     <div>
                         {doclist.map((doc)=>
                         (<div className='Document'>
@@ -80,7 +101,9 @@ export default function MainPage() {
             }
             {
              selectDocument &&
-             <Documents doc = {doc} setSelectDocument = {setSelectDocument}/>   
+            <div className='App-logo'>
+                <Documents doc = {doc} setSelectDocument = {setSelectDocument}/>   
+            </div>    
             }
         </div>
     )
