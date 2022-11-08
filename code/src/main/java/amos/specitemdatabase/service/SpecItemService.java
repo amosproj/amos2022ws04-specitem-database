@@ -37,6 +37,12 @@ public class SpecItemService {
             System.out.println("Shit happens");
             SpecItemEntity specItemEntity = new SpecItemEntity();
             specItemEntity.setId(1L);
+            specItemEntity.setCategory("When I grow up");
+            specItemEntity.setLcStatus("I want to be an army");
+            specItemEntity.setLongName("And");
+            specItemEntity.setContent("Save");
+            specItemEntity.setCommitHash("Pakistan");
+            specItemEntity.setVersion(666);
             specItemRepo.save(specItemEntity);
         };
     }
