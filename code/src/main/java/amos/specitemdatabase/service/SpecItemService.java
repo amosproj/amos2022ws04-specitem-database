@@ -24,6 +24,11 @@ public class SpecItemService {
         specItemRepo.save(specItemEntity);
         return ResponseEntity.ok(specItemEntity);
     }
+    
+    public ResponseEntity<SpecItemEntity> deleteSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
+        specItemRepo.delete(specItemEntity);
+        return ResponseEntity.ok(specItemEntity);
+    }
 
     // Test the save method
     // @Bean
