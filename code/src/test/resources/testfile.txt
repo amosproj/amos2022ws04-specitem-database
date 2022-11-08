@@ -1,0 +1,33 @@
+CommitHash: #asdf
+CommitDate: 12.02.2022
+CommitMsg: asdfaf
+CommitAuthor: asdfasdf
+
+
+
+
+Fingerprint: abc
+ShortName: ID1
+Category:  Cat1
+LC-Status: VALID
+UseInstead:
+TraceRefs: ID2, ID3, ID4
+LongName:  bla bla bla
+Content:
+fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g
+dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;
+
+
+
+
+Fingerprint: def
+ShortName: ID22
+Category:  Cat2
+LC-Status: INVALID
+UseInstead:
+TraceRefs: ID2, ID3, ID4
+LongName:  bla bla bla bla bal abla
+Content:  fdasfasdfds:
+
+
+
