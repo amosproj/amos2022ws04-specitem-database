@@ -33,7 +33,7 @@ public class SpecItemParser {
             stringBuilder.append(System.lineSeparator());
         }
         //appends last item of the file to the list
-        stringBuilder.delete(stringBuilder.length() - 5 * lineSeparatorsNum, stringBuilder.length());
+        stringBuilder.delete(stringBuilder.length() - 4 * lineSeparatorsNum, stringBuilder.length());
         specItemsList.add(stringBuilder.toString());
 
         return specItemsList;
