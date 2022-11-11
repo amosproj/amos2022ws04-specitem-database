@@ -8,8 +8,8 @@ CommitAuthor: asdfasdf
 
 Fingerprint: abc
 ShortName: ID1
-Category:  Cat1
-LC-Status: VALID
+Category:  CONSTRAINT_ITEM
+LC-Status: Status1
 UseInstead:
 TraceRefs: ID2, ID3, ID4
 LongName:  bla bla bla
@@ -22,8 +22,8 @@ dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;
 
 Fingerprint: def
 ShortName: ID22
-Category:  Cat2
-LC-Status: INVALID
+Category:  UNCONSTRAINED_ITEM
+LC-Status: Status2
 UseInstead:
 TraceRefs: ID2, ID3, ID4
 LongName:  bla bla bla bla bal abla
