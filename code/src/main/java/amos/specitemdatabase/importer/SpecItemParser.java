@@ -1,27 +1,24 @@
 package amos.specitemdatabase.importer;
-import amos.specitemdatabase.model.Commit;
-import amos.specitemdatabase.model.SpecItem;
-import amos.specitemdatabase.model.SpecItemBuilder;
-import amos.specitemdatabase.model.SpecItemEntity;
+import amos.specitemdatabase.model.*;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static amos.specitemdatabase.model.Commit.getCommitFromString;
+
 public class SpecItemParser implements SpecItemParserInterface{
 
     /**
-     * Splits a text file into String pieces and then transform them into SpecItems.
+     * Splits a text file into String pieces and then transforms them into a ProcessedDocument.
      *
      * @param  textFile   the text file that will be split
-     * @return         list of SpecItems
+     * @return         ProcessedDocument
      */
     @Override
-    public List<SpecItem> fileToSpecItems(File textFile) throws IOException {
+    public ProcessedDocument processFile(File textFile) throws IOException {
 
         BufferedReader br = new BufferedReader(new FileReader(textFile));
         List<String> specItemsList = new ArrayList<>();
@@ -51,29 +48,14 @@ public class SpecItemParser implements SpecItemParserInterface{
         Commit commit = getCommitFromString(specItemsList.get(0));
         specItemsList.remove(0);
 
-        return getSpecItemsFromString(specItemsList, commit);
+        return new ProcessedDocument(commit, getSpecItemsFromString(specItemsList));
     }
 
-    private Commit getCommitFromString(String commitText) {
-        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\r\\n)(CommitDate: (?<CommitDate>\\S+)\\r\\n)(CommitMsg: (?<CommitMsg>[\\S\\s]+)\\r\\n)(CommitAuthor: (?<CommitAuthor>\\S+))";
-        final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-        final Matcher matcher = pattern.matcher(commitText);
-        matcher.find();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
-        return new Commit(
-                matcher.group("CommitHash"),
-                matcher.group("CommitMsg"),
-                LocalDate.parse(matcher.group("CommitDate"),formatter),
-                matcher.group("CommitAuthor"));
-    }
-
-    private List<SpecItem> getSpecItemsFromString(List<String> specItemsList, Commit commit){
-        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\r\\n)(ShortName: (?<ShortName>\\w+)\\r\\n)(Category:  (?<Category>\\w+)\\r\\n)(LC-Status: (?<LCStatus>\\w+)\\r\\n)(UseInstead:(?<UseInstead>\\w*)\\r\\n)(TraceRefs: (?<TraceRefs>[\\S ]+)\\r\\n)(LongName:  (?<LongName>[\\S ]+)\\r\\n)(Content:(?<Content>[\\S ]+))";
+    private List<SpecItem> getSpecItemsFromString(List<String> specItemsList){
+        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\r\\n)(ShortName: (?<ShortName>\\w+)\\r\\n)(Category:  (?<Category>\\w+)\\r\\n)(LC-Status: (?<LCStatus>\\w+)\\r\\n)(UseInstead:(?<UseInstead>[\\S ]*)\\r\\n)(TraceRefs: (?<TraceRefs>[\\S ]+)\\r\\n)(LongName:  (?<LongName>[\\S ]+)\\r\\n)(Content:(?<Content>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         Matcher matcher;
         SpecItemBuilder specItemBuilder = new SpecItemBuilder();
-        specItemBuilder.setCommit(commit);
         List<SpecItem> specItems = new ArrayList<>();
 
         for (String item: specItemsList) {
