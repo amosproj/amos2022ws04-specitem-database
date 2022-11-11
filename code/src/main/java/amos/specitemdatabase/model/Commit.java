@@ -15,4 +15,8 @@ public class Commit {
     private final String commitMessage;
     private final LocalDate commitTime;
     private final String commitAuthor;
+
+    public static Commit fromString(final String commit) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }
