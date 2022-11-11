@@ -1,7 +1,9 @@
 package amos.specitemdatabase.model;
 
+import lombok.Getter;
 import java.util.List;
 
+@Getter
 public class ProcessedDocument {
 
     private final Commit commit;
@@ -11,13 +13,5 @@ public class ProcessedDocument {
     public ProcessedDocument(final Commit commit, final List<SpecItem> specItems) {
         this.commit = commit;
         this.specItems = specItems;
-    }
-
-    public Commit getCommit() {
-        return this.commit;
-    }
-
-    public List<SpecItem> getSpecItems() {
-        return specItems;
     }
 }
