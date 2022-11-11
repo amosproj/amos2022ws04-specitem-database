@@ -1,13 +1,14 @@
 package amos.specitemdatabase.service;
 
 import amos.specitemdatabase.importer.SpecItemParser;
-import amos.specitemdatabase.model.Commit;
+import amos.specitemdatabase.importer.SpecItemParserInterface;
+import amos.specitemdatabase.model.DocumentEntity;
+import amos.specitemdatabase.model.ProcessedDocument;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemEntity;
+import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,16 +16,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 public class SpecItemService {
     private final SpecItemRepo specItemRepo;
-    private final SpecItemParser specItemParser = new SpecItemParser();
+    private final DocumentRepo documentRepo;
+    private final SpecItemParserInterface specItemParser = new SpecItemParser();
 
     @Autowired
-    public SpecItemService(SpecItemRepo specItemRepo) {
+    public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo) {
         this.specItemRepo = specItemRepo;
+        this.documentRepo = documentRepo;
     }
 
     public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
@@ -51,9 +55,12 @@ public class SpecItemService {
      * @param filename name of the document text file stored in tmp folder
      */
     public void saveDocument(String filename) throws IOException{
-//        String filepath = "./tmp/" + filename;
-//        File file = new File(filepath);
-//        Commit commit, List<SpecItem> specItems = SpecItemParser.splitFileIntoSpecItems(file);
+        String filepath = "./tmp/" + filename;
+        File file = new File(filepath);
+        ProcessedDocument pDoc = specItemParser.fileToSpecItems(file);
+        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecitem).collect(Collectors.toList());
+        DocumentEntity documentEntity = new DocumentEntity(filename, specItemEntities, pDoc.getCommit());
+        documentRepo.save(documentEntity);
     }
     // Test the save method
     // @Bean

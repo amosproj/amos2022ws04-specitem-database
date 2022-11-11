@@ -30,7 +30,7 @@ public class Controller {
      */
     @PostMapping("upload/{filename}")
     public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename,
-                                            @RequestBody String content) {
+                                                  @RequestBody String content) {
         //saving content to a file in /tmp foler
         System.out.println("Get a POST Request");
         File file;
@@ -48,7 +48,7 @@ public class Controller {
         try {
             service.saveDocument(filename);
             file.delete();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

@@ -1,4 +1,8 @@
 package amos.specitemdatabase.importer;
+import amos.specitemdatabase.model.ProcessedDocument;
+import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.SpecItemEntity;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -6,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpecItemParser {
+public class SpecItemParser implements SpecItemParserInterface{
 
     /**
      * Splits a text file into SpecItems in a String format.
@@ -37,5 +41,15 @@ public class SpecItemParser {
         specItemsList.add(stringBuilder.toString());
 
         return specItemsList;
+    }
+
+    @Override
+    public ProcessedDocument fileToSpecItems(File file) {
+        return null;
+    }
+
+    @Override
+    public SpecItemEntity transformSpecitem(SpecItem specItem) {
+        return null;
     }
 }

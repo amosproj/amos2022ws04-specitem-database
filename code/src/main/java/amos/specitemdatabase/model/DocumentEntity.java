@@ -1,9 +1,12 @@
 package amos.specitemdatabase.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Data
 public class DocumentEntity {
 
     @Id
@@ -16,35 +19,16 @@ public class DocumentEntity {
     @OneToMany
     private List<SpecItemEntity> specItemEntities;
 
-    public DocumentEntity(String name, List<SpecItemEntity> specItemEntities) {
+    @ManyToOne
+    private Commit commit;
+
+    public DocumentEntity(String name, List<SpecItemEntity> specItemEntities, Commit commit) {
         this.name = name;
         this.specItemEntities = specItemEntities;
+        this.commit = commit;
     }
 
     public DocumentEntity() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<SpecItemEntity> getSpecItemEntities() {
-        return specItemEntities;
-    }
-
-    public void setSpecItemEntities(List<SpecItemEntity> specItemEntities) {
-        this.specItemEntities = specItemEntities;
-    }
 }
