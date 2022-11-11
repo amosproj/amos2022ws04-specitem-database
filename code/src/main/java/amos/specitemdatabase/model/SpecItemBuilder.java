@@ -17,13 +17,16 @@ import lombok.Getter;
 @Getter
 public class SpecItemBuilder {
 
+    private String fingerprint;
     private String shortName;
     private Category category;
     private LcStatus lcStatus;
-    // TODO: use instead attribute
+
+    private String useInstead;
     private List<String> traceRefs;
     private String longName;
     private String content;
+
     private Commit commit;
 
     public SpecItemBuilder fromStringRepresentation(final String shortName, final String category,
@@ -39,7 +42,6 @@ public class SpecItemBuilder {
 
     /**
      * The builder for setting mandatory fields of a spec item
-     * TODO: Ask the industry partner about the mandatory and optional fields
      * @param fieldToValue a mapping between attributes and their values
      * @return a builder with mandatory fields set
      */
@@ -60,7 +62,7 @@ public class SpecItemBuilder {
     }
 
     public SpecItemBuilder setCommit(final String commit) {
-        // TODO: set a commit
+        this.commit = Commit.fromString(commit);
         return this;
     }
 
