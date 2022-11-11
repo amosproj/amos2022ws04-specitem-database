@@ -59,8 +59,9 @@ public class SpecItemBuilder {
         return this;
     }
 
-    public SpecItemBuilder setCommit(final String commit) {
+    public SpecItemBuilder setCommit(final Commit commit) {
         // TODO: set a commit
+        this.commit = commit;
         return this;
     }
 
