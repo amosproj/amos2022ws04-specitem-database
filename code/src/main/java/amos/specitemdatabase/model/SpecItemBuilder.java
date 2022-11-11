@@ -6,8 +6,11 @@ import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
 import static amos.specitemdatabase.utils.SpecItemConstants.LONG_NAME;
 import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 
 /**
@@ -36,7 +39,7 @@ public class SpecItemBuilder {
         this.category = Category.get(category);
         this.lcStatus = LcStatus.get(lcStatus);
         this.longName = longName;
-        this.content = content;
+        this.content = setContent(content);
         return this;
     }
 
@@ -62,11 +65,23 @@ public class SpecItemBuilder {
     }
 
     public SpecItemBuilder setCommit(final String commit) {
-        this.commit = Commit.fromString(commit);
+        this.commit = Commit.getCommitFromString(commit);
         return this;
     }
 
+    private String setContent(String content) {
+        StringBuilder sb = new StringBuilder();
+        if (!content.isEmpty()) {
+            List<String> splitContent = Arrays.stream(content.split("(--\\|\\|--)")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
 
+            for (String part : splitContent) {
+                sb.append(part);
+                if (splitContent.indexOf(part) != splitContent.size() - 1) {
+                    sb.append(System.lineSeparator());
+                }
+            }
+        }
 
-
+        return sb.toString();
+    }
 }
