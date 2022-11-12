@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import lombok.Data;
 
+import static amos.specitemdatabase.importer.SpecItemParser.restoreWholeText;
+
 /**
  * Represent a single SVN commit.
  */
@@ -19,7 +21,7 @@ public class Commit {
     private final String commitAuthor;
 
     public static Commit getCommitFromString(String commitText) {
-        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\r\\n)(CommitDate: (?<CommitDate>\\S+)\\r\\n)(CommitMsg: (?<CommitMsg>[\\S\\s]+)\\r\\n)(CommitAuthor: (?<CommitAuthor>\\S+))";
+        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\R)(CommitDate: (?<CommitDate>\\S+)\\R)(CommitMsg: (?<CommitMsg>[\\S ]+)\\R)(CommitAuthor: (?<CommitAuthor>\\S+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(commitText);
         matcher.find();
@@ -27,7 +29,7 @@ public class Commit {
 
         return new Commit(
                 matcher.group("CommitHash"),
-                matcher.group("CommitMsg"),
+                restoreWholeText(matcher.group("CommitMsg")),
                 LocalDate.parse(matcher.group("CommitDate"),formatter),
                 matcher.group("CommitAuthor"));
     }

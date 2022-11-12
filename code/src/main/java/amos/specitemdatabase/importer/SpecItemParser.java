@@ -3,9 +3,11 @@ import amos.specitemdatabase.model.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static amos.specitemdatabase.model.Commit.getCommitFromString;
 
@@ -34,8 +36,13 @@ public class SpecItemParser implements SpecItemParserInterface{
                 stringBuilder.delete(0, stringBuilder.length());
             }
 
-            if (currentLine.contains("Content:")) {
+            if (currentLine.contains("Content:") || currentLine.contains("CommitMsg:")) {
                 delimiter = "--||--";
+            }
+            else if (currentLine.contains("CommitAuthor:")) {
+                stringBuilder.delete(stringBuilder.length() - delimiter.length(), stringBuilder.length());
+                delimiter = System.lineSeparator();
+                stringBuilder.append(delimiter);
             }
 
             stringBuilder.append(currentLine);
@@ -52,7 +59,7 @@ public class SpecItemParser implements SpecItemParserInterface{
     }
 
     private List<SpecItem> getSpecItemsFromString(List<String> specItemsList){
-        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\r\\n)(ShortName: (?<ShortName>\\w+)\\r\\n)(Category:  (?<Category>\\w+)\\r\\n)(LC-Status: (?<LCStatus>\\w+)\\r\\n)(UseInstead:(?<UseInstead>[\\S ]*)\\r\\n)(TraceRefs: (?<TraceRefs>[\\S ]+)\\r\\n)(LongName:  (?<LongName>[\\S ]+)\\r\\n)(Content:(?<Content>[\\S ]+))";
+        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\R)(ShortName: (?<ShortName>\\w+)\\R)(Category:  (?<Category>\\w+)\\R)(LC-Status: (?<LCStatus>\\w+)\\R)(UseInstead:(?<UseInstead>[\\S ]*)\\R)(TraceRefs: (?<TraceRefs>[\\S ]+)\\R)(LongName:  (?<LongName>[\\S ]+)\\R)(Content:(?<Content>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         Matcher matcher;
         SpecItemBuilder specItemBuilder = new SpecItemBuilder();
@@ -74,6 +81,22 @@ public class SpecItemParser implements SpecItemParserInterface{
         }
 
         return specItems;
+    }
+
+    public static String restoreWholeText(String content) {
+        StringBuilder sb = new StringBuilder();
+        if (!content.isEmpty()) {
+            List<String> splitContent = Arrays.stream(content.split("(--\\|\\|--)")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
+
+            for (String part : splitContent) {
+                sb.append(part);
+                if (splitContent.indexOf(part) != splitContent.size() - 1) {
+                    sb.append(System.lineSeparator());
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
     @Override

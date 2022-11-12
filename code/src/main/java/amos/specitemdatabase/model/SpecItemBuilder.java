@@ -1,15 +1,14 @@
 package amos.specitemdatabase.model;
 
+import static amos.specitemdatabase.importer.SpecItemParser.restoreWholeText;
 import static amos.specitemdatabase.utils.SpecItemConstants.CATEGORY;
 import static amos.specitemdatabase.utils.SpecItemConstants.CONTENT;
 import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
 import static amos.specitemdatabase.utils.SpecItemConstants.LONG_NAME;
 import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 
@@ -70,18 +69,6 @@ public class SpecItemBuilder {
     }
 
     private String setContent(String content) {
-        StringBuilder sb = new StringBuilder();
-        if (!content.isEmpty()) {
-            List<String> splitContent = Arrays.stream(content.split("(--\\|\\|--)")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
-
-            for (String part : splitContent) {
-                sb.append(part);
-                if (splitContent.indexOf(part) != splitContent.size() - 1) {
-                    sb.append(System.lineSeparator());
-                }
-            }
-        }
-
-        return sb.toString();
+        return restoreWholeText(content);
     }
 }
