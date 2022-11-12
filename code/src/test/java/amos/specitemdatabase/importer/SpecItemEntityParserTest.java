@@ -20,6 +20,7 @@ public class SpecItemEntityParserTest {
 
         File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "testfile.txt");
         ProcessedDocument specItemsDoc = specItemParser.processFile(file);
+        String systemNewLine = System.lineSeparator();
 
         Assertions.assertEquals("#asdf", specItemsDoc.getCommit().getCommitHash(), "CommitHash is incorrect");
         Assertions.assertEquals("2022-02-12", specItemsDoc.getCommit().getCommitTime().toString(), "CommitDate is incorrect");
@@ -31,7 +32,7 @@ public class SpecItemEntityParserTest {
         Assertions.assertEquals(Category.CONSTRAINT_ITEM, specItemsDoc.getSpecItems().get(0).getCategory(), "Category is incorrect");
         Assertions.assertEquals(LcStatus.STATUS1, specItemsDoc.getSpecItems().get(0).getLcStatus(), "LC-Status is incorrect");
         Assertions.assertEquals("bla bla bla", specItemsDoc.getSpecItems().get(0).getLongName(), "LongName is incorrect");
-        Assertions.assertEquals("fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g\r\n" +
+        Assertions.assertEquals("fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g" + systemNewLine +
                 "dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;", specItemsDoc.getSpecItems().get(0).getContent(), "Content is incorrect");
 
     }
