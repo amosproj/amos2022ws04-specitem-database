@@ -7,8 +7,7 @@ import java.util.List;
 public class ProcessedDocument {
 
     private final Commit commit;
-
-    private final List<SpecItem> specItems;
+    private final List<SpecItem> specItems; // or List<Map<String, String>
 
     public ProcessedDocument(final Commit commit, final List<SpecItem> specItems) {
         this.commit = commit;

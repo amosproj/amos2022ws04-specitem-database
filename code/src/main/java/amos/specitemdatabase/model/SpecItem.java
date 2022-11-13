@@ -3,22 +3,30 @@ package amos.specitemdatabase.model;
 import java.util.List;
 import lombok.Getter;
 
+import javax.persistence.*;
+
 /**
  * Represents a SpecItem together with the corresponding commit information.
  */
 @Getter
+@Entity
 public class SpecItem {
 
-    private final String fingerprint;
-    private final String shortName;
-    private final Category category;
-    private final LcStatus lcStatus;
-
-    private final String useInstead;
-    private final List<String> traceRefs;
-    private final String longName;
-    private final String content;
-    private final Commit commit;
+    private String fingerprint;
+    @Id
+    private String shortName;
+    @Enumerated(EnumType.ORDINAL)
+    private Category category;
+    @Enumerated(EnumType.ORDINAL)
+    private LcStatus lcStatus;
+    private String useInstead;
+    @ElementCollection
+    private List<String> traceRefs;
+    private String longName;
+    @Column(nullable = false)
+    private String content;
+    @ManyToOne
+    private Commit commit;
 
     private short version;
 
@@ -34,4 +42,7 @@ public class SpecItem {
         this.commit = specItemBuilder.getCommit();
     }
 
+    public SpecItem() {
+
+    }
 }
