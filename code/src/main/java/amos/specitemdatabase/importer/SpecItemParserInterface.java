@@ -1,13 +1,13 @@
 package amos.specitemdatabase.importer;
 
-import amos.specitemdatabase.model.ProcessedDocument;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemEntity;
+import amos.specitemdatabase.model.ProcessedDocument;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
 
 public interface SpecItemParserInterface {
-    ProcessedDocument fileToSpecItems(File file);
-    SpecItemEntity transformSpecitem(SpecItem specItem);
+    ProcessedDocument processFile(File file) throws IOException;
+    SpecItemEntity transformSpecItem(SpecItem specItem);
 }
