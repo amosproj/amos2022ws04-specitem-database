@@ -1,5 +1,6 @@
 package amos.specitemdatabase.model;
 
+import static amos.specitemdatabase.importer.SpecItemParser.restoreWholeText;
 import static amos.specitemdatabase.utils.SpecItemConstants.CATEGORY;
 import static amos.specitemdatabase.utils.SpecItemConstants.CONTENT;
 import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
@@ -8,6 +9,7 @@ import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
 
 import java.util.List;
 import java.util.Map;
+
 import lombok.Getter;
 
 /**
@@ -36,7 +38,7 @@ public class SpecItemBuilder {
         this.category = Category.get(category);
         this.lcStatus = LcStatus.get(lcStatus);
         this.longName = longName;
-        this.content = content;
+        this.content = setContent(content);
         return this;
     }
 
@@ -62,11 +64,11 @@ public class SpecItemBuilder {
     }
 
     public SpecItemBuilder setCommit(final String commit) {
-        this.commit = Commit.fromString(commit);
+        this.commit = Commit.getCommitFromString(commit);
         return this;
     }
 
-
-
-
+    private String setContent(String content) {
+        return restoreWholeText(content);
+    }
 }
