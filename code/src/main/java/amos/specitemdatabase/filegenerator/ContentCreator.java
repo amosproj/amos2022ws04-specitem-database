@@ -1,6 +1,8 @@
 package amos.specitemdatabase.filegenerator;
 
-public interface ContentCreator {
+import java.util.function.Supplier;
 
-    String createContent(ContentRequirement contentRequirement);
+public interface ContentCreator extends Supplier<String> {
+
+    String createContent();
 }

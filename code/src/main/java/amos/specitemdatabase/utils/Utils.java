@@ -8,7 +8,7 @@ public class Utils {
         throw new UnsupportedOperationException("This should not be instantiated");
     }
 
-    private static class RandomEnumOfType<E extends Enum<E>> {
+    public static class RandomEnumOfType<E extends Enum<E>> {
 
         private static final Random RANDOM = new Random();
         private final E[] values;

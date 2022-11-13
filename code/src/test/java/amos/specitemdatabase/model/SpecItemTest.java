@@ -21,7 +21,7 @@ public class SpecItemTest {
 
         Assertions.assertThat(specItem.getShortName()).isEqualTo("ID1");
         Assertions.assertThat(specItem.getLcStatus()).isEqualTo(LcStatus.STATUS1);
-        Assertions.assertThat(specItem.getCategory()).isEqualTo(Category.CONSTRAINT_ITEM);
+        Assertions.assertThat(specItem.getCategory()).isEqualTo(Category.CATEGORY1);
         Assertions.assertThat(specItem.getLongName()).isEqualTo("LongName1");
         Assertions.assertThat(specItem.getContent()).isEqualTo("Content1");
     }
