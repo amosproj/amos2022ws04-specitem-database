@@ -3,8 +3,8 @@ package amos.specitemdatabase.filegenerator;
 import amos.specitemdatabase.exception.InternalException;
 import amos.specitemdatabase.model.Commit;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,10 +39,10 @@ public class FileGeneratorService implements FileGenerator {
         // Step 2: Generate a commit.
         final Commit commit = this.commitProvider.generateCommit();
         // Step 3: Create a given number of complete spec items
-        final List<Map<String, String>> completeSpecItems =
+        final List<LinkedHashMap<String, String>> completeSpecItems =
             this.specItemProvider.generateSpecItems(true, numberOfCompleteSpecItems);
         // Step 4: Create a given number of updated (incomplete) spec items
-        final List<Map<String, String>> updatedSpecItems =
+        final List<LinkedHashMap<String, String>> updatedSpecItems =
             this.specItemProvider.generateSpecItems(false, numberOfUpdatedSpecItems);
         // Step 5: Write to a file
         writerService.writeToFile(targetFile, commit, completeSpecItems, updatedSpecItems);

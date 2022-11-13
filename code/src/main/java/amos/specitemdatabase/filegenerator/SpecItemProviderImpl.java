@@ -18,6 +18,7 @@ import amos.specitemdatabase.utils.Utils;
 import com.github.javafaker.Faker;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -64,15 +65,15 @@ public class SpecItemProviderImpl implements SpecItemProvider {
     }
 
     @Override
-    public List<Map<String, String>> generateSpecItems(final boolean complete, final int numberOfSpecItems) {
-        List<Map<String, String>> generatedSpecItems = new ArrayList<>();
+    public List<LinkedHashMap<String, String>> generateSpecItems(final boolean complete, final int numberOfSpecItems) {
+        List<LinkedHashMap<String, String>> generatedSpecItems = new ArrayList<>();
         IntStream.range(0, numberOfSpecItems).forEach(
             value -> SpecItemProviderImpl.this.generate(value, complete, generatedSpecItems));
         return generatedSpecItems;
     }
 
     private void generate(final int value, final boolean complete,
-                          final List<Map<String, String>> generatedSpecItems) {
+                          final List<LinkedHashMap<String, String>> generatedSpecItems) {
         if (complete) {
             generateCompleteSpecItem(value, generatedSpecItems);
         } else {
@@ -80,20 +81,20 @@ public class SpecItemProviderImpl implements SpecItemProvider {
         }
     }
 
-    private void generateCompleteSpecItem(final int value, final List<Map<String, String>> generatedSpecItems) {
-        generatedSpecItems.add(Map.of(
-            FINGERPRINT, attributeToGenerationLogic.get(FINGERPRINT).get(),
-            SHORT_NAME, attributeToGenerationLogic.get(SHORT_NAME).get() + value,
-            CATEGORY, attributeToGenerationLogic.get(CATEGORY).get(),
-            LC_STATUS, attributeToGenerationLogic.get(LC_STATUS).get(),
-            USE_INSTEAD, attributeToGenerationLogic.get(USE_INSTEAD).get(),
-            TRACE_REFS, attributeToGenerationLogic.get(TRACE_REFS).get(),
-            LONG_NAME, attributeToGenerationLogic.get(LONG_NAME).get(),
-            CONTENT, attributeToGenerationLogic.get(CONTENT).get()
-        ));
+    private void generateCompleteSpecItem(final int value, final List<LinkedHashMap<String, String>> generatedSpecItems) {
+        LinkedHashMap<String, String> specItem = new LinkedHashMap<>();
+        specItem.put(FINGERPRINT, attributeToGenerationLogic.get(FINGERPRINT).get());
+        specItem.put(SHORT_NAME, attributeToGenerationLogic.get(SHORT_NAME).get() + value);
+        specItem.put(CATEGORY, attributeToGenerationLogic.get(CATEGORY).get());
+        specItem.put(LC_STATUS, attributeToGenerationLogic.get(LC_STATUS).get());
+        specItem.put(USE_INSTEAD, attributeToGenerationLogic.get(USE_INSTEAD).get());
+        specItem.put(TRACE_REFS, attributeToGenerationLogic.get(TRACE_REFS).get());
+        specItem.put(LONG_NAME, attributeToGenerationLogic.get(LONG_NAME).get());
+        specItem.put(CONTENT, attributeToGenerationLogic.get(CONTENT).get());
+        generatedSpecItems.add(specItem);
     }
 
-    private void generateUpdatedSpecItem(final List<Map<String, String>> generatedSpecItems) {
+    private void generateUpdatedSpecItem(final List<LinkedHashMap<String, String>> generatedSpecItems) {
         // Generate mandatory fields
         final String fingerprint;
         final String shortName;
@@ -107,20 +108,20 @@ public class SpecItemProviderImpl implements SpecItemProvider {
         final String firstAttributeToUpdate = SPEC_ITEM_UPDATEABLE_ATTRIBUTES.get(twoRandomInts.get(0));
         final String secondAttributeToUpdate = SPEC_ITEM_UPDATEABLE_ATTRIBUTES.get(twoRandomInts.get(1));
 
-        Map<String, String> skeleton = new HashMap<>(Map.of(
-            FINGERPRINT, attributeToGenerationLogic.get(FINGERPRINT).get(),
-            SHORT_NAME, attributeToGenerationLogic.get(SHORT_NAME).get() + RANDOM.nextInt(100),
-            CATEGORY, "",
-            LC_STATUS, "",
-            USE_INSTEAD, "",
-            TRACE_REFS, "",
-            LONG_NAME, "",
-            CONTENT, ""));
+        LinkedHashMap<String, String> specItem = new LinkedHashMap<>();
+        specItem.put(FINGERPRINT, attributeToGenerationLogic.get(FINGERPRINT).get());
+        specItem.put(SHORT_NAME, attributeToGenerationLogic.get(SHORT_NAME).get() + RANDOM.nextInt(100));
+        specItem.put(CATEGORY, "");
+        specItem.put(LC_STATUS, "");
+        specItem.put(USE_INSTEAD, "");
+        specItem.put(TRACE_REFS, "");
+        specItem.put(LONG_NAME, "");
+        specItem.put(CONTENT, "");
 
-        skeleton.put(firstAttributeToUpdate, attributeToGenerationLogic.get(firstAttributeToUpdate).get());
-        skeleton.put(secondAttributeToUpdate, attributeToGenerationLogic.get(secondAttributeToUpdate).get());
+        specItem.put(firstAttributeToUpdate, attributeToGenerationLogic.get(firstAttributeToUpdate).get());
+        specItem.put(secondAttributeToUpdate, attributeToGenerationLogic.get(secondAttributeToUpdate).get());
 
-        generatedSpecItems.add(skeleton);
+        generatedSpecItems.add(specItem);
     }
 
     private String generateFingerprint() {

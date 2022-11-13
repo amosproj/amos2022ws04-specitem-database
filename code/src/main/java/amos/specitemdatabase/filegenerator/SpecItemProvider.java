@@ -1,12 +1,8 @@
 package amos.specitemdatabase.filegenerator;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public interface SpecItemProvider {
-
-
-    List<Map<String, String>> generateSpecItems(boolean complete, int numberOfSpecItems);
-
-
+    List<LinkedHashMap<String, String>> generateSpecItems(boolean complete, int numberOfSpecItems);
 }

@@ -1,5 +1,6 @@
 package amos.specitemdatabase.filegenerator;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
@@ -19,7 +20,7 @@ public class SpecItemProviderTest {
     @Test
     public void testSpecItemProvider() {
         this.specItemProvider.initSuppliers();
-        final List<Map<String, String>> specItems =
+        final List<LinkedHashMap<String, String>> specItems =
             this.specItemProvider.generateSpecItems(true, 2);
         Assertions.assertThat(specItems).hasSize(2);
     }
@@ -27,7 +28,7 @@ public class SpecItemProviderTest {
     @Test
     public void testIfUpdatedSpecHasFourFieldsNonEmpty() {
         this.specItemProvider.initSuppliers();
-        final List<Map<String, String>> specItems =
+        final List<LinkedHashMap<String, String>> specItems =
             this.specItemProvider.generateSpecItems(false, 2);
         Assertions.assertThat(specItems).hasSize(2);
         int emptyFields = (int) specItems.get(0).values().stream().filter(String::isEmpty).count();

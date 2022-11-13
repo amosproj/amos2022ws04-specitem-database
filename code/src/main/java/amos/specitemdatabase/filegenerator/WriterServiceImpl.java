@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +49,9 @@ public class WriterServiceImpl implements WriterService {
     }
 
     @Override
-    public void writeToFile(final File file, final Commit commit, final List<Map<String, String>> completeSpecItems,
-                            final List<Map<String, String>> updatedSpecItems) {
+    public void writeToFile(final File file, final Commit commit,
+                            final List<LinkedHashMap<String, String>> completeSpecItems,
+                            final List<LinkedHashMap<String, String>> updatedSpecItems) {
 
         try (final BufferedWriter writer = Files.newBufferedWriter(Paths.get(file.toURI()))) {
             writer.write(commit.toString());
@@ -67,7 +69,7 @@ public class WriterServiceImpl implements WriterService {
         }
     }
 
-    public String convertMap(final Map<String, String> specItem) {
+    public String convertMap(final LinkedHashMap<String, String> specItem) {
         final StringBuilder mapAsString = new StringBuilder();
         for (Map.Entry<String, String> entry : specItem.entrySet()) {
             mapAsString
@@ -81,9 +83,10 @@ public class WriterServiceImpl implements WriterService {
     }
 
     private void writeSpecItems(final BufferedWriter writer,
-                                        final List<Map<String, String>> completeSpecItems) throws IOException {
-        for (final Map<String, String> specItem: completeSpecItems) {
+                                        final List<LinkedHashMap<String, String>> completeSpecItems) throws IOException {
+        for (final LinkedHashMap<String, String> specItem: completeSpecItems) {
             writer.write(convertMap(specItem));
+            writeNewLines(writer);
         }
     }
 }
