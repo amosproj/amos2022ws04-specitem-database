@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileGeneratorService implements FileGenerator {
 
-    private static final short NUMBER_OF_LINES_BETWEEN_ITEMS = 4;
     private final WriterService writerService;
     private final SpecItemProvider specItemProvider;
     private final CommitProvider commitProvider;
@@ -30,8 +29,8 @@ public class FileGeneratorService implements FileGenerator {
     }
 
     @Override
-    public void generateFile(final String name, final short numberOfCompleteSpecItems,
-                             final short numberOfUpdatedSpecItems) {
+    public File generateAndGetFile(final String name, final int numberOfCompleteSpecItems,
+                             final int numberOfUpdatedSpecItems) {
 
         this.validateInput(name, numberOfCompleteSpecItems, numberOfUpdatedSpecItems);
         // Step 1: Create a target text file in the resources folder.
@@ -45,22 +44,31 @@ public class FileGeneratorService implements FileGenerator {
         // Step 4: Create a given number of updated (incomplete) spec items
         final List<Map<String, String>> updatedSpecItems =
             this.specItemProvider.generateSpecItems(false, numberOfUpdatedSpecItems);
+        // Step 5: Write to a file
+        writerService.writeToFile(targetFile, commit, completeSpecItems, updatedSpecItems);
+        // Step 6: Return the newly created file
+        return targetFile;
+    }
 
+    @Override
+    public void generateFile(final String name, final int numberOfCompleteSpecItems,
+                                   final int numberOfUpdatedSpecItems) {
+        this.generateAndGetFile(name, numberOfCompleteSpecItems, numberOfUpdatedSpecItems);
     }
 
     private void validateInput(final String name, final int numberOfCompleteSpecItems,
                                final int numberOfUpdatedSpecItems) {
 
         boolean inputCorrect = true;
-        if (name.length() < 50) {
+        if (name.length() > 50) {
             log.debug("The name of the file is too long. The max. length is 50");
             inputCorrect = false;
         }
-        if (numberOfCompleteSpecItems < 100) {
+        if (numberOfCompleteSpecItems > 100) {
             log.debug("You can generate a maximum of 100 complete spec items at once.");
             inputCorrect = false;
         }
-        if (numberOfUpdatedSpecItems < 100) {
+        if (numberOfUpdatedSpecItems > 100) {
             log.debug("You can generate a maximum of 100 updated spec items at once.");
             inputCorrect = false;
         }

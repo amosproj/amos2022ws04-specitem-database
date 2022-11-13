@@ -1,5 +1,7 @@
 package amos.specitemdatabase.filegenerator;
 
+import java.io.File;
+
 /**
  * Generates a .txt file that represents a commit,
  * which might contain both complete and incomplete spec items.
@@ -16,8 +18,11 @@ public interface FileGenerator {
      * @param numberOfUpdatedSpecItems The number of incomplete spec items might imitate a commit
      *                                that only updates a part of the spec item, for example, its content.
      */
-    void generateFile(final String name, final short numberOfCompleteSpecItems,
-                      final short numberOfUpdatedSpecItems);
+    void generateFile(final String name, final int numberOfCompleteSpecItems,
+                      final int numberOfUpdatedSpecItems);
+
+    File generateAndGetFile(final String name, final int numberOfCompleteSpecItems,
+                            final int numberOfUpdatedSpecItems);
 
 
 

@@ -10,7 +10,7 @@ public class ContentCreatorImpl implements ContentCreator {
 
     @Override
     public String createContent() {
-        return null;
+        return "";
     }
 
     @Override
