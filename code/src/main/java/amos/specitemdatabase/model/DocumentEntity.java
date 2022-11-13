@@ -16,15 +16,15 @@ public class DocumentEntity {
     @Column(name="document_name", length = 50, nullable=false, unique=false)
     private String name;
 
-    @OneToMany
-    private List<SpecItemEntity> specItemEntities;
+    @OneToMany(cascade = {CascadeType.ALL})
+    private List<SpecItem> specItem;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.ALL})
     private Commit commit;
 
-    public DocumentEntity(String name, List<SpecItemEntity> specItemEntities, Commit commit) {
+    public DocumentEntity(String name, List<SpecItem> specItem, Commit commit) {
         this.name = name;
-        this.specItemEntities = specItemEntities;
+        this.specItem = specItem;
         this.commit = commit;
     }
 

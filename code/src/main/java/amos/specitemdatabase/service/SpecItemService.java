@@ -57,9 +57,9 @@ public class SpecItemService {
     public void saveDocument(String filename) throws IOException{
         String filepath = "./tmp/" + filename;
         File file = new File(filepath);
-        ProcessedDocument pDoc = specItemParser.fileToSpecItems(file);
-        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecitem).collect(Collectors.toList());
-        DocumentEntity documentEntity = new DocumentEntity(filename, specItemEntities, pDoc.getCommit());
+        ProcessedDocument pDoc = specItemParser.processFile(file);
+//        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecItem).collect(Collectors.toList());
+        DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
         documentRepo.save(documentEntity);
     }
     // Test the save method
