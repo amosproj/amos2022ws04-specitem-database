@@ -3,6 +3,7 @@ package amos.specitemdatabase.filegenerator;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +18,20 @@ public class SpecItemProviderTest {
 
     @Test
     public void testSpecItemProvider() {
-        specItemProvider.initSuppliers();
-        List<Map<String, String>> specItems =
+        this.specItemProvider.initSuppliers();
+        final List<Map<String, String>> specItems =
             this.specItemProvider.generateSpecItems(true, 2);
         Assertions.assertThat(specItems).hasSize(2);
+    }
 
+    @Test
+    public void testIfUpdatedSpecHasFourFieldsNonEmpty() {
+        this.specItemProvider.initSuppliers();
+        final List<Map<String, String>> specItems =
+            this.specItemProvider.generateSpecItems(false, 2);
+        Assertions.assertThat(specItems).hasSize(2);
+        int emptyFields = (int) specItems.get(0).values().stream().filter(String::isEmpty).count();
+        Assertions.assertThat(emptyFields).isEqualTo(4);
     }
 
     private ContentCreator getMockedContentCreator() {

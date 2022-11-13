@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 public class SpecItemProviderImpl implements SpecItemProvider {
 
     private static final String SPEC_ITEM_PREFIX = "SpecItem_";
+    private static final int NUMBER_OF_UPDATED_ATTRIBUTES = 2;
     private static final Utils.RandomEnumOfType<Category> CATEGORY_DRAWER =
         new Utils.RandomEnumOfType<>(Category.class);
 
@@ -75,7 +76,7 @@ public class SpecItemProviderImpl implements SpecItemProvider {
         if (complete) {
             generateCompleteSpecItem(value, generatedSpecItems);
         } else {
-            generateUpdatedSpecItem(value, generatedSpecItems);
+            generateUpdatedSpecItem(generatedSpecItems);
         }
     }
 
@@ -92,16 +93,34 @@ public class SpecItemProviderImpl implements SpecItemProvider {
         ));
     }
 
-    private void generateUpdatedSpecItem(final int value, final List<Map<String, String>> generatedSpecItems) {
+    private void generateUpdatedSpecItem(final List<Map<String, String>> generatedSpecItems) {
         // Generate mandatory fields
         final String fingerprint;
         final String shortName;
         // Choose two fields at random that will be updated
-        final List<Integer> twoRandomInts = Stream.generate(RANDOM::ints)
-            .flatMap(IntStream::boxed)
+        final List<Integer> twoRandomInts = Stream.generate(() ->
+                RANDOM.nextInt(SPEC_ITEM_UPDATEABLE_ATTRIBUTES.size()))
             .distinct()
-            .limit(SPEC_ITEM_UPDATEABLE_ATTRIBUTES.size()) // whatever limit you might need
+            .limit(NUMBER_OF_UPDATED_ATTRIBUTES) // whatever limit you might need
             .collect(Collectors.toList());
+
+        final String firstAttributeToUpdate = SPEC_ITEM_UPDATEABLE_ATTRIBUTES.get(twoRandomInts.get(0));
+        final String secondAttributeToUpdate = SPEC_ITEM_UPDATEABLE_ATTRIBUTES.get(twoRandomInts.get(1));
+
+        Map<String, String> skeleton = new HashMap<>(Map.of(
+            FINGERPRINT, attributeToGenerationLogic.get(FINGERPRINT).get(),
+            SHORT_NAME, attributeToGenerationLogic.get(SHORT_NAME).get() + RANDOM.nextInt(100),
+            CATEGORY, "",
+            LC_STATUS, "",
+            USE_INSTEAD, "",
+            TRACE_REFS, "",
+            LONG_NAME, "",
+            CONTENT, ""));
+
+        skeleton.put(firstAttributeToUpdate, attributeToGenerationLogic.get(firstAttributeToUpdate).get());
+        skeleton.put(secondAttributeToUpdate, attributeToGenerationLogic.get(secondAttributeToUpdate).get());
+
+        generatedSpecItems.add(skeleton);
     }
 
     private String generateFingerprint() {
@@ -141,7 +160,7 @@ public class SpecItemProviderImpl implements SpecItemProvider {
     }
 
     private String generateLongName() {
-        return String.join(",", FAKER.lorem().words(RANDOM.nextInt(
+        return String.join(" ", FAKER.lorem().words(RANDOM.nextInt(
             GENERATED_LONG_NAME_MAX_LEN - GENERATED_LONG_NAME_MIN_LEN + 1)
             + GENERATED_LONG_NAME_MIN_LEN));
     }
