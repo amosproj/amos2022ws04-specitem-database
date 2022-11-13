@@ -7,9 +7,10 @@ import java.util.Map;
 
 public enum Category {
 
-    // TODO: find out what are the values; could we use them?
-    CONSTRAINT_ITEM("CONSTRAINT_ITEM"),
-    UNCONSTRAINED_ITEM("UNCONSTRAINED_ITEM");
+    CATEGORY1("Category1"),
+    CATEGORY2("Category2"),
+    CATEGORY3("Category3"),
+    CATEGORY4("Category4");
 
     private final String name;
 

@@ -56,4 +56,15 @@ public class Commit {
                 LocalDate.parse(matcher.group("CommitDate"),formatter),
                 matcher.group("CommitAuthor"));
     }
+
+    @Override
+    public String toString() {
+        return
+            "CommitHash: " + commitHash + "\n" +
+            "CommitDate: " + commitTime.toString() + "\n" +
+            "CommitMsg: " + commitMessage + "\n" +
+            "CommitAuthor: " + commitAuthor + "\n";
+    }
+
+
 }
