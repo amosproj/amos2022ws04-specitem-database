@@ -5,6 +5,7 @@ import java.util.Map;
 
 public interface SpecItemProvider {
 
+
     List<Map<String, String>> generateSpecItems(boolean complete, short numberOfSpecItems);
 
 

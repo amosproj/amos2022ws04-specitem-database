@@ -1,5 +1,6 @@
 package amos.specitemdatabase.filegenerator;
 
+import amos.specitemdatabase.exception.InternalException;
 import amos.specitemdatabase.model.Commit;
 import java.io.File;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileGeneratorService implements FileGenerator {
 
+    private static final short NUMBER_OF_LINES_BETWEEN_ITEMS = 4;
     private final WriterService writerService;
     private final SpecItemProvider specItemProvider;
     private final CommitProvider commitProvider;
@@ -28,44 +30,42 @@ public class FileGeneratorService implements FileGenerator {
     }
 
     @Override
-    public void generateFile(final String name, final short numberOfCompleteSpecItems, final short numberOfUpdatedSpecItems,
-                             final short contentNewLines, final short contentMaxLineLen, final char[] contentDelimiters) {
+    public void generateFile(final String name, final short numberOfCompleteSpecItems,
+                             final short numberOfUpdatedSpecItems) {
 
-        validateInput(name, numberOfCompleteSpecItems, numberOfUpdatedSpecItems, contentNewLines,
-            contentMaxLineLen, contentDelimiters);
-
+        this.validateInput(name, numberOfCompleteSpecItems, numberOfUpdatedSpecItems);
         // Step 1: Create a target text file in the resources folder.
         // SpecItems will be written to this file.
         final File targetFile = this.writerService.createOutputFile(name);
-        // Step 2: Create a given number of complete spec items
+        // Step 2: Generate a commit.
+        final Commit commit = this.commitProvider.generateCommit();
+        // Step 3: Create a given number of complete spec items
         final List<Map<String, String>> completeSpecItems =
             this.specItemProvider.generateSpecItems(true, numberOfCompleteSpecItems);
-        // Step 3: Create a given number of updated (incomplete) spec items
+        // Step 4: Create a given number of updated (incomplete) spec items
         final List<Map<String, String>> updatedSpecItems =
             this.specItemProvider.generateSpecItems(false, numberOfUpdatedSpecItems);
-        final Commit commit = this.commitProvider.generateCommit();
-
-
-
 
     }
 
     private void validateInput(final String name, final int numberOfCompleteSpecItems,
-                               final int numberOfUpdatedSpecItems, final int contentNewLines,
-                               final int maxContentLineLen,
-                               final char[] contentDelimiters) {
+                               final int numberOfUpdatedSpecItems) {
 
-        log.debug("Validating the provided input. See the docs for the range of allowed values.");
-        assert name.length() < 50;
-        assert numberOfCompleteSpecItems <= 100;
-        assert numberOfUpdatedSpecItems <= 100;
-        assert contentNewLines < 30;
-        assert maxContentLineLen < 120;
-        if (!String.valueOf(contentDelimiters).matches("^[\\t\\n\\r\\f\\v!@#$%^&*]+$")) {
-            String errorMessage = "The list of allowed delimiters is " + "^[\\t\\n\\r\\f\\v!@#$%^&*]+$";
-            throw new AssertionError(errorMessage);
+        boolean inputCorrect = true;
+        if (name.length() < 50) {
+            log.debug("The name of the file is too long. The max. length is 50");
+            inputCorrect = false;
+        }
+        if (numberOfCompleteSpecItems < 100) {
+            log.debug("You can generate a maximum of 100 complete spec items at once.");
+            inputCorrect = false;
+        }
+        if (numberOfUpdatedSpecItems < 100) {
+            log.debug("You can generate a maximum of 100 updated spec items at once.");
+            inputCorrect = false;
+        }
+        if (!inputCorrect) {
+            throw new InternalException("Incorrect input.");
         }
     }
-
-
 }

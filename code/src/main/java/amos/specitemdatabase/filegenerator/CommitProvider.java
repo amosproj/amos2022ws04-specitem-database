@@ -6,3 +6,4 @@ public interface CommitProvider {
 
     Commit generateCommit();
 }
+

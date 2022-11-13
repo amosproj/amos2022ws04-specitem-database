@@ -6,10 +6,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
+@Component
 public class WriterServiceImpl implements WriterService {
 
     private static final String RESULTS_FOLDER_RELATIVE = "./specitemfiles";
@@ -37,9 +38,10 @@ public class WriterServiceImpl implements WriterService {
                 outputFile = Paths.get(pathToFile.normalize().toAbsolutePath().toUri()).toFile();
             }
         } catch (IOException e) {
-            throw new
-            log.error("Failed to create a file with name: {}", name);
+            //throw new
+            //log.error("Failed to create a file with name: {}", name);
         }
+        return null;
     }
 
     @Override
