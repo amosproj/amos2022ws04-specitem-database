@@ -61,7 +61,7 @@ public class Commit {
     public String toString() {
         return
             "CommitHash: " + commitHash + "\n" +
-            "CommitData: " + commitTime.toInstant().toString() + "\n" +
+            "CommitDate: " + commitTime.toString() + "\n" +
             "CommitMsg: " + commitMessage + "\n" +
             "CommitAuthor: " + commitAuthor + "\n";
     }

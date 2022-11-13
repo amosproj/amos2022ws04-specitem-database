@@ -26,8 +26,6 @@ public class FileGeneratorServiceTest {
         this.fileGenerator.generateFile(fileName, 2, 3);
         // Now, check if the file was created
         Assertions.assertThat(Files.exists(path));
-
-        // Finally, remove the file so that test can be run multiple times
         //final File file = path.toFile();
         //file.delete();
     }

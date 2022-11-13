@@ -8,7 +8,7 @@ CommitAuthor: asdfasdf
 
 Fingerprint: abc
 ShortName: ID1
-Category:  CONSTRAINT_ITEM
+Category:  Category1
 LC-Status: Status1
 UseInstead:
 TraceRefs: ID2, ID3, ID4
@@ -22,7 +22,7 @@ dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;
 
 Fingerprint: def
 ShortName: ID22
-Category:  UNCONSTRAINED_ITEM
+Category:  Category1
 LC-Status: Status2
 UseInstead:
 TraceRefs: ID2, ID3, ID4
