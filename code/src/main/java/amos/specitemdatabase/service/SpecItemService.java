@@ -1,10 +1,10 @@
 package amos.specitemdatabase.service;
 
+import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
 import amos.specitemdatabase.model.DocumentEntity;
 import amos.specitemdatabase.model.ProcessedDocument;
-import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemEntity;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -24,11 +22,13 @@ public class SpecItemService {
     private final SpecItemRepo specItemRepo;
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
+    private final FileConfig fileConfig;
 
     @Autowired
-    public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo) {
+    public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig) {
         this.specItemRepo = specItemRepo;
         this.documentRepo = documentRepo;
+        this.fileConfig = fileConfig;
     }
 
     public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
@@ -55,7 +55,7 @@ public class SpecItemService {
      * @param filename name of the document text file stored in tmp folder
      */
     public void saveDocument(String filename) throws IOException{
-        String filepath = "./tmp/" + filename;
+        String filepath = fileConfig.getUploadDir() + filename;
         File file = new File(filepath);
         ProcessedDocument pDoc = specItemParser.processFile(file);
 //        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecItem).collect(Collectors.toList());
