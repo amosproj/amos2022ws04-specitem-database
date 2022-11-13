@@ -1,5 +1,6 @@
 package amos.specitemdatabase.filegenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
@@ -15,18 +16,20 @@ public class SpecItemProviderImpl implements SpecItemProvider {
 
     @Override
     public List<Map<String, String>> generateSpecItems(final boolean complete, final short numberOfSpecItems) {
-        return null;
+        List<Map<String, String>> generatedSpecItems = new ArrayList<>();
+
+
+
     }
 
-    private Map.Entry<String, String> generateSpecItem(final boolean complete) {
+    private Map<String, String> generateSpecItem(final boolean complete) {
          return complete ? generateCompleteSpecItem() : generateUpdatedSpecItem();
-
     }
 
-    private Map.Entry<String, String> generateUpdatedSpecItem() {
+    private Map<String, String> generateUpdatedSpecItem() {
     }
 
-    private Map.Entry<String, String> generateCompleteSpecItem() {
+    private Map<String, String> generateCompleteSpecItem() {
 
 
 
