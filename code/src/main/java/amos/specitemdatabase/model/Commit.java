@@ -47,7 +47,7 @@ public class Commit {
     }
 
     public static Commit getCommitFromString(String commitText) {
-        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\R)(CommitDate: (?<CommitDate>\\S+)\\R)(CommitMsg: (?<CommitMsg>[\\S ]+)\\R)(CommitAuthor: (?<CommitAuthor>\\S+))";
+        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\R)(CommitDate: (?<CommitDate>[\\S ]+)\\R)(CommitMsg: (?<CommitMsg>[\\S ]+)\\R)(CommitAuthor: (?<CommitAuthor>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(commitText);
         matcher.find();
@@ -63,7 +63,7 @@ public class Commit {
         final String time =  this.commitTime.format(FORMATTER);
         return
             "CommitHash: " + this.commitHash + "\n" +
-            "CommitDate: " +  time + "\n" +
+            "CommitDate: " + time + "\n" +
             "CommitMsg: " + this.commitMessage + "\n" +
             "CommitAuthor: " + this.commitAuthor + "\n";
     }
