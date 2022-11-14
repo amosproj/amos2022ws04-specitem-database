@@ -23,9 +23,9 @@ public class SpecItemEntityParserTest {
         String systemNewLine = System.lineSeparator();
 
         Assertions.assertEquals("#asdf", specItemsDoc.getCommit().getCommitHash(), "CommitHash is incorrect");
-        Assertions.assertEquals("2022-02-12", specItemsDoc.getCommit().getCommitTime().toString(), "CommitDate is incorrect");
-        Assertions.assertEquals("asdfaf", specItemsDoc.getCommit().getCommitMessage(), "CommitMessage is incorrect");
-        Assertions.assertEquals("asdfasdf", specItemsDoc.getCommit().getCommitAuthor(), "CommitAuthor is incorrect");
+        Assertions.assertEquals("2022-02-12T21:49:13", specItemsDoc.getCommit().getCommitTime().toString(), "CommitDate is incorrect");
+        Assertions.assertEquals("bla bla prank", specItemsDoc.getCommit().getCommitMessage(), "CommitMessage is incorrect");
+        Assertions.assertEquals("Mister Wallace", specItemsDoc.getCommit().getCommitAuthor(), "CommitAuthor is incorrect");
 
         Assertions.assertEquals(2, specItemsDoc.getSpecItems().size(), "SpecItems were not split correctly");
         Assertions.assertEquals("ID1", specItemsDoc.getSpecItems().get(0).getShortName(), "ShortName is incorrect");
