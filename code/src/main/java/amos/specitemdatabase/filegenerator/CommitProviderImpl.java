@@ -2,12 +2,10 @@ package amos.specitemdatabase.filegenerator;
 
 import amos.specitemdatabase.model.Commit;
 import com.github.javafaker.Faker;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 public class CommitProviderImpl implements CommitProvider {

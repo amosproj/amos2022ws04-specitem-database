@@ -1,10 +1,9 @@
 package amos.specitemdatabase.model;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
 
 public class CommitTest {
 

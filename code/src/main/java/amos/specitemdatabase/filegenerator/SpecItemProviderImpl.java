@@ -4,7 +4,6 @@ import static amos.specitemdatabase.utils.SpecItemConstants.CATEGORY;
 import static amos.specitemdatabase.utils.SpecItemConstants.CONTENT;
 import static amos.specitemdatabase.utils.SpecItemConstants.FINGERPRINT;
 import static amos.specitemdatabase.utils.SpecItemConstants.GENERATED_LONG_NAME_MAX_LEN;
-import static amos.specitemdatabase.utils.SpecItemConstants.GENERATED_LONG_NAME_MIN_LEN;
 import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
 import static amos.specitemdatabase.utils.SpecItemConstants.LONG_NAME;
 import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
