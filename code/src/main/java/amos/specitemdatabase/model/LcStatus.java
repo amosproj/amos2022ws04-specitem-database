@@ -8,7 +8,8 @@ public enum LcStatus {
     STATUS1("Status1"),
     STATUS2("Status2"),
     STATUS3("Status3"),
-    STATUS4("Status4");
+    STATUS4("Status4"),
+    EMPTY("");
 
     private final String name;
 

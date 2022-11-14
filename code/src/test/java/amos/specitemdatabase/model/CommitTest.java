@@ -11,7 +11,7 @@ public class CommitTest {
     @Test
     public void testCommitToStr() {
 
-        final LocalDate now = LocalDate.now();
+        final LocalDateTime now = LocalDateTime.now();
 
         final Commit commit = new Commit(
             "hash1",
@@ -21,7 +21,7 @@ public class CommitTest {
         );
 
         final String expected =  "CommitHash: " + "hash1" + "\n" +
-            "CommitData: " + now.toString() + "\n" +
+            "CommitData: " + now + "\n" +
             "CommitMsg: " + "Msg1" + "\n" +
             "CommitAuthor: " + "Max Mustermann" + "\n";
         Assertions.assertThat(commit.toString()).isEqualTo(expected);
