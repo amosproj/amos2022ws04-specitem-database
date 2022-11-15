@@ -53,7 +53,7 @@ public class WriterServiceImpl implements WriterService {
             writer.write(commit.toString());
             writeNewLines(writer);
             writeSpecItems(writer, completeSpecItems);
-            writeSpecItems(writer, updatedSpecItems);
+            //writeSpecItems(writer, updatedSpecItems); For now, we refrain from not completed spec items
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,6 +61,12 @@ public class WriterServiceImpl implements WriterService {
 
     private static void writeNewLines(final BufferedWriter writer) throws IOException {
         for (int i = 0; i < NUMBER_OF_LINES_BETWEEN_ENTRIES; i++) {
+            writer.write(System.getProperty("line.separator"));
+        }
+    }
+
+    private static void writeGivenNumberOfNewLines(final BufferedWriter writer, final int amount) throws IOException {
+        for (int i = 0; i < amount; i++) {
             writer.write(System.getProperty("line.separator"));
         }
     }
@@ -79,9 +85,16 @@ public class WriterServiceImpl implements WriterService {
 
     private void writeSpecItems(final BufferedWriter writer,
                                         final List<LinkedHashMap<String, String>> completeSpecItems) throws IOException {
-        for (final LinkedHashMap<String, String> specItem: completeSpecItems) {
-            writer.write(convertMap(specItem));
-            writeNewLines(writer);
+        for (int i = 0; i < completeSpecItems.size(); i++) {
+            // check if last item
+            if (i == completeSpecItems.size() - 1) {
+                writer.write(convertMap(completeSpecItems.get(i)));
+                writeGivenNumberOfNewLines(writer, NUMBER_OF_LINES_BETWEEN_ENTRIES-1);
+            } else {
+                writer.write(convertMap(completeSpecItems.get(i)));
+                writeNewLines(writer);
+            }
         }
+
     }
 }
