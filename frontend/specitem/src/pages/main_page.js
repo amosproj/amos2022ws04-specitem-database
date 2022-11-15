@@ -16,6 +16,7 @@ export default function MainPage() {
     const [inputVisible, setInputVisible] = useState(false);
     const [docListVisible, setDocListVisible] = useState(false);
     const [file, setFile] = useState(null);
+    
 
     const handleClick = (doc)=>{ 
         setSelectDocument(true);
@@ -30,6 +31,8 @@ export default function MainPage() {
         }
        }
 
+          
+
     return(
         <div>
             {
@@ -39,11 +42,13 @@ export default function MainPage() {
                 {docListVisible &&
                 <div style={{marginTop:'30px'}} className='App-tb'> 
                     <div className='App-tb'>
+                    
                     <table>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
                             <th>Commit</th>
+                            <th></th>
                         </tr>
                         {doclist.map((val,key) => {
                         return (
@@ -51,20 +56,14 @@ export default function MainPage() {
                                     <td>{val.id}</td>
                                     <td>{val.name}</td>
                                     <td>{val.commit}</td>
+                                    <td><button onClick={() => handleClick(val)} > Open </button></td>
                                 </tr>
                                 )
                             })}
                     </table>
                 </div>
-                    <div>
-                        {doclist.map((doc)=>
-                        (<div className='Document'>
-                            <button className='button'  onClick={() => handleClick(doc)}>{doc.name+'_v'+doc.commit}</button>
-                            </div>)
-                        )} 
-                        <div className='Document'>
-                            <button className='button-close' onClick={() => setDocListVisible(false)}> Close</button>
-                        </div>    
+                    <div style={{marginTop: '20px'}}>
+                        <button className='button-close' onClick={() => setDocListVisible(false)}> Close</button>
                     </div>
                     
                 </div>  
@@ -78,18 +77,19 @@ export default function MainPage() {
                     </div>    
                     }
                     {inputVisible &&
-                    <div>
-                        <div>
+                    <div style={{justifyContent:'right', alignItems: 'center',display:'block', width:'600px'}}>
+                        <div style={{marginBottom:'50px',marginTop:'20px', marginLeft:'100px'}}>File to Upload : {file.name}</div>
+                        <div style={{marginLeft:'200px'}}>
                             <label className="custom-file-upload"> 
                                 <input type="file" onChange={handleFileChange}/>
                                 Select file 
                             </label>
                         </div>
                         <div>
-                            <button className='button' onClick={() => setInputVisible(false)}> Upload</button>
+                            <button style={{marginLeft:'200px'}} className='button' onClick={() => setInputVisible(false)}> Upload</button>
                         </div>
                         <div>
-                            <button className='button-close' onClick={() => setInputVisible(false)}> Back</button>
+                            <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}> Back</button>
                         </div>   
                     </div>    
                     }
