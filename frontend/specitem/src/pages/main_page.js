@@ -29,7 +29,22 @@ export default function MainPage() {
           setFile(event.target.files[0])
 
         }
-       }
+    }
+    const onSubmit = async (data) => {
+       
+        const formData = new FormData();
+        
+        formData.append("file", file);
+   
+        for (var pair of formData.entries()) {
+            console.log(pair[0]); 
+        }
+        
+        const res = await fetch("http://localhost:8080/upload/filename", {
+            method: "POST",
+            body: formData,
+        }).then((res) => console.log(res));
+        alert(JSON.stringify(`${res.message}, status: ${res.status}`));};
 
           
 
@@ -86,7 +101,7 @@ export default function MainPage() {
                             </label>
                         </div>
                         <div>
-                            <button style={{marginLeft:'200px'}} className='button' onClick={() => setInputVisible(false)}> Upload</button>
+                            <button style={{marginLeft:'200px'}} className='button' onClick={onSubmit}> Upload</button>
                         </div>
                         <div>
                             <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}> Back</button>
