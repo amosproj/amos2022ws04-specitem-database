@@ -59,7 +59,7 @@ public class SpecItemParser implements SpecItemParserInterface{
     }
 
     private List<SpecItem> getSpecItemsFromString(List<String> specItemsList){
-        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\R)(ShortName: (?<ShortName>\\w+)\\R)(Category:  (?<Category>\\w+)\\R)(LC-Status: (?<LCStatus>\\w+)\\R)(UseInstead:(?<UseInstead>[\\S ]*)\\R)(TraceRefs: (?<TraceRefs>[\\S ]+)\\R)(LongName:  (?<LongName>[\\S ]+)\\R)(Content:(?<Content>[\\S ]+))";
+        final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\R)(ShortName: (?<ShortName>\\w+)\\R)(Category: (?<Category>\\w*)\\R)(LC-Status: (?<LCStatus>\\w*)\\R)(UseInstead: (?<UseInstead>[\\S ]*)\\R)(TraceRefs: (?<TraceRefs>[\\S ]*)\\R)(LongName: (?<LongName>[\\S ]*)\\R)(Content: (?<Content>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         Matcher matcher;
         SpecItemBuilder specItemBuilder = new SpecItemBuilder();

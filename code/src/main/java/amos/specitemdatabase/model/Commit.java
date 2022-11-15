@@ -1,6 +1,7 @@
 package amos.specitemdatabase.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,20 +23,22 @@ import static amos.specitemdatabase.importer.SpecItemParser.restoreWholeText;
 @Entity
 public class Commit {
 
+    private static final DateTimeFormatter FORMATTER
+        = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String commitHash;
     private String commitMessage;
-    private LocalDate commitTime;
+    private LocalDateTime commitTime;
     private String commitAuthor;
 
-    public Commit(String commitHash, String commitMessage, LocalDate commitTime, String commitAuthor) {
+    public Commit(String commitHash, String commitMessage, LocalDateTime commitTime, String commitAuthor) {
         this.commitHash = commitHash;
         this.commitMessage = commitMessage;
         this.commitTime = commitTime;
-
         this.commitAuthor = commitAuthor;
     }
 
@@ -44,26 +47,25 @@ public class Commit {
     }
 
     public static Commit getCommitFromString(String commitText) {
-        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\R)(CommitDate: (?<CommitDate>\\S+)\\R)(CommitMsg: (?<CommitMsg>[\\S ]+)\\R)(CommitAuthor: (?<CommitAuthor>\\S+))";
+        final String regex = "(CommitHash: (?<CommitHash>\\S+)\\R)(CommitDate: (?<CommitDate>[\\S ]+)\\R)(CommitMsg: (?<CommitMsg>[\\S ]+)\\R)(CommitAuthor: (?<CommitAuthor>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         final Matcher matcher = pattern.matcher(commitText);
         matcher.find();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
         return new Commit(
                 matcher.group("CommitHash"),
                 restoreWholeText(matcher.group("CommitMsg")),
-                LocalDate.parse(matcher.group("CommitDate"),formatter),
+                LocalDateTime.parse(matcher.group("CommitDate"), FORMATTER),
                 matcher.group("CommitAuthor"));
     }
 
     @Override
     public String toString() {
+        final String time =  this.commitTime.format(FORMATTER);
         return
-            "CommitHash: " + commitHash + "\n" +
-            "CommitDate: " + commitTime.toString() + "\n" +
-            "CommitMsg: " + commitMessage + "\n" +
-            "CommitAuthor: " + commitAuthor + "\n";
+            "CommitHash: " + this.commitHash + "\n" +
+            "CommitDate: " + time + "\n" +
+            "CommitMsg: " + this.commitMessage + "\n" +
+            "CommitAuthor: " + this.commitAuthor + "\n";
     }
 
 
