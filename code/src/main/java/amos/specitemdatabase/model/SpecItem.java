@@ -3,33 +3,46 @@ package amos.specitemdatabase.model;
 import java.util.List;
 import lombok.Getter;
 
+import javax.persistence.*;
+
 /**
  * Represents a SpecItem together with the corresponding commit information.
  */
 @Getter
+@Entity
 public class SpecItem {
 
-    private final String shortName;
-    private final Category category;
-    private final LcStatus lcStatus;
-    // private final Object useInstead; TODO: Ask the client about this field
-    // because it is always empty in the example data
-    private final List<String> traceRefs;
-    private final String longName;
-    private final String content;
-    private final Commit commit;
+    private String fingerprint;
+    @Id
+    private String shortName;
+    @Enumerated(EnumType.ORDINAL)
+    private Category category;
+    @Enumerated(EnumType.ORDINAL)
+    private LcStatus lcStatus;
+    private String useInstead;
+    @ElementCollection
+    private List<String> traceRefs;
+    private String longName;
+    @Column(nullable = false)
+    private String content;
+    @ManyToOne
+    private Commit commit;
 
     private short version;
 
-    // TODO: ask the client about the tags; where do they come from? shall they be included in the .txt file?
     public SpecItem(final SpecItemBuilder specItemBuilder) {
+        this.fingerprint = specItemBuilder.getFingerprint();
         this.shortName = specItemBuilder.getShortName();
         this.category = specItemBuilder.getCategory();
         this.lcStatus = specItemBuilder.getLcStatus();
         this.traceRefs = specItemBuilder.getTraceRefs();
+        this.useInstead = specItemBuilder.getUseInstead();
         this.longName = specItemBuilder.getLongName();
         this.content = specItemBuilder.getContent();
         this.commit = specItemBuilder.getCommit();
     }
 
+    public SpecItem() {
+
+    }
 }

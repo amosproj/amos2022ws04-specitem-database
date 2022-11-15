@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum LcStatus {
-
-    // TODO: find out what are the values
     STATUS1("Status1"),
-    STATUS2("Status2");
+    STATUS2("Status2"),
+    STATUS3("Status3"),
+    STATUS4("Status4"),
+    EMPTY("");
 
     private final String name;
 

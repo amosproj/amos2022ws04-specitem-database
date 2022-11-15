@@ -7,15 +7,12 @@ import javax.persistence.Id;
 @Entity
 public class SpecItemEntity {
     private Long id;
-
     private String category;
     private String lcStatus;
     private String longName;
     private String content;
     private String commitHash;
     private int version;
-
-    // TODO: we might need
 
     public void setId(final Long id) {
         this.id = id;

@@ -1,14 +1,17 @@
 package amos.specitemdatabase.model;
 
+import javax.persistence.Entity;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public enum Category {
 
-    // TODO: find out what are the values
-    CONSTRAINT_ITEM("CONSTRAINT_ITEM"),
-    UNCONSTRAINED_ITEM("UNCONSTRAINED_ITEM");
+    CATEGORY1("Category1"),
+    CATEGORY2("Category2"),
+    CATEGORY3("Category3"),
+    CATEGORY4("Category4"),
+    EMPTY("");
 
     private final String name;
 

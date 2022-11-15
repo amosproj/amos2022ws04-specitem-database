@@ -1,5 +1,8 @@
 package amos.specitemdatabase.importer;
 
+import amos.specitemdatabase.model.Category;
+import amos.specitemdatabase.model.LcStatus;
+import amos.specitemdatabase.model.ProcessedDocument;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -7,28 +10,30 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 @SpringBootTest
 public class SpecItemEntityParserTest {
 
     @Test
     public void testParser() throws IOException {
+        SpecItemParser specItemParser = new SpecItemParser();
 
         File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "testfile.txt");
-        List<String> specItems = SpecItemParser.splitFileIntoSpecItems(file);
-        Assertions.assertEquals(3, specItems.size(), "Commit and SpecItems were not split correctly");
-        Assertions.assertEquals("CommitHash: #asdf\n" +
-                "CommitDate: 12.02.2022\n" +
-                "CommitMsg: asdfaf\n" +
-                "CommitAuthor: asdfasdf", specItems.get(0), "Commit was not split correctly");
-        Assertions.assertEquals("Fingerprint: def\n" +
-                "ShortName: ID22\n" +
-                "Category:  Cat2\n" +
-                "LC-Status: INVALID\n" +
-                "UseInstead:\n" +
-                "TraceRefs: ID2, ID3, ID4\n" +
-                "LongName:  bla bla bla bla bal abla\n" +
-                "Content:  fdasfasdfds:", specItems.get(2), "Second SpecItem was not split correctly");
+        ProcessedDocument specItemsDoc = specItemParser.processFile(file);
+        String systemNewLine = System.lineSeparator();
+
+        Assertions.assertEquals("#asdf", specItemsDoc.getCommit().getCommitHash(), "CommitHash is incorrect");
+        Assertions.assertEquals("2022-02-12T21:49:13", specItemsDoc.getCommit().getCommitTime().toString(), "CommitDate is incorrect");
+        Assertions.assertEquals("bla bla prank", specItemsDoc.getCommit().getCommitMessage(), "CommitMessage is incorrect");
+        Assertions.assertEquals("Mister Wallace", specItemsDoc.getCommit().getCommitAuthor(), "CommitAuthor is incorrect");
+
+        Assertions.assertEquals(2, specItemsDoc.getSpecItems().size(), "SpecItems were not split correctly");
+        Assertions.assertEquals("ID1", specItemsDoc.getSpecItems().get(0).getShortName(), "ShortName is incorrect");
+        Assertions.assertEquals(Category.CATEGORY1, specItemsDoc.getSpecItems().get(0).getCategory(), "Category is incorrect");
+        Assertions.assertEquals(LcStatus.STATUS1, specItemsDoc.getSpecItems().get(0).getLcStatus(), "LC-Status is incorrect");
+        Assertions.assertEquals("bla bla bla", specItemsDoc.getSpecItems().get(0).getLongName(), "LongName is incorrect");
+        Assertions.assertEquals("fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g" + systemNewLine +
+                "dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;", specItemsDoc.getSpecItems().get(0).getContent(), "Content is incorrect");
+
     }
 }
