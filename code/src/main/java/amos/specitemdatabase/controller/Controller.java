@@ -52,4 +52,10 @@ public class Controller {
         System.out.println("Upload Successful!");
         return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
     }
+
+    // @GetMapping("/get/{id}")
+    // public ResponseEntity<String> getSpecItemById(@PathVariable(value = "id")String id) {
+    //     fileStorageService.getSpecItemById()
+    //     // return repo.findById(id);
+    // }
 }
