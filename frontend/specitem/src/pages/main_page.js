@@ -93,7 +93,7 @@ export default function MainPage() {
                     }
                     {inputVisible &&
                     <div style={{justifyContent:'right', alignItems: 'center',display:'block', width:'600px'}}>
-                        <div style={{marginBottom:'50px',marginTop:'20px', marginLeft:'100px'}}>File to Upload : {file.name}</div>
+                        <div style={{marginBottom:'50px',marginTop:'20px', marginLeft:'100px'}}>File to Upload : {file?file.name:''}</div>
                         <div style={{marginLeft:'200px'}}>
                             <label className="custom-file-upload"> 
                                 <input type="file" onChange={handleFileChange}/>
