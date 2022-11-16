@@ -1,8 +1,8 @@
 # Fabulous Project 4 - SpecItem Database (AMOS WS 2022/2023)
 
 # Table of Contents
-- [Project Summary](#Project Summary)
-    - [Project Vision](#Project Vision)
+- [Project Summary](##Project Summary)
+    - [Project Vision](### Project Vision)
     - [Project Vision](#Project Mission)
 - [Links](#Links)
 
