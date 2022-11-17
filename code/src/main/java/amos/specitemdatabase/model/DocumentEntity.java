@@ -17,14 +17,14 @@ public class DocumentEntity {
     private String name;
 
     @OneToMany(cascade = {CascadeType.ALL})
-    private List<SpecItem> specItem;
+    private List<SpecItem> specItems;
 
     @ManyToOne(cascade = {CascadeType.ALL})
     private Commit commit;
 
-    public DocumentEntity(String name, List<SpecItem> specItem, Commit commit) {
+    public DocumentEntity(String name, List<SpecItem> specItems, Commit commit) {
         this.name = name;
-        this.specItem = specItem;
+        this.specItems = specItems;
         this.commit = commit;
     }
 
