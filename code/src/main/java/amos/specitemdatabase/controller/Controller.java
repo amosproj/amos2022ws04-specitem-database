@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class Controller {
     private final SpecItemService service;
     private final FileStorageService fileStorageService;
