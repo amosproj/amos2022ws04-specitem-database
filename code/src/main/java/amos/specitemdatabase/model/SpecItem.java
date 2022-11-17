@@ -2,6 +2,7 @@ package amos.specitemdatabase.model;
 
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
  * Represents a SpecItem together with the corresponding commit information.
  */
 @Getter
+@Setter
 @Entity
 public class SpecItem {
 

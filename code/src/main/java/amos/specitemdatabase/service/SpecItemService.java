@@ -3,18 +3,32 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
+import amos.specitemdatabase.model.Category;
+import amos.specitemdatabase.model.Commit;
 import amos.specitemdatabase.model.DocumentEntity;
+import amos.specitemdatabase.model.LcStatus;
 import amos.specitemdatabase.model.ProcessedDocument;
+import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemEntity;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
+import amos.specitemdatabase.utils.Utils;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -31,24 +45,24 @@ public class SpecItemService {
         this.fileConfig = fileConfig;
     }
 
-    public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
-        specItemRepo.save(specItemEntity);
-        return ResponseEntity.ok(specItemEntity);
-    }
+    // public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
+    //     specItemRepo.save(specItemEntity);
+    //     return ResponseEntity.ok(specItemEntity);
+    // }
     
-    public ResponseEntity<SpecItemEntity> deleteSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
-        specItemRepo.delete(specItemEntity);
-        return ResponseEntity.ok(specItemEntity);
-    }
+    // public ResponseEntity<SpecItemEntity> deleteSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
+    //     specItemRepo.delete(specItemEntity);
+    //     return ResponseEntity.ok(specItemEntity);
+    // }
     
-    public ResponseEntity<SpecItemEntity> getSpecItemEntity(@RequestBody long id) {
-        for(SpecItemEntity e : specItemRepo.findAll()) {
-            if(e.getId().equals(id)) {
-                return ResponseEntity.ok(e);
-            }
-        }
-        return null;
-    }
+    // public ResponseEntity<SpecItemEntity> getSpecItemEntity(@RequestBody long id) {
+    //     for(SpecItemEntity e : specItemRepo.findAll()) {
+    //         if(e.getId().equals(id)) {
+    //             return ResponseEntity.ok(e);
+    //         }
+    //     }
+    //     return null;
+    // }
 
     /***
      * save text file as document object and its relating Specitem objects in database
@@ -62,21 +76,100 @@ public class SpecItemService {
         DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
         documentRepo.save(documentEntity);
     }
-    // Test the save method
-    // @Bean
-    // CommandLineRunner commandLineRunner(
-    //     SpecItemRepo specItemRepo
-    // ) {
-    //     return args -> {
-    //         SpecItemEntity specItemEntity = new SpecItemEntity();
-    //         specItemEntity.setId(1L);
-    //         specItemEntity.setCategory("When I grow up");
-    //         specItemEntity.setLcStatus("I want to be an army");
-    //         specItemEntity.setLongName("And");
-    //         specItemEntity.setContent("Save");
-    //         specItemEntity.setCommitHash("Pakistan");
-    //         specItemEntity.setVersion(666);
-    //         specItemRepo.save(specItemEntity);
-    //     };
-    // }
+
+    public SpecItem getSpecItemById(String specItemId) {
+        // for(DocumentEntity documentEntity:documentRepo.findAll()) {
+        //     List<SpecItem> specItems=documentEntity.getSpecItems();
+        //     for(SpecItem specItem:specItems) {
+        //         if(specItem.getShortName()==specItemId) {
+        //             // return specItem;
+        //             System.out.println(specItem.toString());
+        //         }
+        //     }
+        // }
+        // return null;
+
+        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+        for(DocumentEntity d:listDocumentEntity) {
+            System.out.println(d.getCommit().toString());
+            List<SpecItem> list=d.getSpecItems();
+            for (SpecItem s:list) {
+                if (s.getShortName().equals(specItemId)) {
+                    System.out.println(s.getShortName());
+                    return s;
+                }
+            }
+        }
+        return null;
+    }
+
+//     @Bean
+//     CommandLineRunner commandLineRunner(
+//         DocumentRepo documentRepo
+//     ) {
+//         return args -> {
+//             Commit commit = new Commit(
+//                 "hash",
+//                 "message",
+//                 LocalDateTime.now(),
+//                 "author"
+//             );
+//             SpecItem specItem = new SpecItem();
+//             specItem.setShortName("id");
+//             specItem.setContent("content");
+//             specItem.setCommit(commit);
+//             specItem.setFingerprint("fingerprint");
+//             specItem.setLongName("longName");
+//             specItem.setUseInstead("useInstead");
+//             specItem.setTraceRefs(new LinkedList<>());
+//             specItem.setVersion((short) 5);
+//             specItem.setCategory(Category.CATEGORY1);
+//             specItem.setLcStatus(LcStatus.STATUS1);
+
+//             SpecItem specItem2 = new SpecItem();
+//             specItem2.setShortName("id2");
+//             specItem2.setContent("content");
+//             specItem2.setCommit(commit);
+//             specItem2.setFingerprint("fingerprint");
+//             specItem2.setLongName("longName");
+//             specItem2.setUseInstead("useInstead");
+//             specItem2.setTraceRefs(new LinkedList<>());
+//             specItem2.setVersion((short) 5);
+//             specItem2.setCategory(Category.CATEGORY1);
+//             specItem2.setLcStatus(LcStatus.STATUS1);
+
+//             SpecItem specItem3 = new SpecItem();
+//             specItem3.setShortName("id3");
+//             specItem3.setContent("content");
+//             specItem3.setContent("content");
+//             specItem3.setCommit(commit);
+//             specItem3.setFingerprint("fingerprint");
+//             specItem3.setLongName("longName");
+//             specItem3.setUseInstead("useInstead");
+//             specItem3.setTraceRefs(new LinkedList<>());
+//             specItem3.setVersion((short) 5);
+//             specItem3.setCategory(Category.CATEGORY1);
+//             specItem3.setLcStatus(LcStatus.STATUS1);
+
+//             List<SpecItem> specItems = new ArrayList<>();
+//             specItems.add(specItem);
+//             specItems.add(specItem2);
+//             specItems.add(specItem3);
+//             DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
+//             documentRepo.save(documentEntity);
+
+//             System.out.println("Document saved.");
+
+//         };
+//     }
+// }
+
+//         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+//         for(DocumentEntity d:listDocumentEntity) {
+//             System.out.println(d.getCommit().toString());
+//             List<SpecItem> list=d.getSpecItems();
+//             for (SpecItem s:list) {
+//                 System.out.println(s.getShortName());
+//             }
+//         }
 }
