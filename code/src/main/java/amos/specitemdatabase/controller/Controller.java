@@ -1,5 +1,6 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 public class Controller {
@@ -53,9 +55,15 @@ public class Controller {
         return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
     }
 
-    // @GetMapping("/get/{id}")
-    // public ResponseEntity<String> getSpecItemById(@PathVariable(value = "id")String id) {
-    //     fileStorageService.getSpecItemById()
-    //     // return repo.findById(id);
-    // }
+    @GetMapping("/get/{id}")
+    public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        try {
+            SpecItem specItem = service.getSpecItemById(id);
+            System.out.println("Processing...");
+            return new ResponseEntity<>(specItem, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
