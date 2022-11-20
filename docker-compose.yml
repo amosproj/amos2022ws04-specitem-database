@@ -24,7 +24,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password123
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
 
-  front-end:
+  frontend:
     build: ./frontend
     ports:
       - "3000:3000"
