@@ -6,8 +6,8 @@ COPY pom.xml .
 COPY src src
 # build and download deps
 RUN mvn clean package -DskipTests
-RUN mkdir -p target/dependency && cd target/dependency && jar -xf ../specitem-database*.jar
 # extract the files from the jar (-x is for extract, -f is to specify a file)
+RUN mkdir -p target/dependency && cd target/dependency && jar -xf ../specitem-database*.jar
 
 
 FROM amazoncorretto:11
