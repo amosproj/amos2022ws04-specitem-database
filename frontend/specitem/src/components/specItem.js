@@ -3,6 +3,15 @@ import { useEffect, useState } from 'react';
 
 
 export default function specItem({specItem, setSelectSpecItem}) {
+
+    /*async function handleGet(){
+
+        const response = await fetch('http://localhost:8080/get/ID1' , {
+            method: 'GET',
+        });
+        const responseText = await response.text();
+        console.log(responseText)
+    }*/
     
     return(
         <div className="Documents-header">
