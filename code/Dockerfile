@@ -14,10 +14,10 @@ FROM amazoncorretto:11
 WORKDIR /app
 
 #copy built app layer by layer
-ARG DOCKER_PACKAGING_DIR=/app/target/dependency
-COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/BOOT-INF/lib /app/lib
-COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/BOOT-INF/classes /app/classes
-COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/META-INF /app/META-INF
+ARG DEPS=/app/target/dependency
+COPY --from=mvn_build ${DEPS}/BOOT-INF/lib /app/lib
+COPY --from=mvn_build ${DEPS}/BOOT-INF/classes /app/classes
+COPY --from=mvn_build ${DEPS}/META-INF /app/META-INF
 
 #run the app
 CMD java -cp .:classes:lib/* amos.specitemdatabase.SpecitemDatabaseApplication
