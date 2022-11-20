@@ -1,8 +1,9 @@
 import Documents from '../components/documents'
 import '../App.css';
 import { useEffect, useState } from 'react';
+import { toast } from "react-toastify";
 
-const model = require('../model.js')
+
 
 export default function MainPage() {
 
@@ -43,8 +44,19 @@ export default function MainPage() {
         const res = await fetch("http://localhost:8080/upload/filename", {
             method: "POST",
             body: formData,
-        }).then((res) => console.log(res));
-        alert(JSON.stringify(`${res.message}, status: ${res.status}`));};
+        }).then((res) => {
+            {if (res.status !== 400){
+                console.log(res)
+                toast.success("Successfully uploaded");
+            
+            }
+        else{
+            console.log(res)
+            toast.error("Upload failed")
+        }}
+            
+        });
+    };
 
           
 
@@ -105,7 +117,8 @@ export default function MainPage() {
                         </div>
                         <div>
                             <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}> Back</button>
-                        </div>   
+                        </div>  
+                        
                     </div>    
                     }
                     
