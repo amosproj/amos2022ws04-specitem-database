@@ -6,5 +6,6 @@ COPY ./specitem/package-lock.json .
 
 RUN npm install
 COPY ./specitem .
-RUN npm run build
+#RUN npm run build
+CMD ["npm", "start"]
 
