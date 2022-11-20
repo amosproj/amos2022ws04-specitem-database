@@ -5,25 +5,22 @@ WORKDIR /app
 COPY pom.xml .
 COPY src src
 # build and download deps
-RUN --mount=type=cache,target=/root/.m2 mvn clean package
-RUN mkdir -p target/dependency
-RUN cd target/dependency
+RUN mvn clean package -DskipTests
+RUN mkdir -p target/dependency && cd target/dependency && jar -xf ../specitem-database*.jar
 # extract the files from the jar (-x is for extract, -f is to specify a file)
-RUN jar -xf ../*.jar
+
 
 FROM amazoncorretto:11
 WORKDIR /app
 
 #copy built app layer by layer
-ARG DOCKER_PACKAGING_DIR=/app/target/docker-packaging
+ARG DOCKER_PACKAGING_DIR=/app/target/dependency
 COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/BOOT-INF/lib /app/lib
 COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/BOOT-INF/classes /app/classes
 COPY --from=mvn_build ${DOCKER_PACKAGING_DIR}/META-INF /app/META-INF
 
 #run the app
-CMD java -cp .:classes:lib/* \
-         -Djava.security.egd=file:/dev/./urandom \
-         amoc.specitem.SpecitemDatabaseApplication
+CMD java -cp .:classes:lib/* amos.specitemdatabase.SpecitemDatabaseApplication
 
 
 
