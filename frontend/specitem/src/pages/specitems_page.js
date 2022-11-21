@@ -32,12 +32,7 @@ export default function SpecitemsPage() {
                         <tr>
                             
                             <th>ShortName</th>
-                            
-                            
-                            
-                            <th>TraceRefs</th>
                             <th>LongName</th>
-                            
                             <th>Commit</th>
                             <th>Version</th>
                             <th></th>
@@ -47,13 +42,8 @@ export default function SpecitemsPage() {
                                 <tr key={key}>
                                     
                                     <td>{val.shortName}</td>
-                                    
-                                    
-                                    
-                                    <td>{'traceref'}</td>
                                     <td>{val.longName}</td>
-                                    
-                                    <td>{val.commit}</td>
+                                    <td>{val.commit.id}</td>
                                     <td>{val.version}</td>
                                     <td><Link to={`/specitem/${val.shortName}`}>
                                             <button className='' >     
