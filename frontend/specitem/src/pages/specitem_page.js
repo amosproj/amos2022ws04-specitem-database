@@ -1,4 +1,5 @@
 import Documents from '../components/documents'
+import TagsInput from '../components/tagsinput'
 import '../App.css';
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
@@ -34,17 +35,15 @@ export default function SpecitemPage() {
                 Content: {specitem.content}
                 </div>
             </div>
-
-
         }    
+
+            <TagsInput />
             
             <div className='App-tb' style={{marginTop: '15px'}}>
                 <Link to={ROUTES.SPECITEMS}>
-                <button className='button-close' >     
-                Back
-            </button>  
+                <button className='button-close'>Back</button>  
                 </Link>
-                </div>
+            </div>
 
               
                 
