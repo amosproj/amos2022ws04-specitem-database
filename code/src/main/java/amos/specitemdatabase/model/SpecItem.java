@@ -25,7 +25,7 @@ public class SpecItem {
     @ElementCollection
     private List<String> traceRefs;
     private String longName;
-    @Column(nullable = false)
+    @Lob
     private String content;
     @ManyToOne
     private Commit commit;
