@@ -1,7 +1,5 @@
 package amos.specitemdatabase.importer;
 
-import amos.specitemdatabase.model.SpecItem;
-import amos.specitemdatabase.model.SpecItemEntity;
 import amos.specitemdatabase.model.ProcessedDocument;
 
 import java.io.File;
