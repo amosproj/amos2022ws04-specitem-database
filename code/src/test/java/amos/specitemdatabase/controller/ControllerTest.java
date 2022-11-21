@@ -85,6 +85,7 @@ class ControllerTest {
         //send file
         mockMvc.perform(multipart("/upload/test-file").file(file))
                 .andExpect(status().isCreated());
+        assertEquals(2, specItemRepo.count());
     }
 
     private class Response {

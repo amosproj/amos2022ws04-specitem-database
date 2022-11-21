@@ -9,5 +9,4 @@ import java.io.IOException;
 
 public interface SpecItemParserInterface {
     ProcessedDocument processFile(File file) throws IOException;
-    SpecItemEntity transformSpecItem(SpecItem specItem);
 }

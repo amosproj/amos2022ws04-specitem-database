@@ -75,6 +75,7 @@ public class SpecItemService {
 //        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecItem).collect(Collectors.toList());
         DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
         documentRepo.save(documentEntity);
+        System.out.println(specItemRepo.findAll().size());
     }
 
     public SpecItem getSpecItemById(String specItemId) {
