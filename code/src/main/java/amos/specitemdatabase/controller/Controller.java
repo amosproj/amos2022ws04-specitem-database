@@ -1,5 +1,6 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class Controller {
     private final SpecItemService service;
     private final FileStorageService fileStorageService;
@@ -51,5 +55,29 @@ public class Controller {
         }
         System.out.println("Upload Successful!");
         return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        try {
+            SpecItem specItem = service.getSpecItemById(id);
+            System.out.println("Processing...");
+            return new ResponseEntity<>(specItem, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/get/all")
+    public ResponseEntity<List<SpecItem>> getAllSpecItems() {
+        try {
+            List<SpecItem> specItem = service.getAllSpecItems();
+            System.out.println("Processing...");
+            return new ResponseEntity<>(specItem, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
