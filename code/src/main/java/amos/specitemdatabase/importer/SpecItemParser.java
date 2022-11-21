@@ -98,9 +98,4 @@ public class SpecItemParser implements SpecItemParserInterface{
 
         return sb.toString();
     }
-
-    @Override
-    public SpecItemEntity transformSpecItem(SpecItem specItem) {
-        return null;
-    }
 }
