@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -101,6 +102,20 @@ public class SpecItemService {
             }
         }
         return null;
+    }
+
+    public List<SpecItem> getSpecItemByContent(String content) {
+        List<SpecItem> specItemsList = new ArrayList<>();
+        List<DocumentEntity> documentEntityList = documentRepo.findAll();
+        for(DocumentEntity documentEntity: documentEntityList) {
+            List<SpecItem> specItemsInDocList = documentEntity.getSpecItems();
+            for (SpecItem specItem: specItemsInDocList) {
+                if (specItem.getContent().contains(content)) {
+                    specItemsList.add(specItem);
+                }
+            }
+        }
+        return specItemsList;
     }
 
 //     @Bean
