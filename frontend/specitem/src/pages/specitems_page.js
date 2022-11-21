@@ -43,7 +43,7 @@ export default function SpecitemsPage() {
                                     
                                     <td>{val.shortName}</td>
                                     <td>{val.longName}</td>
-                                    <td>{val.commit.id}</td>
+                                    <td>{(val.commit? val.commit.id: '')}</td>
                                     <td>{val.version}</td>
                                     <td><Link to={`/specitem/${val.shortName}`}>
                                             <button className='' >     
