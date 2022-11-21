@@ -1,60 +1,90 @@
 package amos.specitemdatabase.controller;
 
 import amos.specitemdatabase.repo.SpecItemRepo;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.ResourceUtils;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.DEFINED_PORT)
 class ControllerTest {
 
+    private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     @Autowired
     SpecItemRepo specItemRepo;
+
+    @BeforeEach
+    void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
+
     //test Controller ONLY
     //Tested by using Postman
     @Test
-    void uploadDocument() throws IOException {
-        //send file
-        File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "testfile.txt");
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost post = new HttpPost("http://localhost:8080/upload/test-file");
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addBinaryBody(
+    void testUploadDocument() throws Exception {
+        String fileContent = "CommitHash: #asdf\n" +
+                "CommitDate: 2022-02-12 21:49:13\n" +
+                "CommitMsg: bla bla prank\n" +
+                "CommitAuthor: Mister Wallace\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Fingerprint: abc\n" +
+                "ShortName: ID1\n" +
+                "Category: Category1\n" +
+                "LC-Status: Status1\n" +
+                "UseInstead: \n" +
+                "TraceRefs: ID2, ID3, ID4\n" +
+                "LongName: bla bla bla\n" +
+                "Content: \n" +
+                "fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g\n" +
+                "dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "Fingerprint: def\n" +
+                "ShortName: ID22\n" +
+                "Category: Category2\n" +
+                "LC-Status: Status2\n" +
+                "UseInstead: \n" +
+                "TraceRefs: ID2, ID3, ID4\n" +
+                "LongName: bla bla bla bla bal abla\n" +
+                "Content: \n" +
+                "fdasfasdfds:\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "\n";
+        MockMultipartFile file
+                = new MockMultipartFile(
                 "file",
-                new FileInputStream(file),
-                ContentType.APPLICATION_OCTET_STREAM,
-                file.getName()
+                "test-file.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                fileContent.getBytes()
         );
-        HttpEntity multipart = builder.build();
-        post.setEntity(multipart);
-        CloseableHttpResponse response = httpClient.execute(post);
-        HttpEntity responseEntity = response.getEntity();
-        //read response
-        BufferedReader reader = new BufferedReader(new InputStreamReader(responseEntity.getContent()));
-        String inputLine;
-        StringBuilder content = new StringBuilder();
-        while((inputLine =  reader.readLine()) != null) {
-            content.append(inputLine);
-        }
-        reader.close();
-        String responseString = content.toString();
-
-        assertEquals("Upload Successful!", responseString, responseString);
+        //send file
+        mockMvc.perform(multipart("/upload/test-file").file(file))
+                .andExpect(status().isCreated());
     }
 
     private class Response {
