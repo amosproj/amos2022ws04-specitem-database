@@ -103,6 +103,19 @@ public class SpecItemService {
         return null;
     }
 
+    public List<SpecItem> getAllSpecItems() {
+
+        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+        for(DocumentEntity d:listDocumentEntity) {
+            System.out.println(d.getCommit().toString());
+            List<SpecItem> list=d.getSpecItems();
+            if(list != null){
+                return list;
+            }
+        }
+        return null;
+    }
+
 //     @Bean
 //     CommandLineRunner commandLineRunner(
 //         DocumentRepo documentRepo
