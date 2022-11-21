@@ -24,6 +24,7 @@ public class SpecItem {
     private String useInstead;
     @ElementCollection
     private List<String> traceRefs;
+    @Lob
     private String longName;
     @Lob
     private String content;
