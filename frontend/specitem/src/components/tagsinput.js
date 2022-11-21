@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import './tagsinput.css'
 
 function TagsInput(){
     const [tags, setTags] = useState([])
@@ -16,14 +17,14 @@ function TagsInput(){
     }
 
     return (
-        <div>
+        <div className="tags-input-container">
             {tags.map((tag, index) => (
-                <div key={index}>    
-                    <span>{tag}</span>
-                    <span onClick={() => removeTag(index)}>&times;</span>
+                <div className="tag-item" key={index}>    
+                    <span className="text">{tag}</span>
+                    <span className="close" onClick={() => removeTag(index)}>&times;</span>
                 </div>
             ))}
-            <input onKeyDown={handleKeyDown} type="text" placeholder = "Add a tag..."></input>
+            <input className="tags-input" onKeyDown={handleKeyDown} type="text" placeholder = "Add a tag..."></input>
         </div>
     )
 }
