@@ -47,6 +47,30 @@ export default function SpecitemPage({ exportList, setExportList}) {
                 <div>
                 Content: {specitem.content}
                 </div>
+                <div>
+                   Fingerprint: {specitem.fingerprint}
+                </div>
+                <div>
+                Category: {specitem.category}
+                </div>
+                <div>
+                    LcStatus: {specitem.lcStatus}
+                </div>
+                <div>
+                useInstead: {specitem.content}
+                </div>
+                <div>
+                    traceRefs: {specitem.traceRefs}
+                </div>
+                <div>
+                Longname: {specitem.longName}
+                </div>
+                <div>
+                    Commit_ID: {specitem.commit? specitem.commit.id : ''}
+                </div>
+                <div>
+                Version: {specitem.version}
+                </div>
             </div>
 
 
