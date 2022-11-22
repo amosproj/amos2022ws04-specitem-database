@@ -1,8 +1,11 @@
 import Documents from '../components/documents'
 import '../App.css';
 import { useEffect, useState } from 'react';
+import { toast } from "react-toastify";
+import * as ROUTES from '../constants/routes';
+import { Link, useHistory } from 'react-router-dom';
 
-const model = require('../model.js')
+
 
 export default function MainPage() {
 
@@ -43,52 +46,37 @@ export default function MainPage() {
         const res = await fetch("http://localhost:8080/upload/filename", {
             method: "POST",
             body: formData,
-        }).then((res) => console.log(res));
-        alert(JSON.stringify(`${res.message}, status: ${res.status}`));};
+        }).then((res) => {
+            {if (res.status !== 400){
+                console.log(res)
+                toast.success("Successfully uploaded");
+            
+            }
+        else{
+            console.log(res)
+            toast.error("Upload failed")
+        }}
+            
+        });
+    };
 
           
 
     return(
-        <div>
-            {
-            !selectDocument &&
-            <div className='App-logo'>  
-                
-                {docListVisible &&
-                <div style={{marginTop:'30px'}} className='App-tb'> 
-                    <div className='App-tb'>
-                    
-                    <table>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Commit</th>
-                            <th></th>
-                        </tr>
-                        {doclist.map((val,key) => {
-                        return (
-                                <tr key={key}>
-                                    <td>{val.id}</td>
-                                    <td>{val.name}</td>
-                                    <td>{val.commit}</td>
-                                    <td><button onClick={() => handleClick(val)} > Open </button></td>
-                                </tr>
-                                )
-                            })}
-                    </table>
-                </div>
-                    <div style={{marginTop: '20px'}}>
-                        <button className='button-close' onClick={() => setDocListVisible(false)}> Close</button>
-                    </div>
-                    
-                </div>  
-                }
-                {!docListVisible &&
+        <div style={{width: '100%'}}>
+            
+               
                 <div className='App-header'>
                     {!inputVisible &&
                     <div>
                         <button className='button' onClick={() => setInputVisible(true)}> Add Document</button>
-                        <button className='button' onClick={() => setDocListVisible(true)}> Show Documents</button>
+                        
+                        <Link to={ROUTES.SPECITEMS}>
+                        <button className='button'> Show Documents</button>
+                        </Link>
+                        <Link to={ROUTES.EXPORT}>
+                        <button className='button'> Export</button>
+                        </Link>
                     </div>    
                     }
                     {inputVisible &&
@@ -105,21 +93,17 @@ export default function MainPage() {
                         </div>
                         <div>
                             <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}> Back</button>
-                        </div>   
+                        </div>  
+                        
                     </div>    
                     }
                     
-                </div>   
-                }
+                  
+                
             </div> 
             
-            }
-            {
-             selectDocument &&
-            <div className='App-logo'>
-                <Documents doc = {doc} setSelectDocument = {setSelectDocument}/>   
-            </div>    
-            }
+            
+            
         </div>
     )
     
