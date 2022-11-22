@@ -39,7 +39,17 @@ export default function SpecitemsPage() {
                     if(responseText !== ''){setSpecitemsList([JSON.parse(responseText)])}
                     //console.log(specitemsList)
                 }
-                else{toast.error("Just implemented for attribute Id")}
+                else{
+                    const response = await fetch('http://localhost:8080/get/cont:'+message , {
+                        method: 'GET',
+                    });
+            
+                    const responseText = await response.text();
+                    console.log(responseText)
+                    //console.log(specitemsList)
+                    if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+                    //console.log(specitemsList)
+                }
         }
         
             
