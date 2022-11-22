@@ -24,9 +24,9 @@ public class SpecItem {
     private String useInstead;
     @ElementCollection
     private List<String> traceRefs;
-    @Lob
+    @Column(columnDefinition = "text")
     private String longName;
-    @Lob
+    @Column(columnDefinition = "text")
     private String content;
     @ManyToOne
     private Commit commit;
