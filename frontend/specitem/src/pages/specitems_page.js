@@ -5,7 +5,7 @@ import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
 
-export default function SpecitemsPage() {
+export default function SpecitemsPage({ exportList, setExportList}) {
 
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
@@ -68,12 +68,30 @@ export default function SpecitemsPage() {
         
       }, []);
           
+    function appendExportList() {
+        if (specitemsList.length == 0) {
+            toast.error("There are no Specitems.")
+            return;
+        }
+        let list = exportList;
+        specitemsList.forEach(specitem => {
+            if(list.filter(s => s.shortName == specitem.shortName).length > 0) {
+                toast(`${specitem.shortName} already exists`);
+            }
+            list.push(specitem);
+        })
+        setExportList(list);
+        toast.success('Saved')
+    }
 
     return(
         <div style={{width: '100%'}}>
-            
+                <div className="save-export">
+                    <button className='save-export-button' data-testid="saveExport" onClick={() => appendExportList()}>Save to Export</button>
+                </div>
                 {specitemsList.length !== 0 &&
                 <div>
+                    <p data-testid="exportList">{exportList}</p>
                     <div>
                         <input onChange={handleChange}
                             value={message}>
