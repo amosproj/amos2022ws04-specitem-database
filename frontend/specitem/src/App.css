@@ -86,7 +86,7 @@
   margin-right: 15px;
   
 }
-.button:hover {
+button:hover {
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }
 input[type="file"] {
@@ -125,4 +125,46 @@ td {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.save-export {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+}
+
+.save-export-button {
+  background-color:antiquewhite;
+  color: black;
+  border: black;
+  border-style:solid;
+  border-width: 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  margin-right: 15px;
+  margin-bottom: 15px;
+  height: 40px;
+  width: 200px;
+}
+
+.button-remove {
+  background-color: red; /* Green */
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.row {
+  display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-gap: 20px;
+}
+.specitem-label {
+  background-color: antiquewhite;
 }

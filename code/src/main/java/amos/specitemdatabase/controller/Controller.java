@@ -61,20 +61,8 @@ public class Controller {
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
         try {
             SpecItem specItem = service.getSpecItemById(id);
-            System.out.println("Getting SpecItem by ID...");
+            System.out.println("Processing...");
             return new ResponseEntity<>(specItem, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content) {
-        try {
-            List<SpecItem> specItemsList = service.getSpecItemByContent(content);
-            System.out.println("Getting SpecItems by content...");
-            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

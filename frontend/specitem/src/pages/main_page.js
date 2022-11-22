@@ -74,6 +74,9 @@ export default function MainPage() {
                         <Link to={ROUTES.SPECITEMS}>
                         <button className='button'> Show Documents</button>
                         </Link>
+                        <Link to={ROUTES.EXPORT}>
+                        <button className='button'> Export</button>
+                        </Link>
                     </div>    
                     }
                     {inputVisible &&
