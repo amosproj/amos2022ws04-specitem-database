@@ -69,7 +69,7 @@ public class Controller {
         }
     }
 
-    @GetMapping("/get/{content}")
+    @GetMapping("/get/cont:{content}")
     public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content) {
         try {
             List<SpecItem> specItemsList = service.getSpecItemByContent(content);
