@@ -21,7 +21,7 @@ function App() {
         <Suspense fallback={<p>Loading...</p>}>
           <Routes>
             <Route path={ROUTES.DASHBOARD} element={<Dashboard/>} />
-            <Route path={ROUTES.SPECITEMS} element={<Specitems/>} />
+            <Route path={ROUTES.SPECITEMS} element={<Specitems exportList={exportList} setExportList={setExportList}/>} />
             <Route path={ROUTES.SPECITEM} element={<Specitem exportList={exportList} setExportList={setExportList}/>} />
             <Route path={ROUTES.EXPORT} element={<Export exportList={exportList} setExportList={setExportList}/>} />
           </Routes>

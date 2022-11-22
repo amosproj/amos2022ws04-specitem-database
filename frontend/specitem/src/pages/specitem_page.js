@@ -5,6 +5,7 @@ import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { useParams } from 'react-router-dom'
 import { toast } from "react-toastify";
+import TagsInput from '../components/tagsinput'
 
 export default function SpecitemPage({ exportList, setExportList}) {
     const { id } = useParams()
@@ -45,9 +46,6 @@ export default function SpecitemPage({ exportList, setExportList}) {
                     ID: {specitem.shortName}
                 </div>
                 <div>
-                Content: {specitem.content}
-                </div>
-                <div>
                    Fingerprint: {specitem.fingerprint}
                 </div>
                 <div>
@@ -57,7 +55,7 @@ export default function SpecitemPage({ exportList, setExportList}) {
                     LcStatus: {specitem.lcStatus}
                 </div>
                 <div>
-                useInstead: {specitem.content}
+                useInstead: {specitem.useInstead}
                 </div>
                 <div>
                     traceRefs: {specitem.traceRefs}
@@ -71,8 +69,12 @@ export default function SpecitemPage({ exportList, setExportList}) {
                 <div>
                 Version: {specitem.version}
                 </div>
+                <div>
+                Content: {specitem.content}
+                </div>
+                <TagsInput />
             </div>
-
+            
 
         }    
             
