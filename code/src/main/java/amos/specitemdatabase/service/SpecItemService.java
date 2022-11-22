@@ -92,6 +92,27 @@ public class SpecItemService {
         }
         return null;
     }
+      
+    public SpecItem deleteSpecItemById(String specItemId) {
+
+        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+        for(DocumentEntity d:listDocumentEntity) {
+
+            SpecItem tmp = new SpecItem();
+            boolean found = false;
+            for (SpecItem s: d.getSpecItems()) {
+                if (s.getShortName().equals(specItemId)) {
+                    tmp = s;
+                    found = true;
+                }
+            }
+            if (found) {
+            	d.getSpecItems().remove(tmp);
+                documentRepo.save(d);
+            }
+        }
+        return null;
+    }
 
     public List<SpecItem> getAllSpecItems() {
 
@@ -173,7 +194,8 @@ public class SpecItemService {
 //             specItems.add(specItem3);
 //             DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
 //             documentRepo.save(documentEntity);
-//
+//             
+//             deleteSpecItemById(specItem2.getShortName());
 //             System.out.println("Document saved.");
 //
 //         };
