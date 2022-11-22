@@ -3,14 +3,50 @@ import '../App.css';
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
+import { toast } from "react-toastify";
 
 export default function SpecitemsPage() {
 
     const [specitemsList, setSpecitemsList] = useState([])
+    const [message, setMessage] = useState('');
+    const [type, setType] = useState('ID');
+
+    const handleChange = event => {
+        setMessage(event.target.value);
+      };
+    const handleTypeChange = event => {
+        setType(event.target.value);
+      };  
+
+      async function handleFilter(event) {
+        if(message == ''){
+            const response = await fetch('http://localhost:8080/get/all' , {
+                method: 'GET',
+            });
+            const responseText = await response.text();
+            console.log(responseText)
+            if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+        }
+        else{
+            if(type === 'ID'){
+                const response = await fetch('http://localhost:8080/get/'+message , {
+                        method: 'GET',
+                    });
+            
+                    const responseText = await response.text();
+                    console.log(responseText)
+                    //console.log(specitemsList)
+                    if(responseText !== ''){setSpecitemsList([JSON.parse(responseText)])}
+                    //console.log(specitemsList)
+                }
+                else{toast.error("Just implemented for attribute Id")}
+        }
+        
+            
+      };  
     
     useEffect(() => {
         async function handleGet(){
-
             const response = await fetch('http://localhost:8080/get/all' , {
                 method: 'GET',
             });
@@ -19,7 +55,7 @@ export default function SpecitemsPage() {
             if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         }
         handleGet()
-        console.log(specitemsList)
+        
       }, []);
           
 
@@ -28,6 +64,20 @@ export default function SpecitemsPage() {
             
                 {specitemsList.length !== 0 &&
                 <div>
+                    <div>
+                        <input onChange={handleChange}
+                            value={message}>
+
+                        </input>
+                    <button onClick={handleFilter}>Filter</button>
+                    <select onChange={event => handleTypeChange(event)}>
+                            <option value="ID">ID</option>
+                            <option value="Content">Content</option>
+                            
+                            
+                        </select>
+                    </div>
+                    
                     <table>
                         <tr>
                             
