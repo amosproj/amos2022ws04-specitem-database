@@ -3,18 +3,20 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
-import amos.specitemdatabase.model.DocumentEntity;
-import amos.specitemdatabase.model.ProcessedDocument;
-import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.*;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -131,53 +133,51 @@ public class SpecItemService {
 //             );
 //             SpecItem specItem = new SpecItem();
 //             specItem.setShortName("id");
-//             specItem.setContent("content");
+//             specItem.setContent("content1");
 //             specItem.setCommit(commit);
-//             specItem.setFingerprint("fingerprint");
-//             specItem.setLongName("longName");
+//             specItem.setFingerprint("fingerprint1");
+//             specItem.setLongName("longName1");
 //             specItem.setUseInstead("useInstead");
 //             specItem.setTraceRefs(new LinkedList<>());
 //             specItem.setVersion((short) 5);
 //             specItem.setCategory(Category.CATEGORY1);
 //             specItem.setLcStatus(LcStatus.STATUS1);
-
+//
 //             SpecItem specItem2 = new SpecItem();
 //             specItem2.setShortName("id2");
-//             specItem2.setContent("content");
+//             specItem2.setContent("content2");
 //             specItem2.setCommit(commit);
-//             specItem2.setFingerprint("fingerprint");
-//             specItem2.setLongName("longName");
+//             specItem2.setFingerprint("fingerprint2");
+//             specItem2.setLongName("longName2");
 //             specItem2.setUseInstead("useInstead");
 //             specItem2.setTraceRefs(new LinkedList<>());
 //             specItem2.setVersion((short) 5);
-//             specItem2.setCategory(Category.CATEGORY1);
-//             specItem2.setLcStatus(LcStatus.STATUS1);
-
+//             specItem2.setCategory(Category.CATEGORY2);
+//             specItem2.setLcStatus(LcStatus.STATUS2);
+//
 //             SpecItem specItem3 = new SpecItem();
 //             specItem3.setShortName("id3");
-//             specItem3.setContent("content");
-//             specItem3.setContent("content");
+//             specItem3.setContent("content3");
 //             specItem3.setCommit(commit);
-//             specItem3.setFingerprint("fingerprint");
-//             specItem3.setLongName("longName");
+//             specItem3.setFingerprint("fingerprint3");
+//             specItem3.setLongName("longName3");
 //             specItem3.setUseInstead("useInstead");
 //             specItem3.setTraceRefs(new LinkedList<>());
 //             specItem3.setVersion((short) 5);
-//             specItem3.setCategory(Category.CATEGORY1);
-//             specItem3.setLcStatus(LcStatus.STATUS1);
-
+//             specItem3.setCategory(Category.CATEGORY3);
+//             specItem3.setLcStatus(LcStatus.STATUS3);
+//
 //             List<SpecItem> specItems = new ArrayList<>();
 //             specItems.add(specItem);
 //             specItems.add(specItem2);
 //             specItems.add(specItem3);
 //             DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
 //             documentRepo.save(documentEntity);
-
+//
 //             System.out.println("Document saved.");
-
+//
 //         };
 //     }
-// }
 
 //         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
 //         for(DocumentEntity d:listDocumentEntity) {
