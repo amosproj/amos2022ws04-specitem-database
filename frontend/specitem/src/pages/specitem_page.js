@@ -1,12 +1,12 @@
 import Documents from '../components/documents'
-import TagsInput from '../components/tagsinput'
 import '../App.css';
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { useParams } from 'react-router-dom'
+import { toast } from "react-toastify";
 
-export default function SpecitemPage() {
+export default function SpecitemPage({ exportList, setExportList}) {
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
     useEffect(() => {
@@ -23,11 +23,24 @@ export default function SpecitemPage() {
         handleGet()
       }, []);
     
+    function appendExportList() {
+        let list = exportList;
+        if(list.filter(s => s.shortName == specitem.shortName).length > 0) {
+            toast.error('Specitem already exists');
+            return;
+        }
+        list.push(specitem);
+        setExportList(list);
+        toast.success('Saved')
+    }
 
     return(
         <div style={{width: '100%'}} className='App-tb'>
         { specitem &&
             <div>
+                <div className="save-export">
+                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
+                </div>
                 <div>
                     ID: {specitem.shortName}
                 </div>
@@ -59,21 +72,23 @@ export default function SpecitemPage() {
                 Version: {specitem.version}
                 </div>
             </div>
-        }    
 
-            <TagsInput />
+
+        }    
             
             <div className='App-tb' style={{marginTop: '15px'}}>
                 <Link to={ROUTES.SPECITEMS}>
-                <button className='button-close'>Back</button>  
+                <button className='button-close' >     
+                Back
+            </button>  
                 </Link>
-            </div>
+                </div>
 
-              
+            
                 
-          
+        
                 
-                     
+                    
         </div>
     )
     
