@@ -16,7 +16,7 @@ public class DocumentEntity {
     @Column(name="document_name", length = 50, nullable=false, unique=false)
     private String name;
 
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<SpecItem> specItems;
 
     @ManyToOne(cascade = {CascadeType.ALL})
