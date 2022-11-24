@@ -50,10 +50,56 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
                     //console.log(specitemsList)
                 }
+        }      
+      }; 
+      
+    function selectTableColumns() {  
+        console.log("hi");
+        if (document.getElementById('ShortNameBox').checked) {
+            let selects = document.getElementsByClassName("shortNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("shortNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
         }
-        
-            
-      };  
+        if (document.getElementById('LongNameBox').checked) {
+            let selects = document.getElementsByClassName("longNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("longNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('CommitBox').checked) {
+            let selects = document.getElementsByClassName("commitCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("commitCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('VersionBox').checked) {
+            let selects = document.getElementsByClassName("versionCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("versionCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+    }
     
     useEffect(() => {
         async function handleGet(){
@@ -100,29 +146,40 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     <button onClick={handleFilter}>Filter</button>
                     <select onChange={event => handleTypeChange(event)}>
                             <option value="ID">ID</option>
-                            <option value="Content">Content</option>
-                            
-                            
+                            <option value="Content">Content</option>                       
                         </select>
+                        
                     </div>
-                    
+
+                    <div>
+                        <input type="checkbox" id="ShortNameBox" defaultChecked ></input>
+                        <label htmlFor="ShortNameBox">ShortName</label>
+                        <input type="checkbox" id="LongNameBox" defaultChecked ></input>
+                        <label htmlFor="LongNameBox">LongName</label>
+                        <input type="checkbox" id="CommitBox" defaultChecked></input>
+                        <label htmlFor="CommitBox">Commit</label>
+                        <input type="checkbox" id="VersionBox" defaultChecked></input>
+                        <label htmlFor="VersionBox">Version</label>
+                        <button onClick={selectTableColumns}>Apply</button>
+                    </div>
+
                     <table>
                         <tr>
                             
-                            <th>ShortName</th>
-                            <th>LongName</th>
-                            <th>Commit</th>
-                            <th>Version</th>
-                            <th></th>
+                            <th class="shortNameCell">ShortName</th>
+                            <th class="longNameCell">LongName</th>
+                            <th class="commitCell">Commit</th>
+                            <th class="versionCell">Version</th>
+                            <th>Link</th>
                         </tr>
                         {specitemsList.map((val,key) => {
                         return (
                                 <tr key={key}>
                                     
-                                    <td>{val.shortName}</td>
-                                    <td>{val.longName}</td>
-                                    <td>{(val.commit? val.commit.id: '')}</td>
-                                    <td>{val.version}</td>
+                                    <td class="shortNameCell">{val.shortName}</td>
+                                    <td class="longNameCell">{val.longName}</td>
+                                    <td class="commitCell">{(val.commit? val.commit.id: '')}</td>
+                                    <td class="versionCell">{val.version}</td>
                                     <td><Link to={`/specitem/${val.shortName}`}>
                                             <button className='' >     
                                                 Select
