@@ -99,6 +99,72 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                selects[i].style.display = 'none';
             }
         }
+        if (document.getElementById('fingerprintBox').checked) {
+            let selects = document.getElementsByClassName("fingerprintCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("fingerprintCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('CategoryBox').checked) {
+            let selects = document.getElementsByClassName("categoryCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("categoryCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('LcStatusBox').checked) {
+            let selects = document.getElementsByClassName("lcstatusCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("lcstatusCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('UseInsteadBox').checked) {
+            let selects = document.getElementsByClassName("useinsteadCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("useinsteadCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('TraceRefsBox').checked) {
+            let selects = document.getElementsByClassName("traceRefsCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("traceRefsCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('contentBox').checked) {
+            let selects = document.getElementsByClassName("contentCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("contentCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
     }
     
     useEffect(() => {
@@ -154,12 +220,24 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     <div>
                         <input type="checkbox" id="ShortNameBox" defaultChecked ></input>
                         <label htmlFor="ShortNameBox">ShortName</label>
+                        <input type="checkbox" id="fingerprintBox" defaultChecked ></input>
+                        <label htmlFor="fingerprintBox">Fingerprint</label>
+                        <input type="checkbox" id="CategoryBox" defaultChecked ></input>
+                        <label htmlFor="CategoryBox">Category</label>
+                        <input type="checkbox" id="LcStatusBox" defaultChecked ></input>
+                        <label htmlFor="LcStatusBox">LcStatus</label>
+                        <input type="checkbox" id="UseInsteadBox" defaultChecked ></input>
+                        <label htmlFor="UseInsteadBox">UseInstead</label>
+                        <input type="checkbox" id="TraceRefsBox" defaultChecked ></input>
+                        <label htmlFor="TraceRefsBox">traceRefs</label>
                         <input type="checkbox" id="LongNameBox" defaultChecked ></input>
                         <label htmlFor="LongNameBox">LongName</label>
                         <input type="checkbox" id="CommitBox" defaultChecked></input>
                         <label htmlFor="CommitBox">Commit</label>
                         <input type="checkbox" id="VersionBox" defaultChecked></input>
                         <label htmlFor="VersionBox">Version</label>
+                        <input type="checkbox" id="contentBox" defaultChecked></input>
+                        <label htmlFor="contentBox">Content</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
 
@@ -167,9 +245,15 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                         <tr>
                             
                             <th class="shortNameCell">ShortName</th>
+                            <th class="fingerprintCell">Fingerprint</th>
+                            <th class="categoryCell">Category</th>
+                            <th class="lcstatusCell">LcStatus</th>
+                            <th class="useinsteadCell">UseInstead</th>
+                            <th class="traceRefsCell">traceRefs</th>
                             <th class="longNameCell">LongName</th>
                             <th class="commitCell">Commit</th>
                             <th class="versionCell">Version</th>
+                            <th class="contentCell">Content</th>
                             <th>Link</th>
                         </tr>
                         {specitemsList.map((val,key) => {
@@ -177,9 +261,16 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                                 <tr key={key}>
                                     
                                     <td class="shortNameCell">{val.shortName}</td>
+                                    <td class="fingerprintCell">{val.fingerprint}</td>
+                                    <td class="categoryCell">{val.category}</td>
+                                    <td class="lcstatusCell">{val.lcStatus}</td>
+                                    <td class="useinsteadCell">{val.useInstead}</td>
+                                    <td class="traceRefsCell">{val.traceRefs}</td>
                                     <td class="longNameCell">{val.longName}</td>
                                     <td class="commitCell">{(val.commit? val.commit.id: '')}</td>
                                     <td class="versionCell">{val.version}</td>
+                                    <td class="contentCell">{val.content}</td>
+
                                     <td><Link to={`/specitem/${val.shortName}`}>
                                             <button className='' >     
                                                 Select
