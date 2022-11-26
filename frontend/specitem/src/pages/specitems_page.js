@@ -54,7 +54,8 @@ export default function SpecitemsPage({ exportList, setExportList}) {
       }; 
       
     function selectTableColumns() {  
-        /*if (document.getElementById('ShortNameBox').checked) {
+        console.log("hi");
+        if (document.getElementById('ShortNameBox').checked) {
             let selects = document.getElementsByClassName("shortNameCell");
             for(var i =0, il = selects.length;i<il;i++){
                selects[i].style.display = '';
@@ -64,7 +65,7 @@ export default function SpecitemsPage({ exportList, setExportList}) {
             for(var i =0, il = selects.length;i<il;i++){
                selects[i].style.display = 'none';
             }
-        }*/
+        }
         if (document.getElementById('LongNameBox').checked) {
             let selects = document.getElementsByClassName("longNameCell");
             for(var i =0, il = selects.length;i<il;i++){
@@ -153,7 +154,7 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                selects[i].style.display = 'none';
             }
         }
-        /*if (document.getElementById('contentBox').checked) {
+        if (document.getElementById('contentBox').checked) {
             let selects = document.getElementsByClassName("contentCell");
             for(var i =0, il = selects.length;i<il;i++){
                selects[i].style.display = '';
@@ -163,7 +164,7 @@ export default function SpecitemsPage({ exportList, setExportList}) {
             for(var i =0, il = selects.length;i<il;i++){
                selects[i].style.display = 'none';
             }
-        }*/
+        }
     }
     
     useEffect(() => {
@@ -217,8 +218,8 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     </div>
 
                     <div>
-                        {/*<input type="checkbox" id="ShortNameBox" defaultChecked ></input>
-                        <label htmlFor="ShortNameBox">ShortName</label>*/}
+                        <input type="checkbox" id="ShortNameBox" defaultChecked ></input>
+                        <label htmlFor="ShortNameBox">ShortName</label>
                         <input type="checkbox" id="fingerprintBox" defaultChecked ></input>
                         <label htmlFor="fingerprintBox">Fingerprint</label>
                         <input type="checkbox" id="CategoryBox" defaultChecked ></input>
@@ -235,8 +236,8 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                         <label htmlFor="CommitBox">Commit</label>
                         <input type="checkbox" id="VersionBox" defaultChecked></input>
                         <label htmlFor="VersionBox">Version</label>
-                        {/*<input type="checkbox" id="contentBox" defaultChecked></input>
-                        <label htmlFor="contentBox">Content</label>*/}
+                        <input type="checkbox" id="contentBox" defaultChecked></input>
+                        <label htmlFor="contentBox">Content</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
 
