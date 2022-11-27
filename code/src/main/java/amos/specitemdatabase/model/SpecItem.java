@@ -1,10 +1,17 @@
 package amos.specitemdatabase.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.*;
 
 /**
  * Represents a SpecItem together with the corresponding commit information.
@@ -12,11 +19,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@IdClass(SpecItemId.class)
 public class SpecItem {
 
     private String fingerprint;
     @Id
     private String shortName;
+    @Column(columnDefinition = "TIMESTAMP")
+    @Id
+    private LocalDateTime time;
     @Enumerated(EnumType.ORDINAL)
     private Category category;
     @Enumerated(EnumType.ORDINAL)
@@ -31,8 +42,6 @@ public class SpecItem {
     @ManyToOne
     private Commit commit;
 
-    private short version;
-
     public SpecItem(final SpecItemBuilder specItemBuilder) {
         this.fingerprint = specItemBuilder.getFingerprint();
         this.shortName = specItemBuilder.getShortName();
@@ -43,6 +52,7 @@ public class SpecItem {
         this.longName = specItemBuilder.getLongName();
         this.content = specItemBuilder.getContent();
         this.commit = specItemBuilder.getCommit();
+        this.time = this.commit.getCommitTime();
     }
 
     public SpecItem() {

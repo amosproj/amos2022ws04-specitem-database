@@ -1,13 +1,12 @@
 package amos.specitemdatabase.filegenerator;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @SpringBootTest
 public class FileGeneratorServiceTest {
@@ -23,7 +22,7 @@ public class FileGeneratorServiceTest {
         // First, assert that the file does not exist
         Assertions.assertThat(Files.notExists(path));
         // Create a file using the file generator service
-        this.fileGenerator.generateFile(fileName, 2, 3);
+        this.fileGenerator.generateFile(fileName, 2);
         // Now, check if the file was created
         Assertions.assertThat(Files.exists(path));
         //final File file = path.toFile();
