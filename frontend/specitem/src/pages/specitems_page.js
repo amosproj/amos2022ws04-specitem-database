@@ -50,10 +50,121 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
                     //console.log(specitemsList)
                 }
+        }      
+      }; 
+      
+    function selectTableColumns() {  
+        /*if (document.getElementById('ShortNameBox').checked) {
+            let selects = document.getElementsByClassName("shortNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("shortNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }*/
+        if (document.getElementById('LongNameBox').checked) {
+            let selects = document.getElementsByClassName("longNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("longNameCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
         }
-        
-            
-      };  
+        if (document.getElementById('CommitBox').checked) {
+            let selects = document.getElementsByClassName("commitCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("commitCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('VersionBox').checked) {
+            let selects = document.getElementsByClassName("versionCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("versionCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('fingerprintBox').checked) {
+            let selects = document.getElementsByClassName("fingerprintCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("fingerprintCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('CategoryBox').checked) {
+            let selects = document.getElementsByClassName("categoryCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("categoryCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('LcStatusBox').checked) {
+            let selects = document.getElementsByClassName("lcstatusCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("lcstatusCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('UseInsteadBox').checked) {
+            let selects = document.getElementsByClassName("useinsteadCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("useinsteadCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        if (document.getElementById('TraceRefsBox').checked) {
+            let selects = document.getElementsByClassName("traceRefsCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("traceRefsCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }
+        /*if (document.getElementById('contentBox').checked) {
+            let selects = document.getElementsByClassName("contentCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = '';
+            }
+        } else {
+            let selects = document.getElementsByClassName("contentCell");
+            for(var i =0, il = selects.length;i<il;i++){
+               selects[i].style.display = 'none';
+            }
+        }*/
+    }
     
     useEffect(() => {
         async function handleGet(){
@@ -100,29 +211,65 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                     <button onClick={handleFilter}>Filter</button>
                     <select onChange={event => handleTypeChange(event)}>
                             <option value="ID">ID</option>
-                            <option value="Content">Content</option>
-                            
-                            
+                            <option value="Content">Content</option>                       
                         </select>
+                        
                     </div>
-                    
+
+                    <div>
+                        {/*<input type="checkbox" id="ShortNameBox" defaultChecked ></input>
+                        <label htmlFor="ShortNameBox">ShortName</label>*/}
+                        <input type="checkbox" id="fingerprintBox" defaultChecked ></input>
+                        <label htmlFor="fingerprintBox">Fingerprint</label>
+                        <input type="checkbox" id="CategoryBox" defaultChecked ></input>
+                        <label htmlFor="CategoryBox">Category</label>
+                        <input type="checkbox" id="LcStatusBox" defaultChecked ></input>
+                        <label htmlFor="LcStatusBox">LcStatus</label>
+                        <input type="checkbox" id="UseInsteadBox" defaultChecked ></input>
+                        <label htmlFor="UseInsteadBox">UseInstead</label>
+                        <input type="checkbox" id="TraceRefsBox" defaultChecked ></input>
+                        <label htmlFor="TraceRefsBox">traceRefs</label>
+                        <input type="checkbox" id="LongNameBox" defaultChecked ></input>
+                        <label htmlFor="LongNameBox">LongName</label>
+                        <input type="checkbox" id="CommitBox" defaultChecked></input>
+                        <label htmlFor="CommitBox">Commit</label>
+                        <input type="checkbox" id="VersionBox" defaultChecked></input>
+                        <label htmlFor="VersionBox">Version</label>
+                        {/*<input type="checkbox" id="contentBox" defaultChecked></input>
+                        <label htmlFor="contentBox">Content</label>*/}
+                        <button onClick={selectTableColumns}>Apply</button>
+                    </div>
+
                     <table>
                         <tr>
                             
-                            <th>ShortName</th>
-                            <th>LongName</th>
-                            <th>Commit</th>
-                            <th>Version</th>
-                            <th></th>
+                            <th class="shortNameCell">ShortName</th>
+                            <th class="fingerprintCell">Fingerprint</th>
+                            <th class="categoryCell">Category</th>
+                            <th class="lcstatusCell">LcStatus</th>
+                            <th class="useinsteadCell">UseInstead</th>
+                            <th class="traceRefsCell">traceRefs</th>
+                            <th class="longNameCell">LongName</th>
+                            <th class="commitCell">Commit</th>
+                            <th class="versionCell">Version</th>
+                            <th class="contentCell">Content</th>
+                            <th>Link</th>
                         </tr>
                         {specitemsList.map((val,key) => {
                         return (
                                 <tr key={key}>
                                     
-                                    <td>{val.shortName}</td>
-                                    <td>{val.longName}</td>
-                                    <td>{(val.commit? val.commit.id: '')}</td>
-                                    <td>{val.version}</td>
+                                    <td class="shortNameCell">{val.shortName}</td>
+                                    <td class="fingerprintCell">{val.fingerprint}</td>
+                                    <td class="categoryCell">{val.category}</td>
+                                    <td class="lcstatusCell">{val.lcStatus}</td>
+                                    <td class="useinsteadCell">{val.useInstead}</td>
+                                    <td class="traceRefsCell">{val.traceRefs}</td>
+                                    <td class="longNameCell">{val.longName}</td>
+                                    <td class="commitCell">{(val.commit? val.commit.id: '')}</td>
+                                    <td class="versionCell">{val.version}</td>
+                                    <td class="contentCell">{val.content}</td>
+
                                     <td><Link to={`/specitem/${val.shortName}`}>
                                             <button className='' >     
                                                 Select
