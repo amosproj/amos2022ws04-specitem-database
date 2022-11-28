@@ -1,15 +1,21 @@
 package amos.specitemdatabase.importer;
-import amos.specitemdatabase.model.*;
 
-import java.io.*;
+import static amos.specitemdatabase.model.Commit.getCommitFromString;
+
+import amos.specitemdatabase.model.Commit;
+import amos.specitemdatabase.model.ProcessedDocument;
+import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.SpecItemBuilder;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static amos.specitemdatabase.model.Commit.getCommitFromString;
 
 public class SpecItemParser implements SpecItemParserInterface{
 
@@ -55,14 +61,15 @@ public class SpecItemParser implements SpecItemParserInterface{
         Commit commit = getCommitFromString(specItemsList.get(0));
         specItemsList.remove(0);
 
-        return new ProcessedDocument(commit, getSpecItemsFromString(specItemsList));
+        return new ProcessedDocument(commit, getSpecItemsFromString(specItemsList, commit));
     }
 
-    private List<SpecItem> getSpecItemsFromString(List<String> specItemsList){
+    private List<SpecItem> getSpecItemsFromString(List<String> specItemsList, Commit commit){
         final String regex = "(Fingerprint: (?<Fingerprint>\\w+)\\R)(ShortName: (?<ShortName>\\w+)\\R)(Category: (?<Category>\\w*)\\R)(LC-Status: (?<LCStatus>\\w*)\\R)(UseInstead: (?<UseInstead>[\\S ]*)\\R)(TraceRefs: (?<TraceRefs>[\\S ]*)\\R)(LongName: (?<LongName>[\\S ]*)\\R)(Content: (?<Content>[\\S ]+))";
         final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
         Matcher matcher;
         SpecItemBuilder specItemBuilder = new SpecItemBuilder();
+        specItemBuilder.setCommit(commit);
         List<SpecItem> specItems = new ArrayList<>();
 
         for (String item: specItemsList) {
@@ -76,7 +83,7 @@ public class SpecItemParser implements SpecItemParserInterface{
                     matcher.group("LongName"),
                     matcher.group("Content")
             );
-
+            specItemBuilder.setTraceRefs(matcher.group("TraceRefs"));
             specItems.add(new SpecItem(specItemBuilder));
         }
 
