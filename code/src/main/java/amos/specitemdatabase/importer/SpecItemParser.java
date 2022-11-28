@@ -83,7 +83,7 @@ public class SpecItemParser implements SpecItemParserInterface{
                     matcher.group("LongName"),
                     matcher.group("Content")
             );
-
+            specItemBuilder.setTraceRefs(matcher.group("TraceRefs"));
             specItems.add(new SpecItem(specItemBuilder));
         }
 

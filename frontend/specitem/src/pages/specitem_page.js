@@ -57,9 +57,13 @@ export default function SpecitemPage({ exportList, setExportList}) {
                 <div>
                 useInstead: {specitem.useInstead}
                 </div>
-                <div>
-                    traceRefs: {specitem.traceRefs}
-                </div>
+                traceRefs:
+                {
+                    ' ' +
+                    specitem.traceRefs.join(", ")
+                
+                }
+                
                 <div>
                 Longname: {specitem.longName}
                 </div>
