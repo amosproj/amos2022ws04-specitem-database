@@ -1,6 +1,6 @@
 import Documents from '../components/documents'
 import '../App.css';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
@@ -10,13 +10,21 @@ export default function SpecitemsPage({ exportList, setExportList}) {
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
     const [type, setType] = useState('ID');
+    const [limitTraceRef, setLimitTraceRef] = useState('')
 
+    useEffect(() => {
+        console.log(limitTraceRef)
+      }, [limitTraceRef]);
     const handleChange = event => {
         setMessage(event.target.value);
     };
     const handleTypeChange = event => {
         setType(event.target.value);
     };
+
+    async function checkRef(ref){
+        return false
+    }
 
     async function handleFilter(event) {
         if(message == ''){
@@ -170,6 +178,7 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                             </tr>
 
                             {specitemsList.map((val,key) => {
+                            
                             return (
                                     <tr key={key}>
 
@@ -178,11 +187,28 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                                         <td className="CategoryCell">{val.category}</td>
                                         <td className="LcStatusCell">{val.lcStatus}</td>
                                         <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell">{trimLongerStrings(val.traceRefs)}</td>
+                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
+                                                {val.traceRefs.map((val,key) => {
+                            
+                                                return (
+                                                <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
+                                                    <td width='10px' >{trimLongerStrings(val)}</td> 
+                                                    :
+                                                    <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
+                                                }
+                                                </tr>)})}
+                                                <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                            </table>) }
+                                            <div></div>
+                                            {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
+                                            </div>
+                                        </td>
+                                        
                                         <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
                                         <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
                                         <td className="VersionCell">{val.version}</td>
                                         <td className="ContentCell">{trimLongerStrings(val.content)}</td>
+                                        
 
                                         <td><Link to={`/specitem/${val.shortName}`}>
                                                 <button className='' >
