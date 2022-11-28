@@ -26,7 +26,7 @@ export default function ExportPage({ exportList, setExportList}) {
             for(let i = 0; i < keys.length; i++) {
                 keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
                 if(keys[i] == "Content") {
-                    text += `${keys[i]}:\n ${values[i]}\n`;
+                    text += `${keys[i]}:\n${values[i]}\n`;
                 } else {
                     text += `${keys[i]}: ${values[i]}\n`;
                 }

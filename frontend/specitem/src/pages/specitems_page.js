@@ -87,11 +87,10 @@ export default function SpecitemsPage({ exportList, setExportList}) {
     return(
         <div style={{width: '100%'}}>
                 <div className="save-export">
-                    <button className='save-export-button' data-testid="saveExport" onClick={() => appendExportList()}>Save to Export</button>
+                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
                 </div>
                 {specitemsList.length !== 0 &&
                 <div>
-                    <p data-testid="exportList">{exportList}</p>
                     <div>
                         <input onChange={handleChange}
                             value={message}>

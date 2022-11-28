@@ -22,7 +22,7 @@ function App() {
           <Routes>
             <Route path={ROUTES.DASHBOARD} element={<Dashboard/>} />
             <Route path={ROUTES.SPECITEMS} element={<Specitems exportList={exportList} setExportList={setExportList}/>} />
-            <Route path={ROUTES.SPECITEM} element={<Specitem exportList={exportList} setExportList={setExportList}/>} />
+            <Route path={ROUTES.SPECITEM} element={<Specitem/>} />
             <Route path={ROUTES.EXPORT} element={<Export exportList={exportList} setExportList={setExportList}/>} />
           </Routes>
         </Suspense>
