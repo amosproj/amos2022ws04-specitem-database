@@ -168,3 +168,14 @@ td {
 .specitem-label {
   background-color: antiquewhite;
 }
+table {
+  table-layout:auto;
+  width: 100%;
+}
+td {
+  max-inline-size:18em;
+  max-height: none;
+}
+td > .LongNameCell .ContentCell {
+  word-wrap:break-word;
+}
