@@ -1,11 +1,13 @@
 import * as ROUTES from '../constants/routes';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { toast } from "react-toastify";
+import Context from '../context/Context';
 
-export default function ExportPage({ exportList, setExportList}) {
+export default function ExportPage() {
 
     const [textFile, setTextFile] = useState(null);
+    const { exportList, setExportList} = useContext(Context);
 
     function handleRemove(shortName) {
         console.log("Removing...");
@@ -26,7 +28,9 @@ export default function ExportPage({ exportList, setExportList}) {
             for(let i = 0; i < keys.length; i++) {
                 keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
                 if(keys[i] == "Content") {
-                    text += `${keys[i]}:\n ${values[i]}\n`;
+                    text += `${keys[i]}:\n${values[i]}\n`;
+                } else if (keys[i] == "Commit" || keys[i] == "Time") {
+                    continue;
                 } else {
                     text += `${keys[i]}: ${values[i]}\n`;
                 }

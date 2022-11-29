@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom'
 import { toast } from "react-toastify";
 import TagsInput from '../components/tagsinput'
 
-export default function SpecitemPage({ exportList, setExportList}) {
+export default function SpecitemPage() {
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
     useEffect(() => {
@@ -23,25 +23,11 @@ export default function SpecitemPage({ exportList, setExportList}) {
         
         handleGet()
       }, []);
-    
-    function appendExportList() {
-        let list = exportList;
-        if(list.filter(s => s.shortName == specitem.shortName).length > 0) {
-            toast.error('Specitem already exists');
-            return;
-        }
-        list.push(specitem);
-        setExportList(list);
-        toast.success('Saved')
-    }
 
     return(
         <div style={{width: '100%'}} className='App-tb'>
         { specitem &&
             <div>
-                <div className="save-export">
-                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
-                </div>
                 <div>
                     ID: {specitem.shortName}
                 </div>
@@ -57,9 +43,13 @@ export default function SpecitemPage({ exportList, setExportList}) {
                 <div>
                 useInstead: {specitem.useInstead}
                 </div>
-                <div>
-                    traceRefs: {specitem.traceRefs}
-                </div>
+                traceRefs:
+                {
+                    ' ' +
+                    specitem.traceRefs.join(", ")
+                
+                }
+                
                 <div>
                 Longname: {specitem.longName}
                 </div>

@@ -1,15 +1,8 @@
 package amos.specitemdatabase.model;
 
 import static amos.specitemdatabase.importer.SpecItemParser.restoreWholeText;
-import static amos.specitemdatabase.utils.SpecItemConstants.CATEGORY;
-import static amos.specitemdatabase.utils.SpecItemConstants.CONTENT;
-import static amos.specitemdatabase.utils.SpecItemConstants.LC_STATUS;
-import static amos.specitemdatabase.utils.SpecItemConstants.LONG_NAME;
-import static amos.specitemdatabase.utils.SpecItemConstants.SHORT_NAME;
 
 import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 
 /**
@@ -42,20 +35,6 @@ public class SpecItemBuilder {
         return this;
     }
 
-    /**
-     * The builder for setting mandatory fields of a spec item
-     * @param fieldToValue a mapping between attributes and their values
-     * @return a builder with mandatory fields set
-     */
-    public SpecItemBuilder fromMap(final Map<String, String> fieldToValue) {
-        this.shortName = fieldToValue.get(SHORT_NAME);
-        this.category = Category.get(fieldToValue.get(CATEGORY));
-        this.lcStatus = LcStatus.get(fieldToValue.get(LC_STATUS));
-        this.longName = fieldToValue.get(LONG_NAME);
-        this.content = fieldToValue.get(CONTENT);
-        return this;
-    }
-
     public SpecItemBuilder setTraceRefs(final String traceRefs) {
         if (!traceRefs.isEmpty()) {
             this.traceRefs = List.of(traceRefs.split(" *, *"));
@@ -63,8 +42,8 @@ public class SpecItemBuilder {
         return this;
     }
 
-    public SpecItemBuilder setCommit(final String commit) {
-        this.commit = Commit.getCommitFromString(commit);
+    public SpecItemBuilder setCommit(final Commit commit) {
+        this.commit = commit;
         return this;
     }
 

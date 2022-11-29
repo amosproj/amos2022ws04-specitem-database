@@ -21,6 +21,8 @@ public interface FileGenerator {
     void generateFile(final String name, final int numberOfCompleteSpecItems,
                       final int numberOfUpdatedSpecItems);
 
+    void generateFile(String name, final int numberOfCompleteSpecItems);
+
     File generateAndGetFile(final String name, final int numberOfCompleteSpecItems,
                             final int numberOfUpdatedSpecItems);
 

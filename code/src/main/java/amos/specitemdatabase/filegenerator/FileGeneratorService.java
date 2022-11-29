@@ -56,6 +56,11 @@ public class FileGeneratorService implements FileGenerator {
         this.generateAndGetFile(name, numberOfCompleteSpecItems, numberOfUpdatedSpecItems);
     }
 
+    @Override
+    public void generateFile(final String name, final int numberOfCompleteSpecItems) {
+        this.generateAndGetFile(name, numberOfCompleteSpecItems, 0);
+    }
+
     private void validateInput(final String name, final int numberOfCompleteSpecItems,
                                final int numberOfUpdatedSpecItems) {
 
