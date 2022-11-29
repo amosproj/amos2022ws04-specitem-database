@@ -5,16 +5,21 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import * as ROUTES from './constants/routes';
 import { useState, lazy, Suspense } from 'react';
+import UserContext from './context/user';
 
 const Dashboard = lazy(() => import('./pages/main_page'));
 const Specitems = lazy(() => import('./pages/specitems_page'));
 const Specitem = lazy(() => import('./pages/specitem_page'));
 const Export = lazy(() => import('./pages/export'))
 
+
 function App() {
   const [exportList, setExportList] = useState([]);
+  const [language, setLanguage] = useState("en");
+  const value = { language, setLanguage };
 
   return (
+    <UserContext.Provider value={value}> 
     <div className="App">
       
       <Router>
@@ -29,6 +34,7 @@ function App() {
       </Router>  
       <ToastContainer autoClose={3000} hideProgressBar />
     </div>
+    </UserContext.Provider>
   );
 }
 

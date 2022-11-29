@@ -1,13 +1,15 @@
 import Documents from '../components/documents'
 import '../App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { useParams } from 'react-router-dom'
 import { toast } from "react-toastify";
 import TagsInput from '../components/tagsinput'
+import UserContext from '../context/user';
 
 export default function SpecitemPage({ exportList, setExportList}) {
+    const { language, setLanguage } = useContext(UserContext);
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
     useEffect(() => {
@@ -87,7 +89,18 @@ export default function SpecitemPage({ exportList, setExportList}) {
                 <button className='button-close' >     
                 Back
             </button>  
+             
                 </Link>
+                <button onClick={() => {console.log(language)}} >     
+                print current language
+            </button> 
+                <button onClick={() => {setLanguage("jp")}} >     
+                change the context to jp
+            </button> 
+            
+                <button onClick={() => {setLanguage("tr")}} >     
+                change the context to tr
+            </button> 
                 </div>
 
             
