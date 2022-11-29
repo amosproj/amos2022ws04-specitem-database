@@ -4,14 +4,17 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
+import CollapseContent from '../components/collapseContent';
+import Context from '../context/Context';
 
-export default function SpecitemsPage({ exportList, setExportList}) {
+export default function SpecitemsPage() {
 
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
     const [type, setType] = useState('ID');
     const [limitTraceRef, setLimitTraceRef] = useState('')
-
+    const { exportList, setExportList} = useContext(Context);
+    
     useEffect(() => {
         console.log(limitTraceRef)
       }, [limitTraceRef]);
@@ -182,11 +185,11 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                                     <tr key={key}>
 
                                         <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
-                                        <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
-                                        <td className="CategoryCell">{val.category}</td>
-                                        <td className="LcStatusCell">{val.lcStatus}</td>
-                                        <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
+                                        <td className="FingerprintCell" style={{width: "10%"}}>{trimLongerStrings(val.fingerprint)}</td>
+                                        <td className="CategoryCell" style={{width: "10%"}}>{val.category}</td>
+                                        <td className="LcStatusCell" style={{width: "10%"}}>{val.lcStatus}</td>
+                                        <td className="UseInsteadCell" style={{width: "10%"}}>{val.useInstead}</td>
+                                        <td className="TraceRefsCell" style={{width: "10%"}}><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
                                                 {val.traceRefs.map((val,key) => {
                             
                                                 return (
@@ -203,13 +206,17 @@ export default function SpecitemsPage({ exportList, setExportList}) {
                                             </div>
                                         </td>
                                         
-                                        <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
-                                        <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
-                                        <td className="VersionCell">{val.version}</td>
-                                        <td className="ContentCell">{trimLongerStrings(val.content)}</td>
-                                        
-
-                                        <td><Link to={`/specitem/${val.shortName}`}>
+                                        <td className="LongNameCell" style={{width: "10%"}}>
+                                            <CollapseContent trimContent={trimLongerStrings(val.longName)} 
+                                                            fullContent= {val.longName}></CollapseContent>
+                                        </td>
+                                        <td className="CommitCell" style={{width: "10%"}}>{(val.commit? val.commit.id: '')}</td>
+                                        <td className="VersionCell" style={{width: "5%"}}>{val.version}</td>
+                                        <td className="ContentCell" style={{width: "10%"}}>
+                                            <CollapseContent trimContent={trimLongerStrings(val.content)} 
+                                                            fullContent= {val.content}></CollapseContent>
+                                        </td>
+                                        <td style={{width: "5%"}}><Link to={`/specitem/${val.shortName}`}>
                                                 <button className='' >
                                                     Select
                                                     </button>
