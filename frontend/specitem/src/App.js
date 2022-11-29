@@ -15,7 +15,7 @@ const Export = lazy(() => import('./pages/export'))
 function App() {
   const [exportList, setExportList] = useState([]);
   const value = {exportList, setExportList};
-  
+
   return (
     <div className="App">
       <Context.Provider value={value}>
@@ -23,9 +23,9 @@ function App() {
           <Suspense fallback={<p>Loading...</p>}>
             <Routes>
               <Route path={ROUTES.DASHBOARD} element={<Dashboard/>} />
-              <Route path={ROUTES.SPECITEMS} element={<Specitems exportList={exportList} setExportList={setExportList}/>} />
+              <Route path={ROUTES.SPECITEMS} element={<Specitems/>} />
               <Route path={ROUTES.SPECITEM} element={<Specitem/>} />
-              <Route path={ROUTES.EXPORT} element={<Export exportList={exportList} setExportList={setExportList}/>} />
+              <Route path={ROUTES.EXPORT} element={<Export/>} />
             </Routes>
           </Suspense>
         </Router> 
