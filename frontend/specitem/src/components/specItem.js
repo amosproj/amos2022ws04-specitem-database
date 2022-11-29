@@ -1,6 +1,4 @@
 import '../App.css';
-import { useEffect, useState } from 'react';
-
 
 export default function specItem({specItem, setSelectSpecItem}) {
 
