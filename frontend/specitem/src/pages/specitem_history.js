@@ -3,14 +3,16 @@ import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
+import { useParams } from 'react-router-dom'
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
 
 export default function SpecitemsPage() {
 
+    const { id } = useParams()
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
-    const [type, setType] = useState('ID');
+    const [type, setType] = useState('Content');
     const [limitTraceRef, setLimitTraceRef] = useState('')
     const { exportList, setExportList} = useContext(Context);
     
@@ -30,7 +32,7 @@ export default function SpecitemsPage() {
 
     async function handleFilter(event) {
         if(message == ''){
-            const response = await fetch('http://localhost:8080/get/all' , {
+            const response = await fetch('http://localhost:8080/get/history/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -38,30 +40,23 @@ export default function SpecitemsPage() {
             if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         }
         else {
-            if (type === 'ID') {
-                const response = await fetch('http://localhost:8080/get/' + message, {
-                    method: 'GET',
-                });
-
-                const responseText = await response.text();
-                console.log(responseText)
-                //console.log(specitemsList)
-                if (responseText !== '') {
-                    setSpecitemsList([JSON.parse(responseText)])
-                }
-                //console.log(specitemsList)
-            } else {
+            if(type === 'Content') {
                 const response = await fetch('http://localhost:8080/get/cont:' + message, {
                     method: 'GET',
                 });
-
                 const responseText = await response.text();
                 console.log(responseText)
                 //console.log(specitemsList)
                 if (responseText !== '') {
-                    setSpecitemsList(JSON.parse(responseText))
+                    let body = JSON.parse(responseText);
+                    let tmp = [];
+                    for(let i = 0; i < body.length; i++){
+                        if (body[i].shortName === id){
+                            tmp.push(body[i]);
+                        }
+                    }
+                    setSpecitemsList(tmp.sort(compare))
                 }
-                //console.log(specitemsList)
             }
         }
     }
@@ -85,15 +80,28 @@ export default function SpecitemsPage() {
             }
         }
     }
-    
+
+    function compare(a, b) {
+        if (a.time > b.time){
+          return -1;
+        }
+        if (a.time < b.time){
+          return 1;
+        }
+        console.log(a.time)
+        return 0;
+    }
+       
     useEffect(() => {
         async function handleGet(){
-            const response = await fetch('http://localhost:8080/get/all' , {
+            const response = await fetch('http://localhost:8080/get/history/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
             console.log(responseText)
-            if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+            if(responseText !== ''){
+                setSpecitemsList(JSON.parse(responseText).sort(compare))}
+            
         }
         handleGet()
         
@@ -136,7 +144,6 @@ export default function SpecitemsPage() {
                         </input>
                     <button onClick={handleFilter}>Filter</button>
                     <select onChange={event => handleTypeChange(event)}>
-                            <option value="ID">ID</option>
                             <option value="Content">Content</option>                       
                         </select>
                         
