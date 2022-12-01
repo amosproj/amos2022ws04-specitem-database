@@ -119,8 +119,8 @@ export default function SpecitemsPage() {
     function trimLongerStrings(stringToTrim) {
         if(stringToTrim == null || stringToTrim.length <= 15)
             return stringToTrim;
-        else if (stringToTrim.length > 15)
-            return stringToTrim.substring(0, 15) + "...";
+        else if (stringToTrim.length > 20)
+            return stringToTrim.substring(0, 20) + "...";
     }
 
     return(

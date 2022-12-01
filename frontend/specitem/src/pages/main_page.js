@@ -30,7 +30,6 @@ export default function MainPage() {
     const handleFileChange = (event) => {
         if (event.target.files && event.target.files[0]) {
           setFile(event.target.files[0])
-
         }
     }
     const onSubmit = async (data) => {
@@ -64,8 +63,6 @@ export default function MainPage() {
 
     return(
         <div style={{width: '100%'}}>
-            
-               
                 <div className='App-header'>
                     {!inputVisible &&
                     <div>
@@ -83,16 +80,16 @@ export default function MainPage() {
                     <div style={{justifyContent:'right', alignItems: 'center',display:'block', width:'600px'}}>
                         <div style={{marginBottom:'50px',marginTop:'20px', marginLeft:'100px'}}>File to Upload : {file?file.name:''}</div>
                         <div style={{marginLeft:'200px'}}>
-                            <label className="custom-file-upload"> 
+                            <label className="custom-file-upload">
                                 <input type="file" onChange={handleFileChange}/>
                                 Select file 
                             </label>
                         </div>
                         <div>
-                            <button style={{marginLeft:'200px'}} className='button' onClick={onSubmit}> Upload</button>
+                            <button style={{marginLeft:'200px'}} className='button' onClick={onSubmit}>Upload</button>
                         </div>
                         <div>
-                            <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}> Back</button>
+                            <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}>Back</button>
                         </div>  
                         
                     </div>    
