@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('./pages/main_page'));
 const Specitems = lazy(() => import('./pages/specitems_page'));
 const Specitem = lazy(() => import('./pages/specitem_page'));
 const Export = lazy(() => import('./pages/export'))
+const SpecitemHistory = lazy(() => import('./pages/specitem_history'))
 
 function App() {
   const [exportList, setExportList] = useState([]);
@@ -26,6 +27,7 @@ function App() {
               <Route path={ROUTES.SPECITEMS} element={<Specitems/>} />
               <Route path={ROUTES.SPECITEM} element={<Specitem/>} />
               <Route path={ROUTES.EXPORT} element={<Export/>} />
+              <Route path={ROUTES.SPECITEM_HISTORY} element={<SpecitemHistory/>} />
             </Routes>
           </Suspense>
         </Router> 

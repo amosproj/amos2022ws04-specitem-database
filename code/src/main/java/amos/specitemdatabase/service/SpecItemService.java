@@ -103,6 +103,22 @@ public class SpecItemService {
         }
         return null;
     }
+    
+    public List<SpecItem> getSpecItemsById(String specItemId){
+    	
+    	List<SpecItem> allSpecItems = specItemRepo.findAll();
+    	List<SpecItem> listSpecItems = new ArrayList<>();
+        for(SpecItem s: allSpecItems) {
+            if(s.getShortName().equals(specItemId)) {
+            	listSpecItems.add(s);
+            }
+        }
+        System.out.println(listSpecItems.size());
+        if(listSpecItems.size() > 0) {
+        	return listSpecItems;
+        }
+    	return null;
+    }
       
     public SpecItem deleteSpecItemById(String specItemId) {
 
@@ -127,13 +143,9 @@ public class SpecItemService {
 
     public List<SpecItem> getAllSpecItems() {
 
-        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
-        for(DocumentEntity d:listDocumentEntity) {
-            System.out.println(d.getCommit().toString());
-            List<SpecItem> list=d.getSpecItems();
-            if(list != null){
-                return list;
-            }
+        List<SpecItem> specItemList = specItemRepo.findAll();
+        if(specItemList != null){
+        	return specItemList;
         }
         return null;
     }
@@ -149,6 +161,15 @@ public class SpecItemService {
 //                 LocalDateTime.now(),
 //                 "author"
 //             );
+//             
+//             Commit commit2 = new Commit(
+//                     "hash",
+//                     "message",
+//                     LocalDateTime.of(2019, 03, 28, 14, 33, 48, 640000),
+//                     "author"
+//                 );
+//             
+//             
 //             SpecItem specItem = new SpecItem();
 //             specItem.setShortName("id");
 //             specItem.setContent("content");
@@ -157,10 +178,10 @@ public class SpecItemService {
 //             specItem.setLongName("longName");
 //             specItem.setUseInstead("useInstead");
 //             specItem.setTraceRefs(new LinkedList<>());
-//             specItem.setVersion((short) 5);
+//             specItem.setTime(commit.getCommitTime());
 //             specItem.setCategory(Category.CATEGORY1);
 //             specItem.setLcStatus(LcStatus.STATUS1);
-
+//
 //             SpecItem specItem2 = new SpecItem();
 //             specItem2.setShortName("id2");
 //             specItem2.setContent("content");
@@ -169,10 +190,10 @@ public class SpecItemService {
 //             specItem2.setLongName("longName");
 //             specItem2.setUseInstead("useInstead");
 //             specItem2.setTraceRefs(new LinkedList<>());
-//             specItem2.setVersion((short) 5);
+//             specItem2.setTime(commit.getCommitTime());
 //             specItem2.setCategory(Category.CATEGORY1);
 //             specItem2.setLcStatus(LcStatus.STATUS1);
-
+//
 //             SpecItem specItem3 = new SpecItem();
 //             specItem3.setShortName("id3");
 //             specItem3.setContent("content");
@@ -182,10 +203,24 @@ public class SpecItemService {
 //             specItem3.setLongName("longName");
 //             specItem3.setUseInstead("useInstead");
 //             specItem3.setTraceRefs(new LinkedList<>());
-//             specItem3.setVersion((short) 5);
+//             specItem3.setTime(commit.getCommitTime());
 //             specItem3.setCategory(Category.CATEGORY1);
 //             specItem3.setLcStatus(LcStatus.STATUS1);
-
+//             
+//             
+//             SpecItem specItem4 = new SpecItem();
+//             specItem4.setShortName("id3");
+//             specItem4.setContent("content4");
+//             specItem4.setContent("content");
+//             specItem4.setCommit(commit2);
+//             specItem4.setFingerprint("fingerprint");
+//             specItem4.setLongName("longName");
+//             specItem4.setUseInstead("useInstead");
+//             specItem4.setTraceRefs(new LinkedList<>());
+//             specItem4.setTime(commit2.getCommitTime());
+//             specItem4.setCategory(Category.CATEGORY1);
+//             specItem4.setLcStatus(LcStatus.STATUS1);
+//
 //             List<SpecItem> specItems = new ArrayList<>();
 //             specItems.add(specItem);
 //             specItems.add(specItem2);
@@ -193,9 +228,15 @@ public class SpecItemService {
 //             DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
 //             documentRepo.save(documentEntity);
 //             
+//             List<SpecItem> specItems2 = new ArrayList<>();
+//             specItems2.add(specItem4);
+//             DocumentEntity documentEntity2 = new DocumentEntity("name23",specItems2,commit2);
+//             documentRepo.save(documentEntity2);
+//             
+//             getSpecItemsById("id3");
 //             deleteSpecItemById(specItem2.getShortName());
 //             System.out.println("Document saved.");
-
+//
 //         };
 //     }
 // }
