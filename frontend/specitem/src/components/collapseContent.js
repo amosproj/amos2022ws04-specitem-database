@@ -1,19 +1,52 @@
-import { useState } from "react"
+import "./collapseContent.css";
+import { Link } from 'react-router-dom';
 
-export default function CollapseContent({trimContent, fullContent}) {
+export default function CollapseContent({specitemsList, specitem}) {
     
-    const [isExpanded, setExpanded] = useState(false);
+    
     
     return (
-        <div>
-            {!isExpanded && 
-            <div>{trimContent}</div>
-            }
-            {isExpanded &&
-            <div>{fullContent}</div>
-            }
-            <button onClick={()=>{setExpanded(!isExpanded)}}>Expand</button>
-        </div>
+        <table className="collapse-content">
+            <tr>
+                <td>ID:</td> <td>{specitem.shortName}</td>
+            </tr>
+            <tr>
+                <td>Fingerprint:</td> <td>{specitem.fingerprint}</td>
+            </tr>
+            <tr>
+                <td>Category:</td> <td>{specitem.category}</td>
+            </tr>
+            <tr>
+                <td>LcStatus:</td> <td>{specitem.lcStatus}</td>
+            </tr>
+            <tr>
+                <td>Use Instead:</td> <td>{specitem.useInstead}</td>
+            </tr>
+                <td>Trace References:</td> 
+                <td>
+                    {specitem.traceRefs.map((val,key) => {
+                    return (
+                        <span key={key}> 
+                            { 
+                                !specitemsList.map(a => a.shortName).includes(val)?
+                                <span>{val+" "}</span> 
+                                :
+                                <Link to={`/specitem/${val}`}>{val+" "}</Link>
+                            }
+                        </span>
+                    )})
+                    }
+                </td>
+            <tr>
+                <td>Longname:</td> <td>{specitem.longName}</td>
+            </tr>
+            <tr>
+                <td>Commit_ID:</td> <td>{specitem.commit? specitem.commit.id : ''}</td>
+            </tr>
+            <tr>
+                <td>Content: </td> <td>{specitem.content}</td>
+            </tr>
+        </table>
     );
 
 }
