@@ -119,11 +119,14 @@ table {
   border: 2px solid forestgreen;
   width: 100%;
   height: 200px;
-  table-layout: fixed;
+  table-layout: auto;
+}
+
+tr {
+  border-bottom: 1px solid black;
 }
 
 th {
-  border-bottom: 1px solid black;
   text-align: center;
 }
 
@@ -132,7 +135,7 @@ td {
 }
 
 td > .LongNameCell, div .ContentCell, div {
-  word-wrap:break-word;
+  word-wrap: break-word;
   text-align: justify-all;
 }
 

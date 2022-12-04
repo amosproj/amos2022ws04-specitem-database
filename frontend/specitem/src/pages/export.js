@@ -48,9 +48,11 @@ export default function ExportPage() {
 
     return (
         <div style={{width: '100%'}} className="App-tb">
+            {exportList.length != 0 &&
             <div className="save-export">
                 <button className='save-export-button' onClick={() => exportFile()}>Get Download Link</button>
             </div>
+            }
             {textFile && <a href={textFile} download="export.txt">Download link</a>}
             <h3>List of SpecItems</h3>
             <div>
