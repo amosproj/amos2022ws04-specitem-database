@@ -22,6 +22,7 @@ export default function CollapseContent({specitemsList, specitem}) {
             <tr>
                 <td>Use Instead:</td> <td>{specitem.useInstead}</td>
             </tr>
+            <tr>
                 <td>Trace References:</td> 
                 <td>
                     {specitem.traceRefs.map((val,key) => {
@@ -37,6 +38,7 @@ export default function CollapseContent({specitemsList, specitem}) {
                     )})
                     }
                 </td>
+            </tr>
             <tr>
                 <td>Longname:</td> <td>{specitem.longName}</td>
             </tr>

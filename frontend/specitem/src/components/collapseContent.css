@@ -1,5 +1,10 @@
 .collapse-content {
+    table-layout: auto;
+}
+
+.collapse-content > tr {
     width: 100%;
     background-color: beige;
     justify-content: center;
+    border-bottom: 1px solid;
 }
