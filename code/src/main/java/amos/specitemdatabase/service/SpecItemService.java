@@ -11,20 +11,16 @@ import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
-
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 
 @Service
 public class SpecItemService {
@@ -32,9 +28,7 @@ public class SpecItemService {
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
     private final FileConfig fileConfig;
-
     private final TagService tagService;
-
     private final int MAX_PER_PAGE = 50;
 
     @Autowired
