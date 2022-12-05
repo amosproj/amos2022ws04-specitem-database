@@ -22,7 +22,7 @@ public class FileGeneratorServiceTest {
         // First, assert that the file does not exist
         Assertions.assertThat(Files.notExists(path));
         // Create a file using the file generator service
-        this.fileGenerator.generateFile(fileName, 2);
+        this.fileGenerator.generateFile(fileName, 4);
         // Now, check if the file was created
         Assertions.assertThat(Files.exists(path));
         //final File file = path.toFile();
