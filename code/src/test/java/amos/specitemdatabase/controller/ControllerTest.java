@@ -1,24 +1,27 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.filegenerator.FileGeneratorService;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -31,16 +34,14 @@ class ControllerTest {
     @Autowired
     SpecItemRepo specItemRepo;
 
+    @Autowired
+    FileGeneratorService fileGeneratorService;
+
+    private String fileContent;
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
-
-    //test Controller ONLY
-    //Tested by using Postman
-    @Test
-    void testUploadDocument() throws Exception {
-        String fileContent = "CommitHash: #asdf\n" +
+        fileContent = "CommitHash: #asdf\n" +
                 "CommitDate: 2022-02-12 21:49:13\n" +
                 "CommitMsg: bla bla prank\n" +
                 "CommitAuthor: Mister Wallace\n" +
@@ -75,6 +76,12 @@ class ControllerTest {
                 "\n" +
                 "\n" +
                 "\n";
+    }
+
+    //test Controller ONLY
+    //Tested by using Postman
+    @Test
+    void testUploadDocument() throws Exception {
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
@@ -88,43 +95,61 @@ class ControllerTest {
         assertEquals(2, specItemRepo.count());
     }
 
-    private class Response {
-        public int status;
-        public String body;
+    @Test
+    void testGetAllSpecitems() throws Exception {
+        File file = fileGeneratorService.generateAndGetFile("largeFile", 90, 2);
+        FileInputStream input = new FileInputStream(file);
+        byte[] b = new byte[(int) file.length()];
+        input.read(b);
+        MockMultipartFile multipartFile
+                = new MockMultipartFile(
+                "file",
+                "largeFile.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                b
+        );
+        mockMvc.perform(multipart("/upload/test-file").file(multipartFile))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/get/all"))
+                .andExpect(jsonPath("$", hasSize(50)));
+        mockMvc.perform(get("/get/all").param("page", "2"))
+                .andDo(print())
+                .andExpect(jsonPath("$", hasSize(40)));
     }
 
-    //send a Http request to the url, TEST ONLY
-    private Response send(String urlString, String method, String body) throws IOException {
-        Response response = new Response();
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setDoOutput(true);
-            con.setRequestMethod(method);
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setConnectTimeout(2000);
-            con.setReadTimeout(2000);
-            OutputStream os = con.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-            osw.write(body);
-            osw.close();
-            os.close();
-            con.connect();
-            int status = con.getResponseCode();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while((inputLine =  reader.readLine()) != null) {
-                content.append(inputLine);
-            }
-            reader.close();
-            con.disconnect();
-            response.status = status;
-            response.body = content.toString();
-        } catch (IOException e) {
-            response.status = 400;
-            response.body = e.getMessage();
-        }
-        return response;
+    @Test
+    void getSpecItemByContent() throws Exception {
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "test-file.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                fileContent.getBytes()
+        );
+        //send file
+        mockMvc.perform(multipart("/upload/test-file").file(file))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/get/cont:sfasdfdskjakldsaja").param("page", "1"))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect((ResultMatcher) jsonPath("$[0].shortName").value("ID1"));
+    }
+
+    @Test
+    void getPageNumber() throws Exception {
+        File file = fileGeneratorService.generateAndGetFile("largeFile", 90, 2);
+        FileInputStream input = new FileInputStream(file);
+        byte[] b = new byte[(int) file.length()];
+        input.read(b);
+        MockMultipartFile multipartFile
+                = new MockMultipartFile(
+                "file",
+                "largeFile.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                b
+        );
+        mockMvc.perform(multipart("/upload/test-file").file(multipartFile))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/pageNumber"))
+                .andExpect(jsonPath("$").value("2"));
     }
 }
