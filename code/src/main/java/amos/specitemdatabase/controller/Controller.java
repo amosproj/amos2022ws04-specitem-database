@@ -58,9 +58,10 @@ public class Controller {
     }
 
     @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content) {
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content,
+                                                               @RequestParam(defaultValue = "1") int page) {
         try {
-            List<SpecItem> specItemsList = service.getSpecItemByContent(content);
+            List<SpecItem> specItemsList = service.getSpecItemByContent(content, page);
             System.out.println("Getting SpecItems by content...");
             return new ResponseEntity<>(specItemsList, HttpStatus.OK);
         } catch (Exception e) {
@@ -94,14 +95,20 @@ public class Controller {
     }
 
     @GetMapping("/get/all")
-    public ResponseEntity<List<SpecItem>> getAllSpecItems() {
+    public ResponseEntity<List<SpecItem>> getAllSpecItems(@RequestParam(defaultValue = "1") int page) {
         try {
-            List<SpecItem> specItem = service.getAllSpecItems();
+            List<SpecItem> specItem = service.getAllSpecItems(page);
             System.out.println("Processing...");
             return new ResponseEntity<>(specItem, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/pageNumber")
+    public ResponseEntity<Integer> getPageNumber() {
+        int pageNumber = service.getPageNumber();
+        return new ResponseEntity<>(pageNumber, HttpStatus.OK);
     }
 }

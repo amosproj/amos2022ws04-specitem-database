@@ -1,0 +1,14 @@
+.page-bar {
+    display: flex;
+    justify-content: right;
+    margin-top: 20px;
+    margin-right: 20px;
+}
+.page-number {
+    display: flex;
+    width: 30px;
+    justify-content: center;
+    background-color: lightgray;
+    font-weight: bold;
+    border: 1px solid;
+}

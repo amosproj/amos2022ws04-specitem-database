@@ -10,6 +10,9 @@ import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -26,6 +29,8 @@ public class SpecItemService {
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
     private final FileConfig fileConfig;
+
+    private final int MAX_PER_PAGE = 50;
 
     @Autowired
     public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig) {
@@ -53,17 +58,19 @@ public class SpecItemService {
     //     return null;
     // }
 
-    public List<SpecItem> getSpecItemByContent(String content) {
-        List<SpecItem> specItemsList = new ArrayList<>();
-        List<DocumentEntity> documentEntityList = documentRepo.findAll();
-        for(DocumentEntity documentEntity: documentEntityList) {
-            List<SpecItem> specItemsInDocList = documentEntity.getSpecItems();
-            for (SpecItem specItem: specItemsInDocList) {
-                if (specItem.getContent().contains(content)) {
-                    specItemsList.add(specItem);
-                }
-            }
-        }
+    public List<SpecItem> getSpecItemByContent(String content, int page) {
+//        List<SpecItem> specItemsList = new ArrayList<>();
+//        List<DocumentEntity> documentEntityList = documentRepo.findAll();
+//        for(DocumentEntity documentEntity: documentEntityList) {
+//            List<SpecItem> specItemsInDocList = documentEntity.getSpecItems();
+//            for (SpecItem specItem: specItemsInDocList) {
+//                if (specItem.getContent().contains(content)) {
+//                    specItemsList.add(specItem);
+//                }
+//            }
+//        }
+        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
+        List<SpecItem> specItemsList = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
         return specItemsList;
     }
     /***
@@ -81,17 +88,6 @@ public class SpecItemService {
     }
 
     public SpecItem getSpecItemById(String specItemId) {
-        // for(DocumentEntity documentEntity:documentRepo.findAll()) {
-        //     List<SpecItem> specItems=documentEntity.getSpecItems();
-        //     for(SpecItem specItem:specItems) {
-        //         if(specItem.getShortName()==specItemId) {
-        //             // return specItem;
-        //             System.out.println(specItem.toString());
-        //         }
-        //     }
-        // }
-        // return null;
-
         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
         //System.out.println(listDocumentEntity);
         SpecItem spec = new SpecItem();
@@ -149,21 +145,17 @@ public class SpecItemService {
         return null;
     }
 
-    public List<SpecItem> getAllSpecItems() {
 
-        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
-        List<SpecItem> list = new ArrayList<>();
-        for(DocumentEntity d:listDocumentEntity) {
-            System.out.println(d.getCommit().toString());
-            for (SpecItem s: d.getSpecItems()) {
-                list.add(s);
-                }
-
-
-        }
-        return list;
+    public List<SpecItem> getAllSpecItems(int page) {
+        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
+        List<SpecItem> specItems = specItemRepo.fincAllUpdatedSpecitem(pageable);
+        return specItems;
     }
 
+    public int getPageNumber() {
+        int pageNumber = (int) Math.ceil(specItemRepo.getCount() *1.0 / MAX_PER_PAGE) ;
+        return pageNumber;
+    }
 //     @Bean
 //     CommandLineRunner commandLineRunner(
 //         DocumentRepo documentRepo
