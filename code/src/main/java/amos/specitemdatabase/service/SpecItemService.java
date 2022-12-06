@@ -6,22 +6,22 @@ import amos.specitemdatabase.importer.SpecItemParserInterface;
 import amos.specitemdatabase.model.DocumentEntity;
 import amos.specitemdatabase.model.ProcessedDocument;
 import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.Status;
+import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
-
+import amos.specitemdatabase.tagservice.TagService;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Service
 public class SpecItemService {
@@ -29,14 +29,16 @@ public class SpecItemService {
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
     private final FileConfig fileConfig;
-
+    private final TagService tagService;
     private final int MAX_PER_PAGE = 50;
 
     @Autowired
-    public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig) {
+    public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig,
+                           TagService tagService) {
         this.specItemRepo = specItemRepo;
         this.documentRepo = documentRepo;
         this.fileConfig = fileConfig;
+        this.tagService = tagService;
     }
 
     // public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
@@ -81,10 +83,39 @@ public class SpecItemService {
         String filepath = fileConfig.getUploadDir() + filename;
         File file = new File(filepath);
         ProcessedDocument pDoc = specItemParser.processFile(file);
-//        List<SpecItemEntity> specItemEntities = pDoc.getSpecItems().stream().map(specItemParser::transformSpecItem).collect(Collectors.toList());
+
+        addTags(pDoc.getSpecItems());
+
         DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
         documentRepo.save(documentEntity);
         System.out.println(specItemRepo.findAll().size());
+    }
+
+    private void addTags(final List<SpecItem> specItems) {
+        // Step 1: Fetch current tags
+        specItems.forEach(specItem -> {
+            final String tags = this.tagService.fetchTags(specItem);
+            final TagInfo tagInfo = createTagInfo(specItem, tags);
+            specItem.setTagInfo(tagInfo);
+        });
+    }
+
+    private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
+        final TagInfo tagInfo = new TagInfo();
+        tagInfo.setShortName(specItem.getShortName());
+        tagInfo.setTime(specItem.getTime());
+        tagInfo.setStatus(Status.LATEST);
+        tagInfo.setTags(tags);
+        return tagInfo;
+    }
+
+    public void saveTags(final SpecItem taggedSpecItem, final List<String> tags) {
+        // TODO: maybe this info will eventually come from the server
+        // but for now, it is set manually
+        taggedSpecItem.setTime(LocalDateTime.now());
+        final TagInfo tagInfo = this.createTagInfo(taggedSpecItem, String.join(", ", tags));
+        taggedSpecItem.setTagInfo(tagInfo);
+        this.specItemRepo.save(taggedSpecItem);
     }
 
     public SpecItem getSpecItemById(String specItemId) {

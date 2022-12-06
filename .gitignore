@@ -12,6 +12,8 @@ pids
 # Gradle
 .gradle
 
+db-data/
+
 # Java
 .classpath
 *.class
