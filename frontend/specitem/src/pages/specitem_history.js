@@ -15,6 +15,7 @@ export default function SpecitemsPage() {
     const [type, setType] = useState('Content');
     const [limitTraceRef, setLimitTraceRef] = useState('')
     const { exportList, setExportList} = useContext(Context);
+    const [isExpanded, setExpanded] = useState([]);
     
     useEffect(() => {
         console.log(limitTraceRef)
@@ -59,6 +60,19 @@ export default function SpecitemsPage() {
                 }
             }
         }
+    }
+
+    function toggleExpanded(shortName) {
+        //make deep copy
+        let n = []
+        isExpanded.forEach(s => n.push(s))
+        //check whether to show or hide
+        let index = n.indexOf(shortName);
+        if(index == -1)
+            n.push(shortName)
+        else 
+            n.splice(index, 1);
+        setExpanded(n);
     }
       
     function selectTableColumns() {
@@ -182,20 +196,19 @@ export default function SpecitemsPage() {
                                 <th className="CommitCell">Commit</th>
                                 <th className="VersionCell">Version</th>
                                 <th className="ContentCell">Content</th>
-                                <th>Link</th>
+                                <th>Expand</th>
                             </tr>
 
                             {specitemsList.map((val,key) => {
                             
-                            return (
+                            return [
                                     <tr key={key}>
-
                                         <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
-                                        <td className="FingerprintCell" style={{width: "10%"}}>{trimLongerStrings(val.fingerprint)}</td>
-                                        <td className="CategoryCell" style={{width: "10%"}}>{val.category}</td>
-                                        <td className="LcStatusCell" style={{width: "10%"}}>{val.lcStatus}</td>
-                                        <td className="UseInsteadCell" style={{width: "10%"}}>{val.useInstead}</td>
-                                        <td className="TraceRefsCell" style={{width: "10%"}}><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
+                                        <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
+                                        <td className="CategoryCell">{val.category}</td>
+                                        <td className="LcStatusCell">{val.lcStatus}</td>
+                                        <td className="UseInsteadCell">{val.useInstead}</td>
+                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
                                                 {val.traceRefs.map((val,key) => {
                             
                                                 return (
@@ -212,23 +225,22 @@ export default function SpecitemsPage() {
                                             </div>
                                         </td>
                                         
-                                        <td className="LongNameCell" style={{width: "10%"}}>
-                                            <CollapseContent trimContent={trimLongerStrings(val.longName)} 
-                                                            fullContent= {val.longName}></CollapseContent>
+                                        <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
+                                        <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
+                                        <td className="VersionCell">{val.version}</td>
+                                        <td className="ContentCell">{trimLongerStrings(val.content)}</td>
+                                        <td>
+                                            <button onClick={() => toggleExpanded(val.shortName)}>
+                                                {isExpanded.includes(val.shortName)? "Hide" : "Show"}
+                                            </button>
                                         </td>
-                                        <td className="CommitCell" style={{width: "10%"}}>{(val.commit? val.commit.id: '')}</td>
-                                        <td className="VersionCell" style={{width: "5%"}}>{val.version}</td>
-                                        <td className="ContentCell" style={{width: "10%"}}>
-                                            <CollapseContent trimContent={trimLongerStrings(val.content)} 
-                                                            fullContent= {val.content}></CollapseContent>
-                                        </td>
-                                        <td style={{width: "5%"}}><Link to={`/specitem/${val.shortName}`}>
-                                                <button className='' >
-                                                    Select
-                                                    </button>
-                                                    </Link></td>
-                                    </tr>
+                                    </tr>,
+                                    isExpanded.includes(val.shortName) && (
+                                        <tr>
+                                            <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                        </tr>
                                     )
+                                    ]
                                 })}
                         </tbody>
                     </table>
