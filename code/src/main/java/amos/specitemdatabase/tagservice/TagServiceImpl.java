@@ -20,9 +20,13 @@ public class TagServiceImpl implements TagService {
     public String fetchTags(final SpecItem specItem) {
         List<TagInfo> tagInfos = this.tagsRepo.getLatestTagInfo(specItem.getShortName());
         if (tagInfos.size() > 1) {
-            // TODO: in case there is some processing error
-            return null;
+            // TODO: A correct mechanism must be implemented here
+            return tagInfos.get(tagInfos.size() -1).getTags();
+        } else if (tagInfos.size() == 1) {
+            return tagInfos.get(0).getTags();
+        } else {
+            return "";
         }
-        return tagInfos.get(0).getTags();
+
     }
 }
