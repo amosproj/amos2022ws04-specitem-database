@@ -147,9 +147,9 @@ td > .LongNameCell, div .ContentCell, div {
 }
 
 .save-export {
-  position: absolute;
-  bottom: 10%;
-  right: 10%;
+  display: flex;
+  position:relative;
+  justify-content: right;
 }
 
 .save-export-button {

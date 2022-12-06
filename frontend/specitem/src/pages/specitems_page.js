@@ -6,9 +6,11 @@ import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
+import PageBar from '../components/pageBar';
 
 export default function SpecitemsPage() {
 
+    const [page, setPage] = useState(1);
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
     const [type, setType] = useState('ID');
@@ -21,13 +23,9 @@ export default function SpecitemsPage() {
         console.log(limitTraceRef)
       }, [limitTraceRef]);
 
-    // useEffect(() => {
-    //     setExpanded({})
-    //     specitemsList.forEach(s => {
-    //         isExpanded[s.shortName] = false;
-    //     })
-    //     console.log(isExpanded);
-    // }, [specitemsList])
+    useEffect(() => {
+        handleGet(page)
+    }, [page])
 
     const handleChange = event => {
         setMessage(event.target.value);
@@ -111,17 +109,18 @@ export default function SpecitemsPage() {
         }
     }
     
+    async function handleGet(page){
+        const response = await fetch(`http://localhost:8080/get/all?page=${page}` , {
+            method: 'GET',
+        });
+        const responseText = await response.text();
+        console.log(responseText)
+        if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+        setPage(page);
+    }
+
     useEffect(() => {
-        async function handleGet(){
-            const response = await fetch('http://localhost:8080/get/all' , {
-                method: 'GET',
-            });
-            const responseText = await response.text();
-            console.log(responseText)
-            if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
-        }
-        handleGet()
-        
+        handleGet(1);
       }, []);
           
     function appendExportList() {
@@ -149,9 +148,6 @@ export default function SpecitemsPage() {
 
     return(
         <div style={{width: '100%'}}>
-                <div className="save-export">
-                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
-                </div>
                 {specitemsList.length !== 0 &&
                 <div>
                     <div>
@@ -186,7 +182,12 @@ export default function SpecitemsPage() {
                         <label htmlFor="VersionBox">Version</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
-
+                    <div className="save-export">
+                        <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
+                    </div>
+                    <div>
+                        Displaying items {(page-1)*50} - {(page-1)*50 + specitemsList.length} 
+                    </div>
                     <table>
                         <tbody>
                             <tr>
@@ -248,13 +249,12 @@ export default function SpecitemsPage() {
                                 })}
                         </tbody>
                     </table>
+                    <PageBar page={page} setPage={setPage}></PageBar> 
                     <div className='App-tb' style={{marginTop: '15px'}}>
-                <Link to={ROUTES.DASHBOARD}>
-                <button className='button-close' >     
-                Back
-            </button>  
-                </Link>
-                </div>
+                        <Link to={ROUTES.DASHBOARD}>
+                        <button className='button-close'>Back</button>  
+                        </Link>
+                        </div>
                     </div>
 }
             
