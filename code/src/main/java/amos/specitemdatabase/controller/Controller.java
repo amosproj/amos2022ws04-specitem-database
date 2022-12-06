@@ -80,6 +80,18 @@ public class Controller {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+    @GetMapping("/get/history/{id}")
+    public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
+        try {
+            List<SpecItem> specItemsList = service.getSpecItemsById(id);
+            System.out.println("Getting SpecItem history by ID...");
+            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @GetMapping("/get/all")
     public ResponseEntity<List<SpecItem>> getAllSpecItems() {
