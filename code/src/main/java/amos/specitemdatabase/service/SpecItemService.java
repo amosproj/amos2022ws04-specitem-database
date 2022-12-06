@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,17 +93,23 @@ public class SpecItemService {
         // return null;
 
         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+        //System.out.println(listDocumentEntity);
+        SpecItem spec = new SpecItem();
+        LocalDateTime base = LocalDateTime.of(1998, 1, 14, 10, 34);
         for(DocumentEntity d:listDocumentEntity) {
-            System.out.println(d.getCommit().toString());
+            System.out.println(d.getCommit().getCommitTime());
+
+            LocalDateTime dt = d.getCommit().getCommitTime();
             List<SpecItem> list=d.getSpecItems();
             for (SpecItem s:list) {
-                if (s.getShortName().equals(specItemId)) {
+                if (s.getShortName().equals(specItemId) && dt.isAfter(base)) {
                     System.out.println(s.getShortName());
-                    return s;
+                    base = dt;
+                    spec = s;
                 }
             }
         }
-        return null;
+        return spec;
     }
       
     public SpecItem deleteSpecItemById(String specItemId) {
@@ -128,14 +136,16 @@ public class SpecItemService {
     public List<SpecItem> getAllSpecItems() {
 
         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
+        List<SpecItem> list = new ArrayList<>();
         for(DocumentEntity d:listDocumentEntity) {
             System.out.println(d.getCommit().toString());
-            List<SpecItem> list=d.getSpecItems();
-            if(list != null){
-                return list;
-            }
+            for (SpecItem s: d.getSpecItems()) {
+                list.add(s);
+                }
+
+
         }
-        return null;
+        return list;
     }
 
 //     @Bean
