@@ -7,8 +7,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FileGeneratorServiceTest {
 
     @Autowired
@@ -22,7 +24,7 @@ public class FileGeneratorServiceTest {
         // First, assert that the file does not exist
         Assertions.assertThat(Files.notExists(path));
         // Create a file using the file generator service
-        this.fileGenerator.generateFile(fileName, 2);
+        this.fileGenerator.generateFile(fileName, 4);
         // Now, check if the file was created
         Assertions.assertThat(Files.exists(path));
         //final File file = path.toFile();

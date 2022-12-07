@@ -1,32 +1,25 @@
-import Documents from '../components/documents'
 import '../App.css';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import { toast } from "react-toastify";
+import { useParams } from 'react-router-dom'
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
-import PageBar from '../components/pageBar';
 
 export default function SpecitemsPage() {
 
-    const [page, setPage] = useState(1);
+    const { id } = useParams()
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
-    const [type, setType] = useState('ID');
+    const [type, setType] = useState('Content');
     const [limitTraceRef, setLimitTraceRef] = useState('')
     const { exportList, setExportList} = useContext(Context);
-    //an array contains all specitem shortnames that are expanded
     const [isExpanded, setExpanded] = useState([]);
-
+    
     useEffect(() => {
         console.log(limitTraceRef)
       }, [limitTraceRef]);
-
-    useEffect(() => {
-        handleGet(page)
-    }, [page])
-
     const handleChange = event => {
         setMessage(event.target.value);
     };
@@ -40,7 +33,7 @@ export default function SpecitemsPage() {
 
     async function handleFilter(event) {
         if(message == ''){
-            const response = await fetch('http://localhost:8080/get/all' , {
+            const response = await fetch('http://localhost:8080/get/history/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -48,34 +41,27 @@ export default function SpecitemsPage() {
             if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         }
         else {
-            if (type === 'ID') {
-                const response = await fetch('http://localhost:8080/get/' + message, {
-                    method: 'GET',
-                });
-
-                const responseText = await response.text();
-                console.log(responseText)
-                //console.log(specitemsList)
-                if (responseText !== '') {
-                    setSpecitemsList([JSON.parse(responseText)])
-                }
-                //console.log(specitemsList)
-            } else {
+            if(type === 'Content') {
                 const response = await fetch('http://localhost:8080/get/cont:' + message, {
                     method: 'GET',
                 });
-
                 const responseText = await response.text();
                 console.log(responseText)
                 //console.log(specitemsList)
                 if (responseText !== '') {
-                    setSpecitemsList(JSON.parse(responseText))
+                    let body = JSON.parse(responseText);
+                    let tmp = [];
+                    for(let i = 0; i < body.length; i++){
+                        if (body[i].shortName === id){
+                            tmp.push(body[i]);
+                        }
+                    }
+                    setSpecitemsList(tmp.sort(compare))
                 }
-                //console.log(specitemsList)
             }
         }
     }
-      
+
     function toggleExpanded(shortName) {
         //make deep copy
         let n = []
@@ -88,7 +74,7 @@ export default function SpecitemsPage() {
             n.splice(index, 1);
         setExpanded(n);
     }
-
+      
     function selectTableColumns() {
         const matches = document.getElementsByClassName("checkboxClass");
 
@@ -108,19 +94,31 @@ export default function SpecitemsPage() {
             }
         }
     }
-    
-    async function handleGet(page){
-        const response = await fetch(`http://localhost:8080/get/all?page=${page}` , {
-            method: 'GET',
-        });
-        const responseText = await response.text();
-        console.log(responseText)
-        if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
-        setPage(page);
-    }
 
+    function compare(a, b) {
+        if (a.time > b.time){
+          return -1;
+        }
+        if (a.time < b.time){
+          return 1;
+        }
+        console.log(a.time)
+        return 0;
+    }
+       
     useEffect(() => {
-        handleGet(1);
+        async function handleGet(){
+            const response = await fetch('http://localhost:8080/get/history/'+id , {
+                method: 'GET',
+            });
+            const responseText = await response.text();
+            console.log(responseText)
+            if(responseText !== ''){
+                setSpecitemsList(JSON.parse(responseText).sort(compare))}
+            
+        }
+        handleGet()
+        
       }, []);
           
     function appendExportList() {
@@ -142,12 +140,15 @@ export default function SpecitemsPage() {
     function trimLongerStrings(stringToTrim) {
         if(stringToTrim == null || stringToTrim.length <= 15)
             return stringToTrim;
-        else if (stringToTrim.length > 20)
-            return stringToTrim.substring(0, 20) + "...";
+        else if (stringToTrim.length > 15)
+            return stringToTrim.substring(0, 15) + "...";
     }
 
     return(
         <div style={{width: '100%'}}>
+                <div className="save-export">
+                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
+                </div>
                 {specitemsList.length !== 0 &&
                 <div>
                     <div>
@@ -157,7 +158,6 @@ export default function SpecitemsPage() {
                         </input>
                     <button onClick={handleFilter}>Filter</button>
                     <select onChange={event => handleTypeChange(event)}>
-                            <option value="ID">ID</option>
                             <option value="Content">Content</option>                       
                         </select>
                         
@@ -182,12 +182,7 @@ export default function SpecitemsPage() {
                         <label htmlFor="VersionBox">Version</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
-                    <div className="save-export">
-                        <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
-                    </div>
-                    <div>
-                        Displaying items {(page-1)*50} - {(page-1)*50 + specitemsList.length} 
-                    </div>
+
                     <table>
                         <tbody>
                             <tr>
@@ -207,7 +202,7 @@ export default function SpecitemsPage() {
                             {specitemsList.map((val,key) => {
                             
                             return [
-                                    <tr key={key}>                            
+                                    <tr key={key}>
                                         <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
                                         <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                         <td className="CategoryCell">{val.category}</td>
@@ -245,16 +240,17 @@ export default function SpecitemsPage() {
                                             <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
                                         </tr>
                                     )
-                                ]
+                                    ]
                                 })}
                         </tbody>
                     </table>
-                    <PageBar page={page} setPage={setPage}></PageBar> 
                     <div className='App-tb' style={{marginTop: '15px'}}>
-                        <Link to={ROUTES.DASHBOARD}>
-                        <button className='button-close'>Back</button>  
-                        </Link>
-                        </div>
+                <Link to={ROUTES.DASHBOARD}>
+                <button className='button-close' >     
+                Back
+            </button>  
+                </Link>
+                </div>
                     </div>
 }
             
