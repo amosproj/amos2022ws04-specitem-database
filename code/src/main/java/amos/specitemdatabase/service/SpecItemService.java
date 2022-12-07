@@ -71,20 +71,9 @@ public class SpecItemService {
     }
 
     // Bug? Returns null --> no status code 404 will be sent
-    public List<SpecItem> getSpecItemsById(String specItemId){
-    	
-    	List<SpecItem> allSpecItems = specItemRepo.findAll();
-    	List<SpecItem> listSpecItems = new ArrayList<>();
-        for(SpecItem s: allSpecItems) {
-            if(s.getShortName().equals(specItemId)) {
-            	listSpecItems.add(s);
-            }
-        }
-        System.out.println(listSpecItems.size());
-        if(listSpecItems.size() > 0) {
-        	return listSpecItems;
-        }
-    	return null;
+    public List<SpecItem> getSpecItemsById(String specItemId) {
+        List<SpecItem> listOfSpecItems = specItemRepo.getAllVersionsOfASpecItemByID(specItemId);
+        return listOfSpecItems;
     }
 
     /***
