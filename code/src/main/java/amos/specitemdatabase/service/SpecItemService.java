@@ -40,11 +40,6 @@ public class SpecItemService {
         this.fileConfig = fileConfig;
         this.tagService = tagService;
     }
-
-    // public ResponseEntity<SpecItemEntity> saveSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
-    //     specItemRepo.save(specItemEntity);
-    //     return ResponseEntity.ok(specItemEntity);
-    // }
     
     // public ResponseEntity<SpecItemEntity> deleteSpecItemEntity(@RequestBody SpecItemEntity specItemEntity) {
     //     specItemRepo.delete(specItemEntity);
