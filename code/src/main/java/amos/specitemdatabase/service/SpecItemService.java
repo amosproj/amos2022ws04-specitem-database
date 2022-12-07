@@ -76,6 +76,10 @@ public class SpecItemService {
         return listOfSpecItems;
     }
 
+    public void deleteSpecItemById(String specItemId) {
+        specItemRepo.deleteSpecItemById(specItemId);
+    }
+
     /***
      * save text file as document object and its relating Specitem objects in database
      * @param filename name of the document text file stored in tmp folder
@@ -117,27 +121,6 @@ public class SpecItemService {
         final TagInfo tagInfo = this.createTagInfo(taggedSpecItem, String.join(", ", tags));
         taggedSpecItem.setTagInfo(tagInfo);
         this.specItemRepo.save(taggedSpecItem);
-    }
-      
-    public SpecItem deleteSpecItemById(String specItemId) {
-
-        List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
-        for(DocumentEntity d:listDocumentEntity) {
-
-            SpecItem tmp = new SpecItem();
-            boolean found = false;
-            for (SpecItem s: d.getSpecItems()) {
-                if (s.getShortName().equals(specItemId)) {
-                    tmp = s;
-                    found = true;
-                }
-            }
-            if (found) {
-            	d.getSpecItems().remove(tmp);
-                documentRepo.save(d);
-            }
-        }
-        return null;
     }
 
     public int getPageNumber() {
