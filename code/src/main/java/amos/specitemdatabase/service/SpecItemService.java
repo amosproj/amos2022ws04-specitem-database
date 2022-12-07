@@ -55,7 +55,7 @@ public class SpecItemService {
 
     public List<SpecItem> getAllSpecItems(int page) {
         Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
-        List<SpecItem> specItems = specItemRepo.fincAllUpdatedSpecitem(pageable);
+        List<SpecItem> specItems = specItemRepo.findAllUpdatedSpecitem(pageable);
         return specItems;
     }
 

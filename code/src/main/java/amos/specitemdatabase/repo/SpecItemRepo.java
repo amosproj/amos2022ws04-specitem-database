@@ -20,7 +20,7 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
             countQuery = "SELECT count(*) FROM spec_item",
             nativeQuery = true
     )
-    List<SpecItem> fincAllUpdatedSpecitem(Pageable pageable);
+    List<SpecItem> findAllUpdatedSpecitem(Pageable pageable);
 
     @Query(
             value = "SELECT * " +
