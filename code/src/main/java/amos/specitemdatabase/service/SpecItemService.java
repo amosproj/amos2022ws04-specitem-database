@@ -41,8 +41,16 @@ public class SpecItemService {
         this.tagService = tagService;
     }
 
+    private Pageable getPageableSortedByShortNameInAscendingOrder(int page) {
+        return PageRequest.of(page-1, MAX_PER_PAGE, Sort.by(
+            "short_name").ascending()
+        );
+    }
+
     public List<SpecItem> getSpecItemByContent(String content, int page) {
-        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
+        // Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE,
+        // Sort.by("short_name").ascending());
+        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
         List<SpecItem> specItemsList = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
         return specItemsList;
     }
