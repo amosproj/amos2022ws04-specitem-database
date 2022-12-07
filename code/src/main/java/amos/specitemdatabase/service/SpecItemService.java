@@ -48,12 +48,17 @@ public class SpecItemService {
     }
 
     public List<SpecItem> getSpecItemByContent(String content, int page) {
-        // Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE,
-        // Sort.by("short_name").ascending());
         Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
         List<SpecItem> specItemsList = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
         return specItemsList;
     }
+
+    public List<SpecItem> getAllSpecItems(int page) {
+        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
+        List<SpecItem> specItems = specItemRepo.fincAllUpdatedSpecitem(pageable);
+        return specItems;
+    }
+
     /***
      * save text file as document object and its relating Specitem objects in database
      * @param filename name of the document text file stored in tmp folder
@@ -153,13 +158,6 @@ public class SpecItemService {
             }
         }
         return null;
-    }
-
-
-    public List<SpecItem> getAllSpecItems(int page) {
-        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
-        List<SpecItem> specItems = specItemRepo.fincAllUpdatedSpecitem(pageable);
-        return specItems;
     }
 
     public int getPageNumber() {
