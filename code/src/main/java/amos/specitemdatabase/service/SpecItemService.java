@@ -40,15 +40,6 @@ public class SpecItemService {
         this.fileConfig = fileConfig;
         this.tagService = tagService;
     }
-    
-    // public ResponseEntity<SpecItemEntity> getSpecItemEntity(@RequestBody long id) {
-    //     for(SpecItemEntity e : specItemRepo.findAll()) {
-    //         if(e.getId().equals(id)) {
-    //             return ResponseEntity.ok(e);
-    //         }
-    //     }
-    //     return null;
-    // }
 
     public List<SpecItem> getSpecItemByContent(String content, int page) {
 //        List<SpecItem> specItemsList = new ArrayList<>();
