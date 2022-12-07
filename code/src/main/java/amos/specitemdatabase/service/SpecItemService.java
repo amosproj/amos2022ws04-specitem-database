@@ -104,7 +104,6 @@ public class SpecItemService {
 
     public SpecItem getSpecItemById(String specItemId) {
         List<DocumentEntity> listDocumentEntity = documentRepo.findAll();
-        //System.out.println(listDocumentEntity);
         SpecItem spec = new SpecItem();
         LocalDateTime base = LocalDateTime.of(1998, 1, 14, 10, 34);
         for(DocumentEntity d:listDocumentEntity) {
