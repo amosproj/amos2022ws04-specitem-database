@@ -42,16 +42,6 @@ public class SpecItemService {
     }
 
     public List<SpecItem> getSpecItemByContent(String content, int page) {
-//        List<SpecItem> specItemsList = new ArrayList<>();
-//        List<DocumentEntity> documentEntityList = documentRepo.findAll();
-//        for(DocumentEntity documentEntity: documentEntityList) {
-//            List<SpecItem> specItemsInDocList = documentEntity.getSpecItems();
-//            for (SpecItem specItem: specItemsInDocList) {
-//                if (specItem.getContent().contains(content)) {
-//                    specItemsList.add(specItem);
-//                }
-//            }
-//        }
         Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
         List<SpecItem> specItemsList = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
         return specItemsList;
