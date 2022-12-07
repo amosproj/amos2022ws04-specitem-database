@@ -49,14 +49,14 @@ public class SpecItemService {
 
     public List<SpecItem> getSpecItemByContent(String content, int page) {
         Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
-        List<SpecItem> specItemsList = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
-        return specItemsList;
+        List<SpecItem> listOfSpecItems = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
+        return listOfSpecItems;
     }
 
     public List<SpecItem> getAllSpecItems(int page) {
-        Pageable pageable = PageRequest.of(page-1, MAX_PER_PAGE, Sort.by("short_name").ascending());
-        List<SpecItem> specItems = specItemRepo.findAllUpdatedSpecitem(pageable);
-        return specItems;
+        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
+        List<SpecItem> listOfSpecItems = specItemRepo.findAllUpdatedSpecitem(pageable);
+        return listOfSpecItems;
     }
 
     /***
