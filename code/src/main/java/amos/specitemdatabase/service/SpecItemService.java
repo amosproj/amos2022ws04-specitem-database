@@ -207,7 +207,6 @@ public class SpecItemService {
             documentRepo.save(documentEntity2);
              
             this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
-            // specItemRepo.deleteSpecItemById(specItem2.getShortName());
         };
     }
 }
