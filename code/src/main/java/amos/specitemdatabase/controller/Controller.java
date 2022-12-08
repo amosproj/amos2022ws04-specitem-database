@@ -25,75 +25,69 @@ public class Controller {
         this.fileStorageService = fileStorageService;
     }
 
-    /***
-     * upload a new document to the database, response status code 201 if successful
-     * @param filename name of the document
-     * @param uploadedFile the uploaded text file
-     * @return
-     */
-    @PostMapping("upload/{filename}")
-    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile file) {
-        // try {
-        //     fileStorageService.storeFile(file, filename);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        // }
-
-        // //saving document to database
-        // try {
-        //     service.saveDocument(filename);
-        //     fileStorageService.deleteFile(filename);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        // }
-        // return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
-        try {
-            fileStorageService.storeFile(file, filename);
-            service.saveDocument(filename);
-
-            // Kevin: Windows 11 restricted the deleting function
-            // SpecItems will be displayed on the web pagecorrectly, 
-            // but the tmp file will not be deleted.
-            fileStorageService.deleteFile(filename);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-
-        } catch (FileSystemException e) {
+    private void printErrorMessage(Exception e) {
+        if (e != null)
             System.err.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
     }
 
+    private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    private <T> ResponseEntity<T> handleStatusCode404(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private <T> ResponseEntity<T> handleStatusCode500(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return handleStatusCode404(null, SpecItem.class);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return handleStatusCode500(e, SpecItem.class);
         }
     }
-
+    
     private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
         return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
     }
-
+    
+    @SuppressWarnings("unchecked")
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
             if (isListOfSpecItemsPresentAndNotEmpty(listOfSpecItems)) {
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
+        }
+    }
+    
+    @PostMapping("upload/{filename}")
+    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {
+        try {
+            fileStorageService.storeFile(uploadedFile, filename);
+            service.saveDocument(filename);
+
+            // Kevin: Windows 11 restricted the deleting function. SpecItems will be displayed on the web pagecorrectly, but the tmp file will not be deleted.
+            fileStorageService.deleteFile(filename);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (FileSystemException e) {
+            return handleStatusCode500(e, String.class);
+            
+        } catch (Exception e) {
+            return handleStatusCode400(e, String.class);
         }
     }
 
