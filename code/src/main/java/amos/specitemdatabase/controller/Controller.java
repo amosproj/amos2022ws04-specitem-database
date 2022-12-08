@@ -82,6 +82,22 @@ public class Controller {
         }
     }
 
+    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
+        return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
+    }
+
+    private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
+        try {
+            if (isListOfSpecItemsPresentAndNotEmpty(listOfSpecItems)) {
+                return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
@@ -90,14 +106,8 @@ public class Controller {
     
     @GetMapping("/get/history/{id}")
     public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
-        try {
-            List<SpecItem> specItemsList = service.getListOfSpecItemsById(id);
-            System.out.println("Getting SpecItem history by ID...");
-            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsById(id));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
     @GetMapping("/get/all")
