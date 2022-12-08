@@ -72,14 +72,6 @@ public class Controller {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
-        // try {
-        //     SpecItem specItem = service.getSpecItemById(id);
-        //     System.out.println("Getting SpecItem by ID...");
-        //     return new ResponseEntity<>(specItem, HttpStatus.OK);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        // }
         try {
             Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
             if (specItem.isPresent()) {
