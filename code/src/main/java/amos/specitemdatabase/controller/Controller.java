@@ -72,20 +72,30 @@ public class Controller {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        // try {
+        //     SpecItem specItem = service.getSpecItemById(id);
+        //     System.out.println("Getting SpecItem by ID...");
+        //     return new ResponseEntity<>(specItem, HttpStatus.OK);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        // }
         try {
-            SpecItem specItem = service.getSpecItemById(id);
-            System.out.println("Getting SpecItem by ID...");
-            return new ResponseEntity<>(specItem, HttpStatus.OK);
+            Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
+            if (specItem.isPresent()) {
+                return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
     @GetMapping("/get/history/{id}")
     public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
         try {
-            List<SpecItem> specItemsList = service.getSpecItemsById(id);
+            List<SpecItem> specItemsList = service.getListOfSpecItemsById(id);
             System.out.println("Getting SpecItem history by ID...");
             return new ResponseEntity<>(specItemsList, HttpStatus.OK);
         } catch (Exception e) {
