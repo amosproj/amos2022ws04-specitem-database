@@ -96,6 +96,11 @@ public class SpecItemService {
         this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
     }
 
+    public int getPageNumber() {
+        int pageNumber = (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
+        return pageNumber;
+    }
+
     /***
      * save text file as document object and its relating Specitem objects in database
      * @param filename name of the document text file stored in tmp folder
@@ -139,77 +144,73 @@ public class SpecItemService {
         this.specItemRepo.save(taggedSpecItem);
     }
 
-    public int getPageNumber() {
-        int pageNumber = (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
-        return pageNumber;
-    }
-    @Bean
-    CommandLineRunner commandLineRunner(
-        DocumentRepo documentRepo
-    ) {
-        return args -> {
-            Commit commit = new Commit(
-                "hash",
-                "message",
-                LocalDateTime.now(),
-                "author"
-            );
+    // @Bean
+    // CommandLineRunner commandLineRunner(
+    //     DocumentRepo documentRepo
+    // ) {
+    //     return args -> {
+    //         Commit commit = new Commit(
+    //             "hash",
+    //             "message",
+    //             LocalDateTime.now(),
+    //             "author"
+    //         );
 
-            Commit commit2 = new Commit(
-                    "hash",
-                    "message",
-                    LocalDateTime.of(2019, 03, 28, 14, 33, 48, 640000),
-                    "author"
-                );
+    //         Commit commit2 = new Commit(
+    //                 "hash",
+    //                 "message",
+    //                 LocalDateTime.of(2019, 03, 28, 14, 33, 48, 640000),
+    //                 "author"
+    //             );
 
-            SpecItem specItem = new SpecItem();
-            specItem.setShortName("ID1");
-            specItem.setContent("content");
-            specItem.setCommit(commit);
-            specItem.setFingerprint("fingerprint");
-            specItem.setLongName("longName");
-            specItem.setUseInstead("useInstead");
-            specItem.setTraceRefs(new LinkedList<>());
-            specItem.setTime(commit.getCommitTime());
-            specItem.setCategory(Category.CATEGORY1);
-            specItem.setLcStatus(LcStatus.STATUS1);
+    //         SpecItem specItem = new SpecItem();
+    //         specItem.setShortName("ID1");
+    //         specItem.setContent("content");
+    //         specItem.setCommit(commit);
+    //         specItem.setFingerprint("fingerprint");
+    //         specItem.setLongName("longName");
+    //         specItem.setUseInstead("useInstead");
+    //         specItem.setTraceRefs(new LinkedList<>());
+    //         specItem.setTime(commit.getCommitTime());
+    //         specItem.setCategory(Category.CATEGORY1);
+    //         specItem.setLcStatus(LcStatus.STATUS1);
 
-            SpecItem specItem2 = new SpecItem();
-            specItem2.setShortName("ID1");
-            specItem2.setContent("content");
-            specItem2.setCommit(commit2);
-            specItem2.setFingerprint("fingerprint");
-            specItem2.setLongName("longName");
-            specItem2.setUseInstead("useInstead");
-            specItem2.setTraceRefs(new LinkedList<>());
-            specItem2.setTime(commit2.getCommitTime());
-            specItem2.setCategory(Category.CATEGORY1);
-            specItem2.setLcStatus(LcStatus.STATUS1);
+    //         SpecItem specItem2 = new SpecItem();
+    //         specItem2.setShortName("ID1");
+    //         specItem2.setContent("content");
+    //         specItem2.setCommit(commit2);
+    //         specItem2.setFingerprint("fingerprint");
+    //         specItem2.setLongName("longName");
+    //         specItem2.setUseInstead("useInstead");
+    //         specItem2.setTraceRefs(new LinkedList<>());
+    //         specItem2.setTime(commit2.getCommitTime());
+    //         specItem2.setCategory(Category.CATEGORY1);
+    //         specItem2.setLcStatus(LcStatus.STATUS1);
 
-            SpecItem specItem3 = new SpecItem();
-            specItem3.setShortName("ID3");
-            specItem3.setContent("content");
-            specItem3.setCommit(commit);
-            specItem3.setFingerprint("fingerprint");
-            specItem3.setLongName("longName");
-            specItem3.setUseInstead("useInstead");
-            specItem3.setTraceRefs(new LinkedList<>());
-            specItem3.setTime(commit.getCommitTime());
-            specItem3.setCategory(Category.CATEGORY1);
-            specItem3.setLcStatus(LcStatus.STATUS1);
+    //         SpecItem specItem3 = new SpecItem();
+    //         specItem3.setShortName("ID3");
+    //         specItem3.setContent("content");
+    //         specItem3.setCommit(commit);
+    //         specItem3.setFingerprint("fingerprint");
+    //         specItem3.setLongName("longName");
+    //         specItem3.setUseInstead("useInstead");
+    //         specItem3.setTraceRefs(new LinkedList<>());
+    //         specItem3.setTime(commit.getCommitTime());
+    //         specItem3.setCategory(Category.CATEGORY1);
+    //         specItem3.setLcStatus(LcStatus.STATUS1);
 
-            List<SpecItem> specItems = new ArrayList<>();
-            specItems.add(specItem);
-            specItems.add(specItem3);
-            DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
-            documentRepo.save(documentEntity);
+    //         List<SpecItem> specItems = new ArrayList<>();
+    //         specItems.add(specItem);
+    //         specItems.add(specItem3);
+    //         DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
+    //         documentRepo.save(documentEntity);
 
-            List<SpecItem> specItems2 = new ArrayList<>();
-            specItems2.add(specItem2);
-            DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
-            documentRepo.save(documentEntity2);
+    //         List<SpecItem> specItems2 = new ArrayList<>();
+    //         specItems2.add(specItem2);
+    //         DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
+    //         documentRepo.save(documentEntity2);
              
-            // this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
-        };
-    }
+    //         this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
+    //     };
+    // }
 }
