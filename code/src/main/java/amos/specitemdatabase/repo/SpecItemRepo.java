@@ -1,9 +1,7 @@
 package amos.specitemdatabase.repo;
 
-import amos.specitemdatabase.model.DocumentEntity;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemId;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -49,16 +46,16 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
                 "FROM spec_item s1 " + 
                 "WHERE s1.time = (SELECT MAX(s2.time) FROM spec_item s2 " +
                 "WHERE s1.short_name = s2.short_name)" +
-                "AND s1.short_name = ?1",
+                "AND s1.short_name = :short_name",
         nativeQuery = true
     )
-    SpecItem getLatestSpecItemByID(String ID);
+    SpecItem getLatestSpecItemByID(@Param("short_name") String ID);
 
     @Query(
         value = "SELECT * " +
                 "FROM spec_item " +
-                "WHERE short_name = ?1",
+                "WHERE short_name = :short_name",
         nativeQuery = true
     )
-    List<SpecItem> getAllVersionsOfASpecItemByID(String ID);
+    List<SpecItem> getAllVersionsOfASpecItemByID(@Param("short_name") String ID);
 }
