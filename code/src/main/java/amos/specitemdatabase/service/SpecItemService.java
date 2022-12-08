@@ -24,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -141,7 +140,7 @@ public class SpecItemService {
     }
 
     public int getPageNumber() {
-        int pageNumber = (int) Math.ceil(specItemRepo.getCount() *1.0 / MAX_PER_PAGE) ;
+        int pageNumber = (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
         return pageNumber;
     }
     @Bean
