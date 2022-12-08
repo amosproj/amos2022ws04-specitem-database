@@ -70,10 +70,8 @@ public class Controller {
         }
     }
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+    private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
-            Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
             if (specItem.isPresent()) {
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
@@ -82,6 +80,12 @@ public class Controller {
             e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
+        return returnSpecItemAndStatusCode(specItem);
     }
     
     @GetMapping("/get/history/{id}")
