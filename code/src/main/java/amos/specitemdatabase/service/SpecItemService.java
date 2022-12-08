@@ -95,7 +95,6 @@ public class SpecItemService {
     public void deleteSpecItemById(String specItemId, String documentID) {
         DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentID);
         this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
-        // specItemRepo.deleteSpecItemById(specItemId);
     }
 
     /***
