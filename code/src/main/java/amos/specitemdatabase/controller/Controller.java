@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,19 +54,6 @@ public class Controller {
         return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
     }
 
-    @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content,
-                                                               @RequestParam(defaultValue = "1") int page) {
-        try {
-            List<SpecItem> specItemsList = service.getSpecItemByContent(content, page);
-            System.out.println("Getting SpecItems by content...");
-            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
@@ -112,14 +96,14 @@ public class Controller {
 
     @GetMapping("/get/all")
     public ResponseEntity<List<SpecItem>> getAllSpecItems(@RequestParam(defaultValue = "1") int page) {
-        try {
-            List<SpecItem> specItem = service.getAllSpecItems(page);
-            System.out.println("Processing...");
-            return new ResponseEntity<>(specItem, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getAllSpecItems(page));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
+    }
+
+    @GetMapping("/get/cont:{content}")
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content, @RequestParam(defaultValue = "1") int page) {
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByContent(content, page));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
     @GetMapping("/pageNumber")
