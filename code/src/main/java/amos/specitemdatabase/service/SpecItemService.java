@@ -59,25 +59,38 @@ public class SpecItemService {
         return listOfSpecItems;
     }
 
+    // Bug? Returns null --> no status code 404 will be sent
     public List<SpecItem> getAllSpecItems(int page) {
         Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
         List<SpecItem> listOfSpecItems = specItemRepo.findAllUpdatedSpecitem(pageable);
         return listOfSpecItems;
     }
 
+    // Bug? Returns null --> no status code 404 will be sent
     public SpecItem getSpecItemById(String specItemId) {
-        SpecItem specItem = specItemRepo.getSpecItemByID(specItemId);
+        SpecItem specItem = specItemRepo.getLatestSpecItemByID(specItemId);
         return specItem;
     }
 
     // Bug? Returns null --> no status code 404 will be sent
-    public List<SpecItem> getSpecItemsById(String specItemId) {
+    public List<SpecItem> getListOfSpecItemsById(String specItemId) {
         List<SpecItem> listOfSpecItems = specItemRepo.getAllVersionsOfASpecItemByID(specItemId);
         return listOfSpecItems;
     }
 
-    public void deleteSpecItemById(String specItemId) {
-        specItemRepo.deleteSpecItemById(specItemId);
+    private void deleteLinkBetweenDocumentAndSpecItem(DocumentEntity documentEntity, String specItemID) {
+        for (SpecItem specItem : documentEntity.getSpecItems()) {
+            if (specItem.getShortName().equals(specItemID)) {
+                documentEntity.getSpecItems().remove(specItem);
+                documentRepo.save(documentEntity);
+            }
+        }
+    }
+
+    public void deleteSpecItemById(String specItemId, String documentID) {
+        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentID);
+        this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
+        // specItemRepo.deleteSpecItemById(specItemId);
     }
 
     /***
@@ -170,8 +183,21 @@ public class SpecItemService {
             specItem2.setCategory(Category.CATEGORY1);
             specItem2.setLcStatus(LcStatus.STATUS1);
 
+            SpecItem specItem3 = new SpecItem();
+            specItem3.setShortName("ID3");
+            specItem3.setContent("content");
+            specItem3.setCommit(commit);
+            specItem3.setFingerprint("fingerprint");
+            specItem3.setLongName("longName");
+            specItem3.setUseInstead("useInstead");
+            specItem3.setTraceRefs(new LinkedList<>());
+            specItem3.setTime(commit.getCommitTime());
+            specItem3.setCategory(Category.CATEGORY1);
+            specItem3.setLcStatus(LcStatus.STATUS1);
+
             List<SpecItem> specItems = new ArrayList<>();
             specItems.add(specItem);
+            specItems.add(specItem3);
             DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
             documentRepo.save(documentEntity);
 
@@ -179,9 +205,9 @@ public class SpecItemService {
             specItems2.add(specItem2);
             DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
             documentRepo.save(documentEntity2);
-//             
-//             getSpecItemsById("id3");
-//             deleteSpecItemById(specItem2.getShortName());
+             
+            this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
+            // specItemRepo.deleteSpecItemById(specItem2.getShortName());
         };
     }
 }
