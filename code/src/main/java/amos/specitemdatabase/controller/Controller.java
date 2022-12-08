@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,31 +28,45 @@ public class Controller {
     /***
      * upload a new document to the database, response status code 201 if successful
      * @param filename name of the document
-     * @param file the text file
+     * @param uploadedFile the uploaded text file
      * @return
      */
     @PostMapping("upload/{filename}")
-    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename,
-                                                  @RequestParam("file") MultipartFile file) {
-        //saving content to a file in /tmp foler
-        System.out.println("Get a POST Request");
+    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile file) {
+        // try {
+        //     fileStorageService.storeFile(file, filename);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        // }
+
+        // //saving document to database
+        // try {
+        //     service.saveDocument(filename);
+        //     fileStorageService.deleteFile(filename);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        // }
+        // return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
         try {
             fileStorageService.storeFile(file, filename);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        //saving document to database
-        try {
             service.saveDocument(filename);
+
+            // Kevin: Windows 11 restricted the deleting function
+            // SpecItems will be displayed on the web pagecorrectly, 
+            // but the tmp file will not be deleted.
             fileStorageService.deleteFile(filename);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (FileSystemException e) {
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        System.out.println("Upload Successful!");
-        return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
     }
 
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
