@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+
 @Service
 public class SpecItemService {
     private final SpecItemRepo specItemRepo;
@@ -78,11 +79,15 @@ public class SpecItemService {
         return listOfSpecItems;
     }
 
+    private void deleteSpecItemFromDocument(DocumentEntity documentEntity, SpecItem specItem) {
+        documentEntity.getSpecItems().remove(specItem);
+        documentRepo.save(documentEntity);
+    }
+
     private void deleteLinkBetweenDocumentAndSpecItem(DocumentEntity documentEntity, String specItemID) {
         for (SpecItem specItem : documentEntity.getSpecItems()) {
             if (specItem.getShortName().equals(specItemID)) {
-                documentEntity.getSpecItems().remove(specItem);
-                documentRepo.save(documentEntity);
+                deleteSpecItemFromDocument(documentEntity, specItem);
             }
         }
     }
@@ -206,7 +211,7 @@ public class SpecItemService {
             DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
             documentRepo.save(documentEntity2);
              
-            this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
+            // this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
         };
     }
 }
