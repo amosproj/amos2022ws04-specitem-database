@@ -9,9 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,83 +25,94 @@ public class Controller {
         this.fileStorageService = fileStorageService;
     }
 
-    /***
-     * upload a new document to the database, response status code 201 if successful
-     * @param filename name of the document
-     * @param file the text file
-     * @return
-     */
-    @PostMapping("upload/{filename}")
-    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename,
-                                                  @RequestParam("file") MultipartFile file) {
-        //saving content to a file in /tmp foler
-        System.out.println("Get a POST Request");
-        try {
-            fileStorageService.storeFile(file, filename);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        //saving document to database
-        try {
-            service.saveDocument(filename);
-            fileStorageService.deleteFile(filename);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-        System.out.println("Upload Successful!");
-        return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
+    private void printErrorMessage(Exception e) {
+        if (e != null)
+            System.err.println(e.getMessage());
     }
 
-    @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content,
-                                                               @RequestParam(defaultValue = "1") int page) {
+    private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    private <T> ResponseEntity<T> handleStatusCode404(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private <T> ResponseEntity<T> handleStatusCode500(Exception e, Class<T> type) {
+        printErrorMessage(e);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    
+    private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
-            List<SpecItem> specItemsList = service.getSpecItemByContent(content, page);
-            System.out.println("Getting SpecItems by content...");
-            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
+            if (specItem.isPresent()) {
+                return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
+            }
+            return handleStatusCode404(null, SpecItem.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return handleStatusCode500(e, SpecItem.class);
+        }
+    }
+    
+    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
+        return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
+        try {
+            if (isListOfSpecItemsPresentAndNotEmpty(listOfSpecItems)) {
+                return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
+            }
+            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
+        } catch (Exception e) {
+            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
+        }
+    }
+    
+    @PostMapping("upload/{filename}")
+    public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {
+        try {
+            fileStorageService.storeFile(uploadedFile, filename);
+            service.saveDocument(filename);
+
+            // Kevin: Windows 11 restricted the deleting function. SpecItems will be displayed on the web pagecorrectly, but the tmp file will not be deleted.
+            fileStorageService.deleteFile(filename);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (FileSystemException e) {
+            return handleStatusCode500(e, String.class);
+            
+        } catch (Exception e) {
+            return handleStatusCode400(e, String.class);
         }
     }
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
-        try {
-            SpecItem specItem = service.getSpecItemById(id);
-            System.out.println("Getting SpecItem by ID...");
-            return new ResponseEntity<>(specItem, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
+        return returnSpecItemAndStatusCode(specItem);
     }
     
     @GetMapping("/get/history/{id}")
     public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
-        try {
-            List<SpecItem> specItemsList = service.getSpecItemsById(id);
-            System.out.println("Getting SpecItem history by ID...");
-            return new ResponseEntity<>(specItemsList, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsById(id));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
     @GetMapping("/get/all")
     public ResponseEntity<List<SpecItem>> getAllSpecItems(@RequestParam(defaultValue = "1") int page) {
-        try {
-            List<SpecItem> specItem = service.getAllSpecItems(page);
-            System.out.println("Processing...");
-            return new ResponseEntity<>(specItem, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getAllSpecItems(page));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
+    }
+
+    @GetMapping("/get/cont:{content}")
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content, @RequestParam(defaultValue = "1") int page) {
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByContent(content, page));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
     @GetMapping("/pageNumber")
