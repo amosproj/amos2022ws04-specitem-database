@@ -61,16 +61,4 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
         nativeQuery = true
     )
     List<SpecItem> getAllVersionsOfASpecItemByID(String ID);
-
-    @Query(
-        // value = "DELETE FROM spec_item s1" +
-        //         "WHERE s1.time = (SELECT MAX(s2.time) FROM spec_item s2 " +
-        //         "WHERE s1.short_name = s2.short_name)" +
-        //         "AND s1.short_name = ?1 ",
-        // nativeQuery = true
-        value = "DELETE FROM spec_item s " +
-                "WHERE s.short_name = :short_name",
-        nativeQuery = true
-    )
-    void deleteSpecItemById(@Param("short_name") String ID);
 }
