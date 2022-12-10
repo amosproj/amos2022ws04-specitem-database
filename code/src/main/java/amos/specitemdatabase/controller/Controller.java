@@ -1,15 +1,18 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.FileSystemException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -119,5 +122,22 @@ public class Controller {
     public ResponseEntity<Integer> getPageNumber() {
         int pageNumber = service.getPageNumber();
         return new ResponseEntity<>(pageNumber, HttpStatus.OK);
+    }
+
+    @GetMapping("/compare/{shortName}")
+    public ResponseEntity compareVersions(@PathVariable(value = "shortName") String shortName,
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+        try {
+            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            List<CompareResult> results = service.compare(shortName, old, updated);
+            return ResponseEntity.status(HttpStatus.OK).body(results);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }

@@ -3,14 +3,7 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
-import amos.specitemdatabase.model.Category;
-import amos.specitemdatabase.model.Commit;
-import amos.specitemdatabase.model.DocumentEntity;
-import amos.specitemdatabase.model.LcStatus;
-import amos.specitemdatabase.model.ProcessedDocument;
-import amos.specitemdatabase.model.SpecItem;
-import amos.specitemdatabase.model.Status;
-import amos.specitemdatabase.model.TagInfo;
+import amos.specitemdatabase.model.*;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
@@ -27,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -140,6 +134,17 @@ public class SpecItemService {
         final TagInfo tagInfo = this.createTagInfo(taggedSpecItem, String.join(", ", tags));
         taggedSpecItem.setTagInfo(tagInfo);
         this.specItemRepo.save(taggedSpecItem);
+    }
+
+    public List<CompareResult> compare(String shortName, LocalDateTime timeOld, LocalDateTime timeNew) throws IllegalAccessException {
+        Optional<SpecItem> optionalsOld = specItemRepo.findById(new SpecItemId(shortName, timeOld));
+        Optional<SpecItem> optionalsNew = specItemRepo.findById(new SpecItemId(shortName, timeNew));
+        if(optionalsOld.isEmpty() || optionalsNew.isEmpty()) {
+            throw new IllegalArgumentException("Specitems not in database!");
+        }
+        SpecItem sOld = optionalsOld.get();
+        SpecItem sNew = optionalsNew.get();
+        return SpecitemsComparator.compare(sOld, sNew);
     }
 
     // @Bean
