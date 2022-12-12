@@ -151,6 +151,17 @@ public class SpecItemService {
         return SpecitemsComparator.compare(sOld, sNew);
     }
 
+    public List<CompareResultMarkup> compareMarkup(String shortName, LocalDateTime timeOld, LocalDateTime timeNew) throws IllegalAccessException {
+        Optional<SpecItem> optionalsOld = specItemRepo.findById(new SpecItemId(shortName, timeOld));
+        Optional<SpecItem> optionalsNew = specItemRepo.findById(new SpecItemId(shortName, timeNew));
+        if(optionalsOld.isEmpty() || optionalsNew.isEmpty()) {
+            throw new IllegalArgumentException("Specitems not in database!");
+        }
+        SpecItem sOld = optionalsOld.get();
+        SpecItem sNew = optionalsNew.get();
+        return SpecitemsComparator.compareMarkup(sOld, sNew);
+    }
+
 //     @Bean
 //     CommandLineRunner commandLineRunner(
 //         DocumentRepo documentRepo

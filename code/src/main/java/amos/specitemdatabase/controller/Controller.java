@@ -1,6 +1,7 @@
 package amos.specitemdatabase.controller;
 
 import amos.specitemdatabase.model.CompareResult;
+import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
@@ -140,6 +141,23 @@ public class Controller {
         try {
             System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
             List<CompareResult> results = service.compare(shortName, old, updated);
+            return ResponseEntity.status(HttpStatus.OK).body(results);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/compare/markup/{shortName}")
+    public ResponseEntity compareVersionsMarkup(@PathVariable(value = "shortName") String shortName,
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+        try {
+            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            List<CompareResultMarkup> results = service.compareMarkup(shortName, old, updated);
             return ResponseEntity.status(HttpStatus.OK).body(results);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
