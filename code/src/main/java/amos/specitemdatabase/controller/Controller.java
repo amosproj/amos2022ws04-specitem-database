@@ -67,7 +67,7 @@ public class Controller {
     @SuppressWarnings("unchecked")
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
-            if (isListOfSpecItemsPresentAndNotEmpty(listOfSpecItems)) {
+            if (listOfSpecItems.isPresent()) {
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
@@ -115,6 +115,15 @@ public class Controller {
     @GetMapping("/get/cont:{content}")
     public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content, @RequestParam(defaultValue = "1") int page) {
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByContent(content, page));
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
+    }
+
+    @GetMapping("/get/cont:{content}/id:{id}")
+    public ResponseEntity<List<SpecItem>> filterSpecitemHistoryByContent(@PathVariable("content") String content,
+                                                                         @PathVariable("id") String id) {
+        System.out.println(content+" "+ id);
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByIDAndContent(id, content));
+        System.out.println(listOfSpecItems);
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
