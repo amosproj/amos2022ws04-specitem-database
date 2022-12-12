@@ -33,4 +33,9 @@ public class TagInfo {
 
     public TagInfo() {
     }
+
+    @Override
+    public String toString() {
+        return tags;
+    }
 }

@@ -58,4 +58,6 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
         nativeQuery = true
     )
     List<SpecItem> getAllVersionsOfASpecItemByID(@Param("short_name") String ID);
+
+    List<SpecItem> findAllByShortNameAndContentContaining(String shortName, String Content);
 }

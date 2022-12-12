@@ -1,15 +1,19 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.model.CompareResult;
+import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.FileSystemException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +68,7 @@ public class Controller {
     @SuppressWarnings("unchecked")
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
-            if (isListOfSpecItemsPresentAndNotEmpty(listOfSpecItems)) {
+            if (listOfSpecItems.isPresent()) {
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
@@ -115,9 +119,52 @@ public class Controller {
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
+    @GetMapping("/get/cont:{content}/id:{id}")
+    public ResponseEntity<List<SpecItem>> filterSpecitemHistoryByContent(@PathVariable("content") String content,
+                                                                         @PathVariable("id") String id) {
+        System.out.println(content+" "+ id);
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByIDAndContent(id, content));
+        System.out.println(listOfSpecItems);
+        return returnListOfSpecItemAndStatusCode(listOfSpecItems);
+    }
+
     @GetMapping("/pageNumber")
     public ResponseEntity<Integer> getPageNumber() {
         int pageNumber = service.getPageNumber();
         return new ResponseEntity<>(pageNumber, HttpStatus.OK);
+    }
+
+    @GetMapping("/compare/{shortName}")
+    public ResponseEntity compareVersions(@PathVariable(value = "shortName") String shortName,
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+        try {
+            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            List<CompareResult> results = service.compare(shortName, old, updated);
+            return ResponseEntity.status(HttpStatus.OK).body(results);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/compare/markup/{shortName}")
+    public ResponseEntity compareVersionsMarkup(@PathVariable(value = "shortName") String shortName,
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+        try {
+            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            List<CompareResultMarkup> results = service.compareMarkup(shortName, old, updated);
+            return ResponseEntity.status(HttpStatus.OK).body(results);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }
