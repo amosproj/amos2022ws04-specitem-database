@@ -162,10 +162,6 @@ public class Controller {
         return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
     }
 
-    @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content,
-                                                               @RequestParam(defaultValue = "1") int page) {
-
     
     @PostMapping("upload/{filename}")
     public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {

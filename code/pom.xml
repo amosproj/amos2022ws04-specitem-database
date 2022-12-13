@@ -96,7 +96,7 @@
             <version>0.0.20131108.vaadin1</version>
             <scope>compile</scope>
         </dependency>
-    </dependencies>
+
 
 		<dependency>
 			<groupId>io.github.java-diff-utils</groupId>
