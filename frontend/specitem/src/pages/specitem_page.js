@@ -36,6 +36,30 @@ export default function SpecitemPage() {
         setSpecitem(clone);
     }
 
+    const saveTags = async (data) => {
+       
+        const obj = {tagList: specitem.tagInfo.tags, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
+        
+        const res = await fetch("http://localhost:8080/post/tags", {
+            headers: {
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            method: "POST",
+            body: JSON.stringify(obj),
+        }).then((res) => {
+            {if (res.status !== 400){
+                console.log(res)
+                
+            
+            }
+        else{
+            console.log(res)
+            
+        }}
+            
+        });
+    };
     function addTag(o){
         let inputKey = document.getElementById("newKey").value;
         let inputVal = document.getElementById("newValue").value;
@@ -100,7 +124,7 @@ export default function SpecitemPage() {
                 Content: {specitem.content}
                 </div>
 
-                <TagsInput specitem={specitem}/>
+                
             
             
 
@@ -147,7 +171,9 @@ export default function SpecitemPage() {
                     </tr>   
                 </tbody>
                 </table>
+                <button onClick={saveTags}>Save Tags</button>
             </div>
+            
         }  
             
             <div className='App-tb' style={{marginTop: '15px'}}>
