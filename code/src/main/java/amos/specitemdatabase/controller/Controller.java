@@ -92,7 +92,7 @@ public class Controller {
             sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
 
             //parse tracerefs
-            sb.setTraceRefs(json.getString("traceref"));
+            sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
 
             //parse Local date time
             String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
@@ -106,23 +106,22 @@ public class Controller {
 
             //Create the commit from Json object and setCommit for specitem builder
             Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
-            //sb.setCommit(c);
+            sb.setCommit(c);
 
             //create specitem
-            //SpecItem s = new SpecItem(sb);
-            //SpecItem a = service.getSpecItemById(json.getString("shortname"));
+            SpecItem s = new SpecItem(sb);
+            System.out.println("Helloo " +service.getSpecItemById(json.getString("shortname")));
+            //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
+
 
             String taglist = json.getString("tagList");
             // Split the input string on spaces
 
-            final List<SpecItem> specItems = this.specItemRepo.findAll();
-            final List<String> tagss = List.of("Tag1", "Tag2");
-            specItems.forEach(specItem ->
-                    this.service.saveTags(specItem, tagss));
+
             // Create a List from the resulting array
-            //List<String> stringArrayList = Arrays.asList(taglist);
-            //System.out.println("SpecItem =" + a.getShortName());
-            //service.saveTags(a, List.of("Tag1", "Tag2"));
+            List<String> stringArrayList = Arrays.asList(taglist);
+            System.out.println("SpecItem =" + s.getShortName());
+            service.saveTags(s, stringArrayList);
             //String stringValue = json.getString("tagList");
 
         } catch (Exception e) {
@@ -157,7 +156,7 @@ public class Controller {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    
+
     @GetMapping("/get/history/{id}")
     public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
         try {
