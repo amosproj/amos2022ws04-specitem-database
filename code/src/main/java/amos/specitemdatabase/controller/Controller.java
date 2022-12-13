@@ -1,28 +1,49 @@
 package amos.specitemdatabase.controller;
 
+
+import amos.specitemdatabase.model.Category;
+import amos.specitemdatabase.model.Commit;
+
 import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
+
 import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.SpecItemBuilder;
+import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import java.nio.file.FileSystemException;
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
+import org.json.JSONObject;;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class Controller {
-    private final SpecItemService service;
-    private final FileStorageService fileStorageService;
 
+    private final FileStorageService fileStorageService;
+    private final SpecItemService service;
+    @Autowired
+    private SpecItemRepo specItemRepo;
     @Autowired
     public Controller(SpecItemService service, FileStorageService fileStorageService) {
         this.service = service;
@@ -76,9 +97,75 @@ public class Controller {
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
         }
     }
+
+
+    /***
+     * update the tags of specitem, response status code 201 if successful
+     * @param tags name of the document
+     *
+     * @return
+     */
+    @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateTags (@RequestBody String tags){
+        //saving content to a file in /tmp foler
+        System.out.println("Get a POST Request");
+
+
+        //saving document to database
+        try {
+            //create Json object from Json string
+            JSONObject json = new JSONObject(tags);
+            //System.out.println(tags);
+
+            // create Specitem Builder and fill it with attributes
+            SpecItemBuilder sb = new SpecItemBuilder();
+            sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
+
+            //parse tracerefs
+            sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
+
+            //parse Local date time
+            String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
+            int year = Integer.parseInt(dateParts[0]);
+            int month = Integer.parseInt(dateParts[1]);
+            int day = Integer.parseInt(dateParts[2]);
+            int hour = Integer.parseInt(dateParts[3]);
+            int minute = Integer.parseInt(dateParts[4]);
+            int second = Integer.parseInt(dateParts[5]);
+            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+
+            //Create the commit from Json object and setCommit for specitem builder
+            Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
+            sb.setCommit(c);
+
+            //create specitem
+            SpecItem s = new SpecItem(sb);
+            System.out.println("Helloo " +service.getSpecItemById(json.getString("shortname")));
+            //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
+
+
+            String taglist = json.getString("tagList");
+            // Split the input string on spaces
+
+
+            // Create a List from the resulting array
+            List<String> stringArrayList = Arrays.asList(taglist);
+            System.out.println("SpecItem =" + s.getShortName());
+            service.saveTags(s, stringArrayList);
+            //String stringValue = json.getString("tagList");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        System.out.println("Upload Successful!");
+        return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
+    }
+
     
     @PostMapping("upload/{filename}")
     public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {
+
         try {
             fileStorageService.storeFile(uploadedFile, filename);
             service.saveDocument(filename);
@@ -100,7 +187,7 @@ public class Controller {
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
         return returnSpecItemAndStatusCode(specItem);
     }
-    
+
     @GetMapping("/get/history/{id}")
     public ResponseEntity<List<SpecItem>> getSpecItemsById(@PathVariable(value = "id")String id) {
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsById(id));
