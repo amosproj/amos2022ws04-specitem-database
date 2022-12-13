@@ -227,6 +227,10 @@ public class SpecItemService {
 //             specItems2.add(specItem2);
 //             DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
 //             documentRepo.save(documentEntity2);
+//             
+//             
+//             List<String> tags = List.of("Key1:Value1","Key2:Value2");
+//             specItems.forEach(specs -> saveTags(specs, tags));
 //
 //             //this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
 //         };
