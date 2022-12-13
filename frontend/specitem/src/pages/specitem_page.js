@@ -62,7 +62,7 @@ export default function SpecitemPage() {
                 <div>
                 Content: {specitem.content}
                 </div>
-                <TagsInput />
+                <TagsInput specitem={specitem}/>
             </div>
             
 
