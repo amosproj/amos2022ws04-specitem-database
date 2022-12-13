@@ -11,6 +11,7 @@ import PageBar from '../components/pageBar';
 export default function SpecitemsPage() {
 
     const [page, setPage] = useState(1);
+    const [maxPage, setMaxPage] = useState(1);
     const [specitemsList, setSpecitemsList] = useState([])
     const [message, setMessage] = useState('');
     const [type, setType] = useState('ID');
@@ -40,12 +41,7 @@ export default function SpecitemsPage() {
 
     async function handleFilter(event) {
         if(message == ''){
-            const response = await fetch('http://localhost:8080/get/all' , {
-                method: 'GET',
-            });
-            const responseText = await response.text();
-            console.log(responseText)
-            if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+            handleGet(1);
         }
         else {
             if (type === 'ID') {
@@ -60,6 +56,8 @@ export default function SpecitemsPage() {
                     setSpecitemsList([JSON.parse(responseText)])
                 }
                 //console.log(specitemsList)
+                setMaxPage(1);
+                setPage(1);
             } else {
                 const response = await fetch('http://localhost:8080/get/cont:' + message, {
                     method: 'GET',
@@ -72,21 +70,34 @@ export default function SpecitemsPage() {
                     setSpecitemsList(JSON.parse(responseText))
                 }
                 //console.log(specitemsList)
+                setMaxPage(1);
+                setPage(1);
             }
         }
     }
       
-    function toggleExpanded(shortName) {
+    function toggleExpanded(time) {
+        console.log(time);
         //make deep copy
         let n = []
         isExpanded.forEach(s => n.push(s))
         //check whether to show or hide
-        let index = n.indexOf(shortName);
+        let index = n.indexOf(time);
         if(index == -1)
-            n.push(shortName)
+            n.push(time)
         else 
             n.splice(index, 1);
         setExpanded(n);
+    }
+
+    async function getMaxPage(){
+        const response = await fetch(`http://localhost:8080/pageNumber` , {
+            method: 'GET',
+        });
+        const responseText = await response.text()
+        if(responseText=='') 
+            console("Error get /pageNumber")
+        setMaxPage(parseInt(responseText));
     }
 
     function selectTableColumns() {
@@ -117,6 +128,7 @@ export default function SpecitemsPage() {
         console.log(responseText)
         if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         setPage(page);
+        getMaxPage();
     }
 
     useEffect(() => {
@@ -148,7 +160,6 @@ export default function SpecitemsPage() {
 
     return(
         <div style={{width: '100%'}}>
-                {specitemsList.length !== 0 &&
                 <div>
                     <div>
                         <input onChange={handleChange}
@@ -185,8 +196,10 @@ export default function SpecitemsPage() {
                     <div className="save-export">
                         <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
                     </div>
+                    {specitemsList.length !== 0 &&
                     <div>
-                        Displaying items {(page-1)*50} - {(page-1)*50 + specitemsList.length} 
+                    <div>
+                        Displaying items {(page-1)*50+1} - {(page-1)*50 + specitemsList.length} 
                     </div>
                     <table>
                         <tbody>
@@ -235,8 +248,8 @@ export default function SpecitemsPage() {
                                         <td className="VersionCell">{val.version}</td>
                                         <td className="ContentCell">{trimLongerStrings(val.content)}</td>
                                         <td>
-                                            <button onClick={() => toggleExpanded(val.shortName)}>
-                                                {isExpanded.includes(val.shortName)? "Hide" : "Show"}
+                                            <button onClick={() => toggleExpanded(val.time)}>
+                                                {isExpanded.includes(val.time)? "Hide" : "Show"}
                                             </button>
                                         </td>
                                     </tr>,
@@ -249,25 +262,23 @@ export default function SpecitemsPage() {
                                 })}
                         </tbody>
                     </table>
-                    <PageBar page={page} setPage={setPage}></PageBar> 
+                    <PageBar page={page} setPage={setPage} maxPage={maxPage}></PageBar> 
+                    </div>
+                    }
+                    {specitemsList.length === 0 &&
+                        <div className='App-tb' style={{marginTop:'200px'}}> 
+                        No Items Found 
+                        </div>
+                    }
                     <div className='App-tb' style={{marginTop: '15px'}}>
                         <Link to={ROUTES.DASHBOARD}>
                         <button className='button-close'>Back</button>  
                         </Link>
                         </div>
                     </div>
-}
+
             
-         {specitemsList.length === 0 &&
-            <div className='App-tb' style={{marginTop:'400px'}}> 
-            No Items Found 
-            <Link to={ROUTES.DASHBOARD}>
-                <button className='button-close' >     
-                Back
-            </button>  
-                </Link>
-            </div>
-         }       
+                
                      
         </div>
     )

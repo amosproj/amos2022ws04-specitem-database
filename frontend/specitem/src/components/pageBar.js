@@ -1,23 +1,7 @@
 import { useEffect, useState } from "react"
 import "./pageBar.css"
 
-export default function PageBar({page, setPage}) {
-
-    const [maxPage, setMaxPage] = useState(1);
-
-    useEffect(() => {
-        async function getMaxPage(){
-            const response = await fetch(`http://localhost:8080/pageNumber` , {
-                method: 'GET',
-            });
-            const responseText = await response.text()
-            if(responseText=='') 
-                console("Error get /pageNumber")
-            setMaxPage(parseInt(responseText));
-        }
-        getMaxPage();
-      }, []);
-    
+export default function PageBar({page, setPage, maxPage}) {    
 
     return (
         <div className="page-bar">
