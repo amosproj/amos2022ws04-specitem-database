@@ -42,7 +42,7 @@ export default function SpecitemsPage() {
         }
         else {
             if(type === 'Content') {
-                const response = await fetch('http://localhost:8080/get/cont:' + message, {
+                const response = await fetch(`http://localhost:8080/get/cont:${message}/id:${id}`, {
                     method: 'GET',
                 });
                 const responseText = await response.text();
@@ -62,14 +62,14 @@ export default function SpecitemsPage() {
         }
     }
 
-    function toggleExpanded(shortName) {
+    function toggleExpanded(time) {
         //make deep copy
         let n = []
         isExpanded.forEach(s => n.push(s))
         //check whether to show or hide
-        let index = n.indexOf(shortName);
+        let index = n.indexOf(time);
         if(index == -1)
-            n.push(shortName)
+            n.push(time)
         else 
             n.splice(index, 1);
         setExpanded(n);
@@ -149,7 +149,6 @@ export default function SpecitemsPage() {
                 <div className="save-export">
                     <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
                 </div>
-                {specitemsList.length !== 0 &&
                 <div>
                     <div>
                         <input onChange={handleChange}
@@ -182,7 +181,7 @@ export default function SpecitemsPage() {
                         <label htmlFor="VersionBox">Version</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
-
+                    {specitemsList.length !== 0 &&
                     <table>
                         <tbody>
                             <tr>
@@ -230,12 +229,12 @@ export default function SpecitemsPage() {
                                         <td className="VersionCell">{val.version}</td>
                                         <td className="ContentCell">{trimLongerStrings(val.content)}</td>
                                         <td>
-                                            <button onClick={() => toggleExpanded(val.shortName)}>
-                                                {isExpanded.includes(val.shortName)? "Hide" : "Show"}
+                                            <button onClick={() => toggleExpanded(val.time.join(" "))}>
+                                                {isExpanded.includes(val.time.join(" "))? "Hide" : "Show"}
                                             </button>
                                         </td>
                                     </tr>,
-                                    isExpanded.includes(val.shortName) && (
+                                    isExpanded.includes(val.time.join(" ")) && (
                                         <tr>
                                             <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
                                         </tr>
@@ -244,26 +243,24 @@ export default function SpecitemsPage() {
                                 })}
                         </tbody>
                     </table>
-                    <div className='App-tb' style={{marginTop: '15px'}}>
+                }
+                {specitemsList.length === 0 &&
+                <div className='App-tb' style={{marginTop:'200px'}}> 
+                    No Items Found 
+                </div>
+                }   
+
+            <div className='App-tb' style={{marginTop: '15px'}}>
                 <Link to={ROUTES.DASHBOARD}>
-                <button className='button-close' >     
-                Back
-            </button>  
+                    <button className='button-close' >     
+                    Back
+                    </button>  
                 </Link>
                 </div>
-                    </div>
-}
-            
-         {specitemsList.length === 0 &&
-            <div className='App-tb' style={{marginTop:'400px'}}> 
-            No Items Found 
-            <Link to={ROUTES.DASHBOARD}>
-                <button className='button-close' >     
-                Back
-            </button>  
-                </Link>
             </div>
-         }       
+
+            
+            
                      
         </div>
     )
