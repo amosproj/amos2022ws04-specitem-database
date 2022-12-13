@@ -11,17 +11,16 @@ import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
-import java.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SpecItemService {
@@ -110,12 +109,20 @@ public class SpecItemService {
     }
 
     public void saveTags(final SpecItem taggedSpecItem, final List<String> tags) {
-        // TODO: maybe this info will eventually come from the server
-        // but for now, it is set manually
-        taggedSpecItem.setTime(LocalDateTime.now());
-        final TagInfo tagInfo = this.createTagInfo(taggedSpecItem, String.join(", ", tags));
-        taggedSpecItem.setTagInfo(tagInfo);
-        this.specItemRepo.save(taggedSpecItem);
+        final SpecItem newVersionOfSpecItem = new SpecItem();
+        newVersionOfSpecItem.setTime(LocalDateTime.now());
+        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
+        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
+        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
+        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        newVersionOfSpecItem.setTraceRefs(taggedSpecItem.getTraceRefs());
+        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
+        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
+        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
+        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", tags));
+        newVersionOfSpecItem.setTagInfo(tagInfo);
+        this.specItemRepo.save(newVersionOfSpecItem);
     }
 
     public SpecItem getSpecItemById(String specItemId) {
