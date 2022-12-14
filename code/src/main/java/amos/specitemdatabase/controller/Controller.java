@@ -105,7 +105,7 @@ public class Controller {
 			String decodedeURL = URLDecoder.decode(urlWithSpecialCharacters, "UTF-8");
 			return decodedeURL;
 		} catch (UnsupportedEncodingException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
 			return "";
         }
     }
