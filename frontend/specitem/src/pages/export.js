@@ -14,13 +14,13 @@ export default function ExportPage() {
         setExportList(exportList.filter((specitem) => specitem.shortName != shortName));
     }
 
-    function handleTagInfo(tagInfoObject, outputText) {
+    function handleTagInfo(tagInfoObject) {
         let keys = Object.keys(tagInfoObject)
         let values = Object.values(tagInfoObject)
-        for (let j = 0; j < keys.length; j++) {
+        for (let i = 0; i < keys.length; i++) {
             keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
             if (keys[i] == "Tags") {
-                outputText += `${keys[i]}: ${values[i]}\n`;
+                return `${keys[i]}: ${values[i]}\n`;
             }
         }
     }
@@ -39,11 +39,11 @@ export default function ExportPage() {
             for (let i = 0; i < keys.length; i++) {
                 keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
                 if(keys[i] == "Content") {
-                    text += `${keys[i]}:\n${values[i]}\n`;
+                    text += `${keys[i]}: \n${values[i]}\n`;
                 } else if (keys[i] == "Commit" || keys[i] == "Time") {
                     continue;
                 } else if (keys[i] == "TagInfo") {
-                    handleTagInfo(values[i], text)
+                    text += handleTagInfo(values[i])
                 }
                 else {
                     text += `${keys[i]}: ${values[i]}\n`;
