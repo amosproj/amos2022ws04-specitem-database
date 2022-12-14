@@ -14,6 +14,17 @@ export default function ExportPage() {
         setExportList(exportList.filter((specitem) => specitem.shortName != shortName));
     }
 
+    function handleTagInfo(tagInfoObject) {
+        let keys = Object.keys(tagInfoObject)
+        let values = Object.values(tagInfoObject)
+        for (let i = 0; i < keys.length; i++) {
+            keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
+            if (keys[i] == "Tags") {
+                return `${keys[i]}: ${values[i]}\n`;
+            }
+        }
+    }
+
     function exportFile() {
         //toString
         if(exportList.length == 0) {
@@ -25,13 +36,16 @@ export default function ExportPage() {
         exportList.forEach((specitem) => {
             let keys = Object.keys(specitem);
             let values = Object.values(specitem);
-            for(let i = 0; i < keys.length; i++) {
+            for (let i = 0; i < keys.length; i++) {
                 keys[i]= keys[i].charAt(0).toUpperCase() + keys[i].slice(1);
                 if(keys[i] == "Content") {
-                    text += `${keys[i]}:\n${values[i]}\n`;
+                    text += `${keys[i]}: \n${values[i]}\n`;
                 } else if (keys[i] == "Commit" || keys[i] == "Time") {
                     continue;
-                } else {
+                } else if (keys[i] == "TagInfo") {
+                    text += handleTagInfo(values[i])
+                }
+                else {
                     text += `${keys[i]}: ${values[i]}\n`;
                 }
             }
