@@ -215,7 +215,7 @@ public class Controller {
     @GetMapping("/get/cont:{content}")
     public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) {
 		content = getDecodedURLWithoutSpecialCharacters(content);
-        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByContent(content, page));
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
@@ -223,7 +223,7 @@ public class Controller {
     public ResponseEntity<List<SpecItem>> filterSpecitemHistoryByContent(@PathVariable("content") String content,
                                                                          @PathVariable("id") String id) {
         System.out.println(content+" "+ id);
-        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByIDAndContent(id, content));
+        Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByIDAndContent(id, content));
         System.out.println(listOfSpecItems);
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
