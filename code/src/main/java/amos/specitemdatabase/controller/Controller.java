@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,7 +35,8 @@ import java.time.LocalDateTime;
 
 import java.util.List;
 import java.util.Optional;
-import org.json.JSONObject;;
+import org.json.JSONObject;
+import java.net.URLDecoder;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -82,7 +84,7 @@ public class Controller {
         }
     }
     
-    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
+    private boolean isListOfSpecItemsPresentAndNotEmpt (Optional<List<SpecItem>> listOfSpecItems) {
         return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
     }
     
@@ -200,8 +202,19 @@ public class Controller {
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
 
+    private String getDecodedURLWithoutSpecialCharacters(String urlWithSpecialCharacters) {
+		try {
+			String decodedeURL = URLDecoder.decode(urlWithSpecialCharacters, "UTF-8");
+			return decodedeURL;
+		} catch (UnsupportedEncodingException e) {
+            System.out.println(e.getMessage());
+			return "";
+        }
+    }
+
     @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content")String content, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) {
+		content = getDecodedURLWithoutSpecialCharacters(content);
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getSpecItemByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
