@@ -100,6 +100,15 @@ public class Controller {
         }
     }
 
+    private String getDecodedURLWithoutSpecialCharacters(String urlWithSpecialCharacters) {
+		try {
+			String decodedeURL = URLDecoder.decode(urlWithSpecialCharacters, "UTF-8");
+			return decodedeURL;
+		} catch (UnsupportedEncodingException e) {
+            System.out.println(e.getMessage());
+			return "";
+        }
+    }
 
     /***
      * update the tags of specitem, response status code 201 if successful
@@ -200,16 +209,6 @@ public class Controller {
     public ResponseEntity<List<SpecItem>> getAllSpecItems(@RequestParam(defaultValue = "1") int page) {
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getAllSpecItems(page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
-    }
-
-    private String getDecodedURLWithoutSpecialCharacters(String urlWithSpecialCharacters) {
-		try {
-			String decodedeURL = URLDecoder.decode(urlWithSpecialCharacters, "UTF-8");
-			return decodedeURL;
-		} catch (UnsupportedEncodingException e) {
-            System.out.println(e.getMessage());
-			return "";
-        }
     }
 
     @GetMapping("/get/cont:{content}")
