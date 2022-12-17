@@ -121,20 +121,21 @@ export default function SpecitemsPage() {
         
       }, []);
           
-    function appendExportList() {
-        if (specitemsList.length === 0) {
+      function appendExportList() {
+        if (specitemsList.length === 0){
             toast.error("There are no Specitems.")
             return;
         }
         let list = exportList;
         specitemsList.forEach(specitem => {
-            if(list.filter(s => s.shortName === specitem.shortName).length > 0) {
-                toast(`${specitem.shortName} already exists`);
-            }
+            if(list.filter(s => (s.shortName === specitem.shortName) & (s.time === specitem.time)).length > 0) {
+                toast(`${specitem.shortName + ' ' + timeToString(specitem.time)} already in ExportList`);
+            } else {
             list.push(specitem);
+            }
         })
         setExportList(list);
-        toast.success('Saved')
+        toast.success('Saved');
     }
 
     function trimLongerStrings(stringToTrim) {
@@ -144,11 +145,14 @@ export default function SpecitemsPage() {
             return stringToTrim.substring(0, 15) + "...";
     }
 
+    function timeToString(time){
+        let date = time[0]+'-'+('0' + time[1]).slice(-2)+'-'+('0' + time[2]).slice(-2);
+        let hour = ('0' + time[3]).slice(-2) + ':' + ('0' + time[4]).slice(-2) + ':' + ('0' + time[5]).slice(-2);
+        return  date + '\n' + hour;
+    }
+
     return(
         <div style={{width: '100%'}}>
-                <div className="save-export">
-                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
-                </div>
                 <div>
                     <div>
                         <input onChange={handleChange}
@@ -177,10 +181,17 @@ export default function SpecitemsPage() {
                         <label htmlFor="LongNameBox">LongName</label>
                         <input className="checkboxClass" type="checkbox" id="CommitBox" defaultChecked></input>
                         <label htmlFor="CommitBox">Commit</label>
+                        <input className="checkboxClass" type="checkbox" id="CommitTimeBox" defaultChecked></input>
+                        <label htmlFor="CommitTImeBox">Time</label>
                         <input className="checkboxClass" type="checkbox" id="VersionBox" defaultChecked></input>
                         <label htmlFor="VersionBox">Version</label>
+                        <input className="checkboxClass" type="checkbox" id="TagBox" defaultChecked></input>
+                        <label htmlFor="TagBox">Tags</label>
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
+                    <div className="save-export">
+                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
+                </div>
                     {specitemsList.length !== 0 &&
                     <table>
                         <tbody>
@@ -193,8 +204,10 @@ export default function SpecitemsPage() {
                                 <th className="TraceRefsCell">traceRefs</th>
                                 <th className="LongNameCell">LongName</th>
                                 <th className="CommitCell">Commit</th>
+                                <th className="CommitTimeCell">Time</th>
                                 <th className="VersionCell">Version</th>
                                 <th className="ContentCell">Content</th>
+                                <th className="TagCell">Tags</th>
                                 <th>Expand</th>
                             </tr>
 
@@ -226,8 +239,10 @@ export default function SpecitemsPage() {
                                         
                                         <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
                                         <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
+                                        <td className="CommitTimeCell">{val.commit? timeToString(val.commit.commitTime): ''}</td>
                                         <td className="VersionCell">{val.version}</td>
                                         <td className="ContentCell">{trimLongerStrings(val.content)}</td>
+                                        <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
                                         <td>
                                             <button onClick={() => toggleExpanded(val.time.join(" "))}>
                                                 {isExpanded.includes(val.time.join(" "))? "Hide" : "Show"}
