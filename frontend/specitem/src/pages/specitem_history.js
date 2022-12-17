@@ -135,7 +135,7 @@ export default function SpecitemsPage() {
             }
         })
         setExportList(list);
-        toast.success('Saved');
+        toast.success('Success');
     }
 
     function trimLongerStrings(stringToTrim) {

@@ -135,7 +135,7 @@ export default function SpecitemsPage() {
         handleGet(1);
       }, []);
           
-    function appendExportList() {
+      function appendExportList() {
         if (specitemsList.length === 0){
             toast.error("There are no Specitems.")
             return;
@@ -149,7 +149,7 @@ export default function SpecitemsPage() {
             }
         })
         setExportList(list);
-        toast.success('Saved');
+        toast.success('Success');
     }
 
     function trimLongerStrings(stringToTrim) {
