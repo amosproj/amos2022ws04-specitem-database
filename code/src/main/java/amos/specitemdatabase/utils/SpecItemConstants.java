@@ -1,9 +1,6 @@
 package amos.specitemdatabase.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A set of constants to facilitate the work with text files.
@@ -28,7 +25,4 @@ public class SpecItemConstants {
     private SpecItemConstants() {
 
     }
-
-
-
 }

@@ -1,12 +1,10 @@
 package amos.specitemdatabase.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.Data;
 import lombok.Getter;
 
 import javax.persistence.Entity;
@@ -67,6 +65,4 @@ public class Commit {
             "CommitMsg: " + this.commitMessage + "\n" +
             "CommitAuthor: " + this.commitAuthor + "\n";
     }
-
-
 }
