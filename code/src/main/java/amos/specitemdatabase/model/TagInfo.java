@@ -11,7 +11,6 @@ import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @IdClass(SpecItemId.class)
 @Entity
 @Getter

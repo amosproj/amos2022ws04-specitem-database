@@ -55,7 +55,6 @@ public class SpecItem {
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 
-
     public SpecItem(final SpecItemBuilder specItemBuilder) {
         this.fingerprint = specItemBuilder.getFingerprint();
         this.shortName = specItemBuilder.getShortName();

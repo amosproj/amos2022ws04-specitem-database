@@ -95,6 +95,5 @@ public class WriterServiceImpl implements WriterService {
                 writeNewLines(writer);
             }
         }
-
     }
 }
