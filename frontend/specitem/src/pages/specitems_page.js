@@ -76,15 +76,14 @@ export default function SpecitemsPage() {
         }
     }
       
-    function toggleExpanded(time) {
-        console.log(time);
+    function toggleExpanded(shortName) {
         //make deep copy
         let n = []
-        isExpanded.forEach(s => n.push(s))
+        isExpanded.forEach(specItem => n.push(specItem))
         //check whether to show or hide
-        let index = n.indexOf(time);
+        let index = n.indexOf(shortName);
         if(index == -1)
-            n.push(time)
+            n.push(shortName)
         else 
             n.splice(index, 1);
         setExpanded(n);
@@ -96,7 +95,7 @@ export default function SpecitemsPage() {
         });
         const responseText = await response.text()
         if(responseText=='') 
-            console("Error get /pageNumber")
+            console.log("Error get /pageNumber")
         setMaxPage(parseInt(responseText));
     }
 
@@ -128,7 +127,7 @@ export default function SpecitemsPage() {
         console.log(responseText)
         if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         setPage(page);
-        getMaxPage();
+        await getMaxPage();
     }
 
     useEffect(() => {
@@ -226,20 +225,22 @@ export default function SpecitemsPage() {
                                         <td className="CategoryCell">{val.category}</td>
                                         <td className="LcStatusCell">{val.lcStatus}</td>
                                         <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
-                                                {val.traceRefs.map((val,key) => {
-                            
-                                                return (
-                                                <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
-                                                    <td width='10px' >{trimLongerStrings(val)}</td> 
-                                                    :
-                                                    <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
-                                                }
-                                                </tr>)})}
-                                                <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
-                                            </table>) }
-                                            <div></div>
-                                            {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
+                                        <td className="TraceRefsCell">
+                                            <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'):
+                                                <table border="2">
+                                                    {val.traceRefs.map((val,key) => {
+                                                        return (
+                                                            <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
+                                                                <td width='10px'>{trimLongerStrings(val)}</td>
+                                                                :
+                                                                <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
+                                                            }</tr>
+                                                        )
+                                                    })}
+                                                    <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                                </table>)}
+                                                <div></div>
+                                                {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
                                             </div>
                                         </td>
                                         
@@ -248,8 +249,8 @@ export default function SpecitemsPage() {
                                         <td className="VersionCell">{val.version}</td>
                                         <td className="ContentCell">{trimLongerStrings(val.content)}</td>
                                         <td>
-                                            <button onClick={() => toggleExpanded(val.time)}>
-                                                {isExpanded.includes(val.time)? "Hide" : "Show"}
+                                            <button onClick={() => toggleExpanded(val.shortName)}>
+                                                {isExpanded.includes(val.shortName)? "Hide" : "Show"}
                                             </button>
                                         </td>
                                     </tr>,
