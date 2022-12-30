@@ -50,17 +50,13 @@ export default function SpecitemPage() {
         }).then((res) => {
             {if (res.status !== 400){
                 console.log(res)
-                
-            
             }
-        else{
-            console.log(res)
-            
-        }}
-            
+            else{
+                console.log(res)
+            }}
         });
     };
-    function addTag(o){
+    function addTag(){
         let inputKey = document.getElementById("newKey").value;
         let inputVal = document.getElementById("newValue").value;
 
@@ -93,43 +89,33 @@ export default function SpecitemPage() {
                     ID: {specitem.shortName}
                 </div>
                 <div>
-                   Fingerprint: {specitem.fingerprint}
+                    Fingerprint: {specitem.fingerprint}
                 </div>
                 <div>
-                Category: {specitem.category}
+                    Category: {specitem.category}
                 </div>
                 <div>
                     LcStatus: {specitem.lcStatus}
                 </div>
                 <div>
-                useInstead: {specitem.useInstead}
+                    useInstead: {specitem.useInstead}
                 </div>
-                traceRefs:
-                {
-                    ' ' +
-                    specitem.traceRefs.join(", ")
-                
-                }
-                
+                    traceRefs:
+                    {
+                        ' ' + specitem.traceRefs.join(", ")
+                    }
                 <div>
-                Longname: {specitem.longName}
+                    Longname: {specitem.longName}
                 </div>
                 <div>
                     Commit_ID: {specitem.commit? specitem.commit.id : ''}
                 </div>
                 <div>
-                Version: {specitem.version}
+                    Version: {specitem.version}
                 </div>
                 <div>
-                Content: {specitem.content}
+                    Content: {specitem.content}
                 </div>
-
-                
-            
-            
-
-
-
                 <table>
                     <thead>
                         <tr>
