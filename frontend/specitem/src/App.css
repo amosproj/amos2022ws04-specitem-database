@@ -188,3 +188,14 @@ td > .LongNameCell, div .ContentCell, div {
 .specitem-label {
   background-color: antiquewhite;
 }
+
+.compareCheckbox {
+  width: 25px;
+  height: 25px;
+}
+
+#compareButton {
+  background-color: #4CAF50;
+  color: aliceblue;
+  border-radius: 10px;
+}

@@ -114,8 +114,8 @@ export default function SpecitemsPage() {
             const responseText = await response.text();
             console.log(responseText)
             if(responseText !== ''){
-                setSpecitemsList(JSON.parse(responseText).sort(compare))}
-            
+                setSpecitemsList(JSON.parse(responseText).sort(compare))
+            }
         }
         handleGet()
         
@@ -142,6 +142,25 @@ export default function SpecitemsPage() {
             return stringToTrim;
         else if (stringToTrim.length > 15)
             return stringToTrim.substring(0, 15) + "...";
+    }
+
+    function sendItemsForComparison() {
+        let compareCheckboxesList = document.getElementsByClassName("compareCheckbox");
+        let checkedSum = 0;
+        let itemsForComparisonList = [];
+        for (let i = 0; i < compareCheckboxesList.length; i++) {
+            if (compareCheckboxesList[i].checked) {
+                checkedSum++;
+                itemsForComparisonList.push(compareCheckboxesList[i]);
+            }
+        }
+
+        if (checkedSum === 2) {
+            //TODO Add link to the specItems comparison view
+            return itemsForComparisonList;
+        } else {
+            toast.error("Choose only two versions for comparison!")
+        }
     }
 
     return(
@@ -185,12 +204,13 @@ export default function SpecitemsPage() {
                     <table>
                         <tbody>
                             <tr>
+                                <th className="CompareCheckboxCell"><button id="compareButton" onClick={()=>{sendItemsForComparison()}}>Compare</button></th>
                                 <th className="ShortNameCell">ShortName</th>
                                 <th className="FingerprintCell">Fingerprint</th>
                                 <th className="CategoryCell">Category</th>
                                 <th className="LcStatusCell">LcStatus</th>
                                 <th className="UseInsteadCell">UseInstead</th>
-                                <th className="TraceRefsCell">traceRefs</th>
+                                <th className="TraceRefsCell">TraceRefs</th>
                                 <th className="LongNameCell">LongName</th>
                                 <th className="CommitCell">Commit</th>
                                 <th className="VersionCell">Version</th>
@@ -202,12 +222,13 @@ export default function SpecitemsPage() {
                             
                             return [
                                     <tr key={key}>
+                                        <td className="CompareCheckboxCell"><input type="checkbox" id={"chkbox" + key} className="compareCheckbox"></input></td>
                                         <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
                                         <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                         <td className="CategoryCell">{val.category}</td>
                                         <td className="LcStatusCell">{val.lcStatus}</td>
                                         <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue">
+                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue"><tbody>
                                                 {val.traceRefs.map((val,key) => {
                             
                                                 return (
@@ -218,7 +239,7 @@ export default function SpecitemsPage() {
                                                 }
                                                 </tr>)})}
                                                 <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
-                                            </table>) }
+                                        </tbody></table>) }
                                             <div></div>
                                             {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
                                             </div>
@@ -248,7 +269,7 @@ export default function SpecitemsPage() {
                 <div className='App-tb' style={{marginTop:'200px'}}> 
                     No Items Found 
                 </div>
-                }   
+                }
 
             <div className='App-tb' style={{marginTop: '15px'}}>
                 <Link to={ROUTES.DASHBOARD}>
@@ -258,11 +279,6 @@ export default function SpecitemsPage() {
                 </Link>
                 </div>
             </div>
-
-            
-            
-                     
         </div>
     )
-    
 }
