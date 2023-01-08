@@ -32,6 +32,8 @@ public class SpecitemsComparator {
                 .showInlineDiffs(true)
                 .mergeOriginalRevised(true)
                 .inlineDiffByWord(true)
+                .oldTag(b -> b? "<span style=\"background-color:red;\">" : "</span>")
+                .newTag(b -> b? "<span style=\"background-color:#9FE2BF;\">" : "</span>")
                 .build();
         List<CompareResultMarkup> results = new LinkedList<>();
         Field[] attributes = SpecItem.class.getDeclaredFields();
