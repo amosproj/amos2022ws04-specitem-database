@@ -52,7 +52,7 @@ export default function ExportPage() {
             text += "\n\n\n\n";
         })
         //toFile
-        var data = new Blob([text], {type: 'text/plain'});
+        let data = new Blob([text], {type: 'text/plain'});
         if (textFile !== null) {
             window.URL.revokeObjectURL(textFile);
         }

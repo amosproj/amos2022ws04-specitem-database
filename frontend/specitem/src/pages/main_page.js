@@ -5,8 +5,6 @@ import { toast } from "react-toastify";
 import * as ROUTES from '../constants/routes';
 import { Link, useHistory } from 'react-router-dom';
 
-
-
 export default function MainPage() {
 
     const doclist = [
@@ -49,17 +47,13 @@ export default function MainPage() {
             {if (res.status !== 400){
                 console.log(res)
                 toast.success("Successfully uploaded");
-            
             }
-        else{
-            console.log(res)
-            toast.error("Upload failed")
-        }}
-            
+            else{
+                console.log(res)
+                toast.error("Upload failed")
+            }}
         });
     };
-
-          
 
     return(
         <div style={{width: '100%'}}>
@@ -74,7 +68,7 @@ export default function MainPage() {
                         <Link to={ROUTES.EXPORT}>
                         <button className='button'> Export</button>
                         </Link>
-                    </div>    
+                    </div>
                     }
                     {inputVisible &&
                     <div style={{justifyContent:'right', alignItems: 'center',display:'block', width:'600px'}}>
@@ -90,18 +84,10 @@ export default function MainPage() {
                         </div>
                         <div>
                             <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}>Back</button>
-                        </div>  
-                        
+                        </div>
                     </div>    
                     }
-                    
-                  
-                
-            </div> 
-            
-            
-            
+            </div>
         </div>
     )
-    
 }
