@@ -14,12 +14,37 @@ export default function SpecitemsPage() {
     const [message, setMessage] = useState('');
     const [type, setType] = useState('Content');
     const [limitTraceRef, setLimitTraceRef] = useState('')
+    const [renderOutput, setRenderOutput] = useState([]);
     const { exportList, setExportList} = useContext(Context);
     const [isExpanded, setExpanded] = useState([]);
+    const [isCompare, setIsCompare] = useState(false)
+    const [compList, setCompList] = useState([]);
+    const [respList, setRespList] = useState([]); 
+
+    
     
     useEffect(() => {
-        console.log(limitTraceRef)
-      }, [limitTraceRef]);
+        
+        if(respList.length>0){
+            setRenderOutput(respList.map(item => <div style={{ marginBottom:'10px'}}> 
+            <div>{item.field}</div>
+            <div dangerouslySetInnerHTML={{__html: item.markupText}} />
+            </div>))
+           
+        }
+      }, [respList]);
+
+    useEffect(() => {
+        //console.log(limitTraceRef)
+      }, [limitTraceRef,renderOutput,respList,compList]);
+      useEffect(() => {
+        console.log('girdi');
+        console.log(renderOutput)
+        if(renderOutput.length>0){
+            setIsCompare(true);
+           
+        }
+      }, [renderOutput]);
     const handleChange = event => {
         setMessage(event.target.value);
     };
@@ -151,27 +176,88 @@ export default function SpecitemsPage() {
         return  date + '\n' + hour;
     }
 
-    function sendItemsForComparison() {
+    async function sendItemsForComparison() {
         let compareCheckboxesList = document.getElementsByClassName("compareCheckbox");
         let checkedSum = 0;
         let itemsForComparisonList = [];
         for (let i = 0; i < compareCheckboxesList.length; i++) {
             if (compareCheckboxesList[i].checked) {
                 checkedSum++;
-                itemsForComparisonList.push(compareCheckboxesList[i]);
+                itemsForComparisonList.push(i);
             }
         }
 
         if (checkedSum === 2) {
-            //TODO Add link to the specItems comparison view
-            return itemsForComparisonList;
+            setCompList(itemsForComparisonList)
+            let arrold = specitemsList[itemsForComparisonList[0]].commit.commitTime
+            let arr2digold = arrold.map(num => num.toString().padStart(2, '0'))
+            let strold = arr2digold[0]+'-'+arr2digold[1]+'-'+arr2digold[2]+' ' + arr2digold[3]+':'+arr2digold[4]+':'+arr2digold[5]
+
+            let arrnew = specitemsList[itemsForComparisonList[1]].commit.commitTime
+            let arr2dignew = arrnew.map(num => num.toString().padStart(2, '0'))
+            let strnew = arr2dignew[0]+'-'+arr2dignew[1]+'-'+arr2dignew[2]+' ' + arr2dignew[3]+':'+arr2dignew[4]+':'+arr2dignew[5]
+
+            console.log(strnew)
+            const response = await fetch('http://localhost:8080/compare/markup/'+id+'?old='+strold+'&new='+strnew , {
+                method: 'GET',
+            });
+            const responseText = await response.text();
+            setRespList(JSON.parse(responseText))
+            
+
+            console.log(renderOutput)
+            
         } else {
             toast.error("Choose only two versions for comparison!")
         }
     }
+    //Box 1
+    const Box1 = () => { 
+    if(compList.length == 2) {    
+    return ( 
+        
+        <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
+        
+            {specitemsList[compList[0]].commit.commitTime}
+    
+        </div> 
+    );}
+    else {
+        return (
+            <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
+        
+             No Element
+    
+        </div> 
+        )
+    }
+    };
+    //Box 2
+    const Box2 = () => { 
+        if(compList.length == 2) {    
+            return ( 
+                
+                <div style={{width: '50%', height: '100%', backgroundColor: 'red'}}> 
+                
+                    {specitemsList[compList[1]].commit.commitTime}
+            
+                </div> 
+            );}
+            else {
+                return (
+                    <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
+                
+                     No Element
+            
+                </div> 
+                )
+            }
+    };
 
     return(
+         
         <div style={{width: '100%'}}>
+            {!isCompare &&
                 <div>
                     <div>
                         <input onChange={handleChange}
@@ -291,9 +377,23 @@ export default function SpecitemsPage() {
                     <button className='button-close' >     
                     Back
                     </button>  
+                    
                 </Link>
                 </div>
+            </div> } 
+            { isCompare &&
+            <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100%', width: '100%', border:'1px solid'}}> 
+                <div style={{ }}> 
+                <div style={{marginBottom:'15px' }}>Red is old, Green is new Version</div>
+                {respList.length >0 ? renderOutput :null}
+                <div><button className='button-close' onClick={()=> setIsCompare(false)}>
+                    Back 
+                </button> </div>
+                </div> 
+                
+                
             </div>
-        </div>
+            }
+        </div> 
     )
 }
