@@ -163,11 +163,4 @@ public class SpecItemProviderImpl implements SpecItemProvider {
         return String.join(" ",
             FAKER.lorem().words(RANDOM.nextInt(GENERATED_LONG_NAME_MAX_LEN)));
     }
-
-
-
-
-
-
-
 }

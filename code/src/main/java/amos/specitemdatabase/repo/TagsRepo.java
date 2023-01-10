@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TagsRepo extends JpaRepository<TagInfo, String> {
 
-    @Query(value = "SELECT t FROM TagInfo t" +
-        " WHERE t.status = amos.specitemdatabase.model.Status.LATEST " +
-        "AND t.shortName = :shortName")
+    @Query(value =  "SELECT t FROM TagInfo t " +
+                    "WHERE t.status = amos.specitemdatabase.model.Status.LATEST " +
+                    "AND t.shortName = :shortName")
     List<TagInfo> getLatestTagInfo(@Param("shortName") String shortName);
 }
