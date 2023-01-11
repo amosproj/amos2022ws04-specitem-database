@@ -164,10 +164,11 @@ export default function SpecitemsPage() {
     }
 
     function trimLongerStrings(stringToTrim) {
-        if(stringToTrim == null || stringToTrim.length <= 15)
+        if (stringToTrim == null || stringToTrim.length <= 20) {
             return stringToTrim;
-        else if (stringToTrim.length > 15)
-            return stringToTrim.substring(0, 15) + "...";
+        } else if (stringToTrim.length > 20) {
+            return stringToTrim.substring(0, 20) + "...";
+        }
     }
 
     function timeToString(time){
@@ -262,13 +263,11 @@ export default function SpecitemsPage() {
                     <div>
                         <input onChange={handleChange}
                             value={message}>
-
                         </input>
-                    <button onClick={handleFilter}>Filter</button>
-                    <select onChange={event => handleTypeChange(event)}>
+                        <button onClick={handleFilter}>Filter</button>
+                        <select onChange={event => handleTypeChange(event)}>
                             <option value="Content">Content</option>                       
                         </select>
-                        
                     </div>
 
                     <div>
@@ -281,7 +280,7 @@ export default function SpecitemsPage() {
                         <input className="checkboxClass" type="checkbox" id="UseInsteadBox" defaultChecked ></input>
                         <label htmlFor="UseInsteadBox">UseInstead</label>
                         <input className="checkboxClass" type="checkbox" id="TraceRefsBox" defaultChecked></input>
-                        <label htmlFor="TraceRefsBox">traceRefs</label>
+                        <label htmlFor="TraceRefsBox">TraceRefs</label>
                         <input className="checkboxClass" type="checkbox" id="LongNameBox" defaultChecked></input>
                         <label htmlFor="LongNameBox">LongName</label>
                         <input className="checkboxClass" type="checkbox" id="CommitBox" defaultChecked></input>
@@ -295,104 +294,101 @@ export default function SpecitemsPage() {
                         <button onClick={selectTableColumns}>Apply</button>
                     </div>
                     <div className="save-export">
-                    <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
-                </div>
+                        <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
+                    </div>
                     {specitemsList.length !== 0 &&
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th className="CompareCheckboxCell"><button id="compareButton" onClick={()=>{sendItemsForComparison()}}>Compare</button></th>
-                                <th className="ShortNameCell">ShortName</th>
-                                <th className="FingerprintCell">Fingerprint</th>
-                                <th className="CategoryCell">Category</th>
-                                <th className="LcStatusCell">LcStatus</th>
-                                <th className="UseInsteadCell">UseInstead</th>
-                                <th className="TraceRefsCell">TraceRefs</th>
-                                <th className="LongNameCell">LongName</th>
-                                <th className="CommitCell">Commit</th>
-                                <th className="CommitTimeCell">Time</th>
-                                <th className="VersionCell">Version</th>
-                                <th className="ContentCell">Content</th>
-                                <th className="TagCell">Tags</th>
-                                <th>Expand</th>
-                            </tr>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th className="CompareCheckboxCell"><button id="compareButton" onClick={()=>{sendItemsForComparison()}}>Compare</button></th>
+                                    <th className="ShortNameCell">ShortName</th>
+                                    <th className="FingerprintCell">Fingerprint</th>
+                                    <th className="CategoryCell">Category</th>
+                                    <th className="LcStatusCell">LcStatus</th>
+                                    <th className="UseInsteadCell">UseInstead</th>
+                                    <th className="TraceRefsCell">TraceRefs</th>
+                                    <th className="LongNameCell">LongName</th>
+                                    <th className="CommitCell">Commit</th>
+                                    <th className="CommitTimeCell">Time</th>
+                                    <th className="VersionCell">Version</th>
+                                    <th className="ContentCell">Content</th>
+                                    <th className="TagCell">Tags</th>
+                                    <th>Expand</th>
+                                </tr>
 
-                            {specitemsList.map((val,key) => {
-                            
-                            return [
-                                    <tr key={key}>
-                                        <td className="CompareCheckboxCell"><input type="checkbox" id={"chkbox" + key} className="compareCheckbox"></input></td>
-                                        <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
-                                        <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
-                                        <td className="CategoryCell">{val.category}</td>
-                                        <td className="LcStatusCell">{val.lcStatus}</td>
-                                        <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell"><div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue"><tbody>
-                                                {val.traceRefs.map((val,key) => {
-                            
-                                                return (
-                                                <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
-                                                    <td width='10px' >{trimLongerStrings(val)}</td> 
-                                                    :
-                                                    <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
-                                                }
-                                                </tr>)})}
-                                                <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
-                                        </tbody></table>) }
-                                            <div></div>
-                                            {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
-                                            </div>
-                                        </td>
-                                        
-                                        <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
-                                        <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
-                                        <td className="CommitTimeCell">{val.commit? timeToString(val.commit.commitTime): ''}</td>
-                                        <td className="VersionCell">{val.version}</td>
-                                        <td className="ContentCell">{trimLongerStrings(val.content)}</td>
-                                        <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
-                                        <td>
-                                            <button onClick={() => toggleExpanded(val.time.join(" "))}>
-                                                {isExpanded.includes(val.time.join(" "))? "Hide" : "Show"}
-                                            </button>
-                                        </td>
-                                    </tr>,
-                                    isExpanded.includes(val.time.join(" ")) && (
-                                        <tr>
-                                            <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
-                                        </tr>
-                                    )
+                                {specitemsList.map((val,key) => {
+                                    return [
+                                            <tr key={key}>
+                                                <td className="CompareCheckboxCell"><input type="checkbox" id={"chkbox" + key} className="compareCheckbox"></input></td>
+                                                <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
+                                                <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
+                                                <td className="CategoryCell">{val.category}</td>
+                                                <td className="LcStatusCell">{val.lcStatus}</td>
+                                                <td className="UseInsteadCell">{val.useInstead}</td>
+                                                <td className="TraceRefsCell">
+                                                    <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue"><tbody>
+                                                        {val.traceRefs.map((val,key) => {
+                                                            return (
+                                                            <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
+                                                                <td width='10px' >{trimLongerStrings(val)}</td>
+                                                                :
+                                                                <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
+                                                            }
+                                                            </tr>)
+                                                        })}
+                                                        <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                                    </tbody></table>)}
+                                                    <div></div>
+                                                    {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
+                                                    </div>
+                                                </td>
+                                                <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
+                                                <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
+                                                <td className="CommitTimeCell">{val.commit? timeToString(val.commit.commitTime): ''}</td>
+                                                <td className="VersionCell">{val.version}</td>
+                                                <td className="ContentCell">{trimLongerStrings(val.content)}</td>
+                                                <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
+                                                <td>
+                                                    <button onClick={() => toggleExpanded(val.time.join(" "))}>
+                                                        {isExpanded.includes(val.time.join(" "))? "Hide" : "Show"}
+                                                    </button>
+                                                </td>
+                                            </tr>,
+                                            isExpanded.includes(val.time.join(" ")) && (
+                                                <tr>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                </tr>
+                                            )
                                     ]
                                 })}
-                        </tbody>
-                    </table>
-                }
+                            </tbody>
+                        </table>
+                    }
                 {specitemsList.length === 0 &&
-                <div className='App-tb' style={{marginTop:'200px'}}> 
-                    No Items Found 
-                </div>
+                    <div className='App-tb' style={{marginTop:'200px'}}>
+                        No Items Found
+                    </div>
                 }
 
-            <div className='App-tb' style={{marginTop: '15px'}}>
-                <Link to={ROUTES.DASHBOARD}>
-                    <button className='button-close' >     
-                    Back
-                    </button>  
-                    
-                </Link>
+                <div className='App-tb' style={{marginTop: '15px'}}>
+                    <Link to={ROUTES.DASHBOARD}>
+                        <button className='button-close' >
+                            Back
+                        </button>
+                    </Link>
                 </div>
-            </div> } 
-            { isCompare &&
-            <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100%', width: '100%', border:'1px solid'}}> 
-                <div style={{ }}> 
-                <div style={{marginBottom:'15px' }}>Red is old, Green is new Version</div>
-                {respList.length >0 ? renderOutput :null}
-                <div><button className='button-close' onClick={()=> setIsCompare(false)}>
-                    Back 
-                </button> </div>
-                </div> 
-                
-                
-            </div>
+            </div>}
+            {isCompare &&
+                <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100%', width: '100%', border:'1px solid'}}>
+                    <div style={{ }}>
+                        <div style={{marginBottom:'15px' }}>Red is old, Green is new Version</div>
+                        {respList.length >0 ? renderOutput :null}
+                        <div><button className='button-close' onClick={()=> setIsCompare(false)}>
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
             }
         </div> 
     )
