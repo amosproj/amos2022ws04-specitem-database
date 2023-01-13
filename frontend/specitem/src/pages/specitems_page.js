@@ -1,4 +1,3 @@
-import Documents from '../components/documents'
 import '../App.css';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
@@ -17,8 +16,10 @@ export default function SpecitemsPage() {
     const [type, setType] = useState('ID');
     const [limitTraceRef, setLimitTraceRef] = useState('')
     const {exportList, setExportList} = useContext(Context);
-    //an array contains all specitem shortnames that are expanded
+    //an array that contains the shortnames of all expanded specitems
     const [isExpanded, setExpanded] = useState([]);
+    const maxStringLength = 20;
+    const maxItemsPerPage = 50;
 
     useEffect(() => {
         console.log(limitTraceRef)
@@ -34,10 +35,6 @@ export default function SpecitemsPage() {
     const handleTypeChange = event => {
         setType(event.target.value);
     };
-
-    async function checkRef(ref){
-        return false
-    }
 
     async function handleFilter(event) {
         if(message == ''){
@@ -152,10 +149,10 @@ export default function SpecitemsPage() {
     }
 
     function trimLongerStrings(stringToTrim) {
-        if(stringToTrim == null || stringToTrim.length <= 20){
+        if(stringToTrim == null || stringToTrim.length <= maxStringLength){
             return stringToTrim;
-        } else if (stringToTrim.length > 20) {
-            return stringToTrim.substring(0, 20) + "...";
+        } else if (stringToTrim.length > maxStringLength) {
+            return stringToTrim.substring(0, maxStringLength) + "...";
         }
     }
     
@@ -206,7 +203,7 @@ export default function SpecitemsPage() {
                     {specitemsList.length !== 0 &&
                         <div>
                             <div>
-                                Displaying items {(page-1)*50+1} - {(page-1)*50 + specitemsList.length}
+                                Displaying items {(page-1)*maxItemsPerPage + 1} - {(page-1)*maxItemsPerPage + specitemsList.length}
                             </div>
                             <table>
                                 <tbody>

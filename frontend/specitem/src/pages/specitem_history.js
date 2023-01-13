@@ -19,12 +19,10 @@ export default function SpecitemsPage() {
     const [isExpanded, setExpanded] = useState([]);
     const [isCompare, setIsCompare] = useState(false)
     const [compList, setCompList] = useState([]);
-    const [respList, setRespList] = useState([]); 
-
-    
+    const [respList, setRespList] = useState([]);
+    const maxStringLength = 20;
     
     useEffect(() => {
-        
         if(respList.length>0){
             setRenderOutput(respList.map(item => <div style={{ marginBottom:'10px'}}> 
             <div>{item.field}</div>
@@ -52,10 +50,6 @@ export default function SpecitemsPage() {
         setType(event.target.value);
     };
 
-    async function checkRef(ref){
-        return false
-    }
-
     async function handleFilter(event) {
         if(message == ''){
             const response = await fetch('http://localhost:8080/get/history/'+id , {
@@ -72,7 +66,6 @@ export default function SpecitemsPage() {
                 });
                 const responseText = await response.text();
                 console.log(responseText)
-                //console.log(specitemsList)
                 if (responseText !== '') {
                     let body = JSON.parse(responseText);
                     let tmp = [];
@@ -156,7 +149,7 @@ export default function SpecitemsPage() {
             if(list.filter(s => (s.shortName === specitem.shortName) & (s.time === specitem.time)).length > 0) {
                 toast(`${specitem.shortName + ' ' + timeToString(specitem.time)} already in ExportList`);
             } else {
-            list.push(specitem);
+                list.push(specitem);
             }
         })
         setExportList(list);
@@ -164,10 +157,10 @@ export default function SpecitemsPage() {
     }
 
     function trimLongerStrings(stringToTrim) {
-        if (stringToTrim == null || stringToTrim.length <= 20) {
+        if (stringToTrim == null || stringToTrim.length <= maxStringLength) {
             return stringToTrim;
-        } else if (stringToTrim.length > 20) {
-            return stringToTrim.substring(0, 20) + "...";
+        } else if (stringToTrim.length > maxStringLength) {
+            return stringToTrim.substring(0, maxStringLength) + "...";
         }
     }
 
@@ -190,73 +183,60 @@ export default function SpecitemsPage() {
 
         if (checkedSum === 2) {
             setCompList(itemsForComparisonList)
-            let arrold = specitemsList[itemsForComparisonList[0]].commit.commitTime
-            let arr2digold = arrold.map(num => num.toString().padStart(2, '0'))
-            let strold = arr2digold[0]+'-'+arr2digold[1]+'-'+arr2digold[2]+' ' + arr2digold[3]+':'+arr2digold[4]+':'+arr2digold[5]
+            let arrOld = specitemsList[itemsForComparisonList[0]].commit.commitTime
+            let arrToDigOld = arrOld.map(num => num.toString().padStart(2, '0'))
+            let strOld = arrToDigOld[0]+'-'+arrToDigOld[1]+'-'+arrToDigOld[2]+' ' + arrToDigOld[3]+':'+arrToDigOld[4]+':'+arrToDigOld[5]
 
-            let arrnew = specitemsList[itemsForComparisonList[1]].commit.commitTime
-            let arr2dignew = arrnew.map(num => num.toString().padStart(2, '0'))
-            let strnew = arr2dignew[0]+'-'+arr2dignew[1]+'-'+arr2dignew[2]+' ' + arr2dignew[3]+':'+arr2dignew[4]+':'+arr2dignew[5]
+            let arrNew = specitemsList[itemsForComparisonList[1]].commit.commitTime
+            let arrToDigNew = arrNew.map(num => num.toString().padStart(2, '0'))
+            let strNew = arrToDigNew[0]+'-'+arrToDigNew[1]+'-'+arrToDigNew[2]+' ' + arrToDigNew[3]+':'+arrToDigNew[4]+':'+arrToDigNew[5]
 
-            console.log(strnew)
-            const response = await fetch('http://localhost:8080/compare/markup/'+id+'?old='+strold+'&new='+strnew , {
+            console.log(strNew)
+            const response = await fetch('http://localhost:8080/compare/markup/'+id+'?old='+strOld+'&new='+strNew , {
                 method: 'GET',
             });
             const responseText = await response.text();
             setRespList(JSON.parse(responseText))
-            
 
             console.log(renderOutput)
-            
         } else {
             toast.error("Choose only two versions for comparison!")
         }
     }
     //Box 1
     const Box1 = () => { 
-    if(compList.length == 2) {    
-    return ( 
-        
-        <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
-        
-            {specitemsList[compList[0]].commit.commitTime}
-    
-        </div> 
-    );}
-    else {
+        if(compList.length == 2) {
         return (
-            <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
-        
-             No Element
-    
-        </div> 
-        )
-    }
+            <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}>
+                {specitemsList[compList[0]].commit.commitTime}
+            </div>
+        );}
+        else {
+            return (
+                <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}>
+                 No Element
+                </div>
+            )
+        }
     };
     //Box 2
     const Box2 = () => { 
         if(compList.length == 2) {    
-            return ( 
-                
-                <div style={{width: '50%', height: '100%', backgroundColor: 'red'}}> 
-                
+            return (
+                <div style={{width: '50%', height: '100%', backgroundColor: 'red'}}>
                     {specitemsList[compList[1]].commit.commitTime}
-            
                 </div> 
             );}
             else {
                 return (
-                    <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}> 
-                
+                    <div style={{width: '50%', height: '100%', backgroundColor: 'yellow'}}>
                      No Element
-            
-                </div> 
+                    </div>
                 )
             }
     };
 
     return(
-         
         <div style={{width: '100%'}}>
             {!isCompare &&
                 <div>
