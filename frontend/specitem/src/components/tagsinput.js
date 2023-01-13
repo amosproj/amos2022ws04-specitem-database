@@ -7,7 +7,7 @@ function TagsInput({specitem}){
 
     const onSubmit = async (data) => {
        
-        const obj = {tagList: tags, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
+        const obj = {tagList: tags, fingerprint: specitem.fingerprint, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
         
         const res = await fetch("http://localhost:8080/post/tags", {
             headers: {
