@@ -4,11 +4,16 @@ import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TagServiceImpl implements TagService {
+
+    @PersistenceContext
+    EntityManager entityManager;
 
     private final TagsRepo tagsRepo;
     @Autowired

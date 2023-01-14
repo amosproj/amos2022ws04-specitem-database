@@ -3,7 +3,14 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
-import amos.specitemdatabase.model.*;
+import amos.specitemdatabase.model.CompareResult;
+import amos.specitemdatabase.model.CompareResultMarkup;
+import amos.specitemdatabase.model.DocumentEntity;
+import amos.specitemdatabase.model.ProcessedDocument;
+import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.SpecItemId;
+import amos.specitemdatabase.model.Status;
+import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
@@ -11,6 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 import org.json.JSONException;
@@ -22,11 +32,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Slf4j
 public class SpecItemService {
     private final SpecItemRepo specItemRepo;
     private final DocumentRepo documentRepo;
@@ -96,7 +110,7 @@ public class SpecItemService {
         DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentId);
         this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
     }
-    
+
     @Transactional
     // public void deleteSpecItemById(String specItemId, String documentID) {
     public void deleteSpecItemById(String specItemId) {
@@ -117,7 +131,7 @@ public class SpecItemService {
             System.err.println(e.getMessage());
             System.err.println(e.getClass());
         }
-        
+
         // try {
         //     specItemRepo.deleteLatestSpecItemByID(specItemId);
         // } catch (DataIntegrityViolationException e) {
@@ -170,15 +184,37 @@ public class SpecItemService {
     }
 
     private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
+        // first, get the previous tags
+        final String previousTags = this.tagService.fetchTags(specItem);
+        log.debug("The previous tags of the SpecItem are: {}", previousTags);
+        final String allTags = previousTags + tags;
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
         tagInfo.setTime(specItem.getTime());
         tagInfo.setStatus(Status.LATEST);
-        tagInfo.setTags(tags);
+        tagInfo.setTags(allTags);
         return tagInfo;
     }
-
+    // The first operation is fetching the previous tag.
+    // The second is saving a new version of the spec item,
+    // which has the previous + the new tags.
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveTags(final SpecItem taggedSpecItem, final List<String> tags) {
+        try {
+            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+            final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", tags));
+            newVersionOfSpecItem.setTagInfo(tagInfo);
+            log.debug("Saving the SpecItem with the ID: {} with the new tags: {}",
+                newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
+            this.specItemRepo.save(newVersionOfSpecItem);
+        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
+            log.warn("Somebody has just updated the tags for the SpecItem " +
+                "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
+            this.saveTags(taggedSpecItem, tags);
+        }
+    }
+
+    private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
         final SpecItem newVersionOfSpecItem = new SpecItem();
         newVersionOfSpecItem.setTime(LocalDateTime.now());
         newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
@@ -190,52 +226,7 @@ public class SpecItemService {
         newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
         newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
         newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
-        final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", tags));
-        newVersionOfSpecItem.setTagInfo(tagInfo);
-        this.specItemRepo.save(newVersionOfSpecItem);
-    }
-
-    public void updateTags(String tags) throws JSONException, IOException {
-        //create Json object from Json string
-        JSONObject json = new JSONObject(tags);
-        //System.out.println(tags);
-
-        // create Specitem Builder and fill it with attributes
-        SpecItemBuilder sb = new SpecItemBuilder();
-        sb.fromStringRepresentation(json.getString("fingerprint"),json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
-
-        //parse tracerefs
-        sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
-
-        //parse Local date time
-        String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
-        int year = Integer.parseInt(dateParts[0]);
-        int month = Integer.parseInt(dateParts[1])+1;
-        int day = Integer.parseInt(dateParts[2]);
-        int hour = Integer.parseInt(dateParts[3]);
-        int minute = Integer.parseInt(dateParts[4]);
-        int second = Integer.parseInt(dateParts[5]);
-        //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-        LocalDateTime dateTime = LocalDateTime.now();
-        //Create the commit from Json object and setCommit for specitem builder
-        Commit c = new Commit(json.getString("commitHash") + "deneme1",json.getString("commitMsg") + "deneme1",dateTime,json.getString("commitAuthor")+ "deneme1");
-        sb.setCommit(c);
-
-        //create specitem
-        SpecItem s = new SpecItem(sb);
-        System.out.println("Helloo " + this.getSpecItemById(json.getString("shortname")));
-        //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
-
-        String tagList = json.getString("tagList");
-        // Split the input string on spaces
-
-        // Create a List from the resulting array
-        List<String> stringArrayList = Collections.singletonList(tagList);
-        List<SpecItem> sc = Arrays.asList(s);
-        System.out.println("SpecItem =" + s.getShortName());
-        //service.saveTags(s, stringArrayList);
-        this.saveDocumentWithTag("deneme", sc, c, stringArrayList);
-
+        return newVersionOfSpecItem;
     }
 
     public List<CompareResult> compare(String shortName, LocalDateTime timeOld, LocalDateTime timeNew) throws IllegalAccessException {
@@ -292,7 +283,7 @@ public class SpecItemService {
     //         specItem.setLcStatus(LcStatus.STATUS1);
 
     //         SpecItem specItem2 = new SpecItem();
-    //         specItem2.setShortName("ID2");
+    //         specItem2.setShortName("ID1");
     //         specItem2.setContent("content2");
     //         specItem2.setCommit(commit2);
     //         specItem2.setFingerprint("fingerprint");
@@ -325,12 +316,12 @@ public class SpecItemService {
     //         specItems2.add(specItem2);
     //         DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
     //         documentRepo.save(documentEntity2);
-           
-           
+            
+            
     //         List<String> tags = List.of("Key1:Value1","Key2:Value2");
     //         specItems.forEach(specs -> saveTags(specs, tags));
 
-    //         // this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
+    //         //this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
     //     };
     // }
 }

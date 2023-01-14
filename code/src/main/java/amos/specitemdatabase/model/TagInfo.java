@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.OneToOne;
+import javax.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,12 @@ public class TagInfo {
     @Column(columnDefinition = "TIMESTAMP")
     @Id
     private LocalDateTime time;
+    // Adding the @Version annotation activates the optimistic locking mechanism.
+    // Having optimistic locking, the DB will mark the version when it reads the entity,
+    // and when it writes the updated entity back, it will check if the version has been modified.
+    // If yes, an exception will be thrown.
+    @Version
+    private Long version;
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 
