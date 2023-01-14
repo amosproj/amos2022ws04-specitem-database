@@ -1,6 +1,7 @@
 package amos.specitemdatabase.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -43,5 +44,23 @@ public class TagInfo {
     @Override
     public String toString() {
         return tags;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final TagInfo tagInfo = (TagInfo) o;
+        return shortName.equals(tagInfo.shortName) && time.equals(tagInfo.time) &&
+            Objects.equals(version, tagInfo.version) && Objects.equals(tags, tagInfo.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(shortName, time, version, tags);
     }
 }

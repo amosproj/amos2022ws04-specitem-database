@@ -198,7 +198,7 @@ public class SpecItemService {
     // The first operation is fetching the previous tag.
     // The second is saving a new version of the spec item,
     // which has the previous + the new tags.
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveTags(final SpecItem taggedSpecItem, final List<String> tags) {
         try {
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
