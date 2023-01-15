@@ -39,7 +39,7 @@ import org.json.JSONObject;
 import java.net.URLDecoder;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin("*")
 public class Controller {
 
     private final FileStorageService fileStorageService;
@@ -92,6 +92,12 @@ public class Controller {
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
             if (listOfSpecItems.isPresent()) {
+                List<SpecItem> list = listOfSpecItems.get();
+                System.out.println("Number of SpecItems: " + list.size());
+                for (SpecItem e : list) {
+                    System.out.println("SpecItem shortname: " + e.getShortName());
+                }
+                System.out.println("-------------------");
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
@@ -101,13 +107,20 @@ public class Controller {
     }
 
     private String getDecodedURLWithoutSpecialCharacters(String urlWithSpecialCharacters) {
-		try {
-			String decodedeURL = URLDecoder.decode(urlWithSpecialCharacters, "UTF-8");
-			return decodedeURL;
-		} catch (UnsupportedEncodingException e) {
+        String decodedURL = "";
+        try {
+            urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+            urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("\\+", "%2B");
+
+            decodedURL = URLDecoder.decode(urlWithSpecialCharacters, "utf-8");
+        } catch (UnsupportedEncodingException e) {
             System.err.println(e.getMessage());
-			return "";
+			return decodedURL;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
+        System.out.println("Search pattern (decoded): "+decodedURL);
+        return decodedURL;			
     }
 
     /***
@@ -195,6 +208,7 @@ public class Controller {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        id = getDecodedURLWithoutSpecialCharacters(id);
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
         return returnSpecItemAndStatusCode(specItem);
     }
@@ -212,8 +226,15 @@ public class Controller {
     }
 
     @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) throws UnsupportedEncodingException {
+        System.out.println("Search pattern (raw): " + content);
+
+        // content = content.replaceAll("^(00)+", "");
+        // byte[] bytes = DatatypeConverter.parseHexBinary(content);
+        // content =  new String(bytes, "UTF-16");
+
 		content = getDecodedURLWithoutSpecialCharacters(content);
+        System.out.println("Search pattern (cleaned): " + content);
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
