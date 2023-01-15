@@ -36,7 +36,6 @@ export default function SpecitemsPage() {
         //console.log(limitTraceRef)
       }, [limitTraceRef,renderOutput,respList,compList]);
       useEffect(() => {
-        console.log('girdi');
         console.log(renderOutput)
         if(renderOutput.length>0){
             setIsCompare(true);
@@ -183,20 +182,30 @@ export default function SpecitemsPage() {
 
         if (checkedSum === 2) {
             setCompList(itemsForComparisonList)
-            let arrOld = specitemsList[itemsForComparisonList[0]].commit.commitTime
-            let arrToDigOld = arrOld.map(num => num.toString().padStart(2, '0'))
-            let strOld = arrToDigOld[0]+'-'+arrToDigOld[1]+'-'+arrToDigOld[2]+' ' + arrToDigOld[3]+':'+arrToDigOld[4]+':'+arrToDigOld[5]
 
-            let arrNew = specitemsList[itemsForComparisonList[1]].commit.commitTime
-            let arrToDigNew = arrNew.map(num => num.toString().padStart(2, '0'))
-            let strNew = arrToDigNew[0]+'-'+arrToDigNew[1]+'-'+arrToDigNew[2]+' ' + arrToDigNew[3]+':'+arrToDigNew[4]+':'+arrToDigNew[5]
+            let arrOld = specitemsList[itemsForComparisonList[0]].commit.commitTime;
+            let arrNew = specitemsList[itemsForComparisonList[1]].commit.commitTime;
+            let firstTime = new Date(arrOld[0], arrOld[1], arrOld[2], arrOld[3], arrOld[4], arrOld[5]);
+            let secondTime = new Date(arrNew[0], arrNew[1], arrNew[2], arrNew[3], arrNew[4], arrNew[5]);
+
+            if (firstTime > secondTime) {
+                let tmp = arrOld;
+                arrOld = arrNew;
+                arrNew = tmp;
+            }
+
+            let arrToDigOld = arrOld.map(num => num.toString().padStart(2, '0'));
+            let strOld = arrToDigOld[0]+'-'+arrToDigOld[1]+'-'+arrToDigOld[2]+' ' + arrToDigOld[3]+':'+arrToDigOld[4]+':'+arrToDigOld[5];
+
+            let arrToDigNew = arrNew.map(num => num.toString().padStart(2, '0'));
+            let strNew = arrToDigNew[0]+'-'+arrToDigNew[1]+'-'+arrToDigNew[2]+' ' + arrToDigNew[3]+':'+arrToDigNew[4]+':'+arrToDigNew[5];
 
             console.log(strNew)
             const response = await fetch('http://localhost:8080/compare/markup/'+id+'?old='+strOld+'&new='+strNew , {
                 method: 'GET',
             });
             const responseText = await response.text();
-            setRespList(JSON.parse(responseText))
+            setRespList(JSON.parse(responseText));
 
             console.log(renderOutput)
         } else {
