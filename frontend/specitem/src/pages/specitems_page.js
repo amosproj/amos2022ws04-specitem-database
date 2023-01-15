@@ -39,6 +39,14 @@ export default function SpecitemsPage() {
         return false
     }
 
+    function toHex(s) {
+        let h = ''
+        for (let i = s.length - 1; i >= 0; i--)
+            h = '%'+ s.charCodeAt(i).toString(16) + h
+        console.log(h)
+        return h
+    }
+
     async function handleFilter(event) {
         if(message == ''){
             handleGet(1);
@@ -59,8 +67,9 @@ export default function SpecitemsPage() {
                 setMaxPage(1);
                 setPage(1);
             } else {
-                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(message), { //~!*()'
+                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(toHex(message)), { //\/%
                     method: 'GET',
+                    mode: 'no-cors'
                 });
 
                 const responseText = await response.text();
