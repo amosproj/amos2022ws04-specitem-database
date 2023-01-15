@@ -1,6 +1,5 @@
 package amos.specitemdatabase.controller;
 
-
 import amos.specitemdatabase.model.Commit;
 
 import amos.specitemdatabase.model.CompareResult;
@@ -18,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
