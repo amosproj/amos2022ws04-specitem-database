@@ -36,8 +36,9 @@ public class SpecItemBuilder {
     }
 
     public SpecItemBuilder setTraceRefs(final String traceRefs) {
-        if (!traceRefs.isEmpty()) {
-            this.traceRefs = List.of(traceRefs.split(" *, *"));
+        String editedTraceRefs = traceRefs.replace("\"", "");
+        if (!editedTraceRefs.isEmpty()) {
+            this.traceRefs = List.of(editedTraceRefs.split(" *, *"));
         }
         return this;
     }

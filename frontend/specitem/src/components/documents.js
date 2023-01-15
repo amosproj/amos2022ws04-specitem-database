@@ -14,7 +14,6 @@ export default function Documents({doc, setSelectDocument}) {
     const handleClick = (specitem)=>{ 
         setSelectSpecItem(true);
         setSpecItem(specitem);
-        
     }
     const handleSearch = (value) => {
         setSearchedSpecItem(value);
@@ -41,8 +40,6 @@ export default function Documents({doc, setSelectDocument}) {
           } else {
             setIsOpen(false);
           }
-          
-          
     }
 
     const handleIsOpen = (event) => {
@@ -50,53 +47,40 @@ export default function Documents({doc, setSelectDocument}) {
         setIsOpen(!isOpen)
     }
 
-
     const handleSelectSpec = (event, par) => {
         event.preventDefault()
         setSearchedSpecItem(par)
-        
     }
 
     return(
         <div className="App-tb">
             {
-            !selectSpecItem &&
+                !selectSpecItem &&
                 <div className="App-tb">
                     <input style={{marginTop:'100px', width:'500px', height:'40px'}} value={searchedSpecItem} onChange={({target}) => handleSearch(target.value)} placeholder='Search SpecItem'>
                         
                     </input>
                     {isOpen && (
-                        <div style={{marginTop:'1px', borderWidth:'3px', borderStyle:'solid', width:'500px'}}> 
-
+                        <div style={{marginTop:'1px', borderWidth:'3px', borderStyle:'solid', width:'500px'}}>
                             <div>
-                            {specItemToShow.map(e => (
-                                <div style={{paddingTop: '0.25rem',paddingBottom: '0.25rem', alignItems: 'center', display:'flex', paddingRight:'1rem', paddingLeft:'0.5rem', fontSize:'1.25rem', lineHeight:'1.25rem',height:'50px'}}>
-                                <a href='#' onClick={event => {handleSelectSpec(event, e.name);handleIsOpen(event); handleClick(e)}} >
-                                {e.name}
-                                </a>
-                                </div>
+                                {specItemToShow.map(e => (
+                                    <div style={{paddingTop: '0.25rem',paddingBottom: '0.25rem', alignItems: 'center', display:'flex', paddingRight:'1rem', paddingLeft:'0.5rem', fontSize:'1.25rem', lineHeight:'1.25rem',height:'50px'}}>
+                                    <a href='#' onClick={event => {handleSelectSpec(event, e.name);handleIsOpen(event); handleClick(e)}} >
+                                    {e.name}
+                                    </a>
+                                    </div>
                                 ))}
-                            
-                            
                             </div>
-                            
                         </div>
-                        )}
+                    )}
 
-                    
-                    
-      <div>
-                        
-                    </div>
-                    <div style={{marginTop:'100px'}}><button className='button-close' onClick={()=>{setSelectDocument(false)}}>Close</button></div>
-                    
+                <div style={{marginTop:'100px'}}><button className='button-close' onClick={()=>{setSelectDocument(false)}}>Close</button></div>
                 </div>
-                
-            } {
+            }
+            {
                 selectSpecItem &&
                 <SpecItem specItem = {specItem} setSelectSpecItem = {setSelectSpecItem}/>
             }
         </div>
     )
-    
 }

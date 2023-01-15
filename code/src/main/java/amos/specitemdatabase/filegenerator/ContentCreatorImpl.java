@@ -19,7 +19,6 @@ public class ContentCreatorImpl implements ContentCreator {
         "|", "||", "-", "*", "[", "]", "{", "}", "(", ")"
     );
 
-
     private static final Random RANDOM = new Random();
     private static final Faker FAKER = new Faker();
 

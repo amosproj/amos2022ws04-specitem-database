@@ -1,7 +1,6 @@
 package amos.specitemdatabase.controller;
 
 
-import amos.specitemdatabase.model.Category;
 import amos.specitemdatabase.model.Commit;
 
 import amos.specitemdatabase.model.CompareResult;
@@ -21,20 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import java.nio.file.FileSystemException;
-import java.time.LocalDateTime;
 
-import java.util.List;
-import java.util.Optional;
 import org.json.JSONObject;
 import java.net.URLDecoder;
 
@@ -72,7 +63,6 @@ public class Controller {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
@@ -84,7 +74,7 @@ public class Controller {
         }
     }
     
-    private boolean isListOfSpecItemsPresentAndNotEmpt (Optional<List<SpecItem>> listOfSpecItems) {
+    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
         return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
     }
     
@@ -124,16 +114,13 @@ public class Controller {
     }
 
     /***
-     * update the tags of specitem, response status code 201 if successful
+     * update the tags of a specitem, response status code 201 if successful
      * @param tags name of the document
-     *
-     * @return
      */
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateTags (@RequestBody String tags){
-        //saving content to a file in /tmp foler
+        //saving content to a file in /tmp folder
         System.out.println("Get a POST Request");
-
 
         //saving document to database
         try {
@@ -164,19 +151,16 @@ public class Controller {
 
             //create specitem
             SpecItem s = new SpecItem(sb);
-            System.out.println("Helloo " +service.getSpecItemById(json.getString("shortname")));
+            System.out.println("Helloo " + service.getSpecItemById(json.getString("shortname")));
             //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
 
-
-            String taglist = json.getString("tagList");
+            String tagList = json.getString("tagList");
             // Split the input string on spaces
 
-
             // Create a List from the resulting array
-            List<String> stringArrayList = Arrays.asList(taglist);
+            List<String> stringArrayList = Collections.singletonList(tagList);
             System.out.println("SpecItem =" + s.getShortName());
             service.saveTags(s, stringArrayList);
-            //String stringValue = json.getString("tagList");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,7 +178,7 @@ public class Controller {
             fileStorageService.storeFile(uploadedFile, filename);
             service.saveDocument(filename);
 
-            // Kevin: Windows 11 restricted the deleting function. SpecItems will be displayed on the web pagecorrectly, but the tmp file will not be deleted.
+            // Kevin: Windows 11 restricted the deleting function. SpecItems will be displayed on the web page correctly, but the tmp file will not be deleted.
             fileStorageService.deleteFile(filename);
             return new ResponseEntity<>(HttpStatus.CREATED);
 
@@ -259,7 +243,7 @@ public class Controller {
                                           @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
                                           @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
         try {
-            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
             List<CompareResult> results = service.compare(shortName, old, updated);
             return ResponseEntity.status(HttpStatus.OK).body(results);
         } catch (IllegalArgumentException e) {
@@ -276,7 +260,7 @@ public class Controller {
                                           @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
                                           @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
         try {
-            System.out.println("GET compare versions of "+ shortName+ " between " + old + " and " + updated);
+            System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
             List<CompareResultMarkup> results = service.compareMarkup(shortName, old, updated);
             return ResponseEntity.status(HttpStatus.OK).body(results);
         } catch (IllegalArgumentException e) {
