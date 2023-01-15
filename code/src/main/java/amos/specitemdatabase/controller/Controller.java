@@ -1,21 +1,34 @@
 package amos.specitemdatabase.controller;
 
 import amos.specitemdatabase.model.Commit;
-
 import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
-
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemBuilder;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -30,6 +43,7 @@ import java.net.URLDecoder;
 
 @RestController
 @CrossOrigin("*")
+@Slf4j
 public class Controller {
 
     private final FileStorageService fileStorageService;
@@ -72,7 +86,7 @@ public class Controller {
             return handleStatusCode500(e, SpecItem.class);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
@@ -99,21 +113,61 @@ public class Controller {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-        return decodedURL;			
+        return decodedURL;
     }
 
     /***
      * update the tags of a specitem, response status code 201 if successful
-     * @param tags name of the document
+     * @param specItemAsJsonString name of the document
      */
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateTags (@RequestBody String tags){
+    public ResponseEntity<String> updateTags(@RequestBody final String specItemAsJsonString){
         //saving content to a file in /tmp folder
-        System.out.println("Get a POST Request");
-
-        //saving document to database
+        log.info("Received a request for updating the tags.");
         try {
-            service.updateTags(tags);
+            // Create a json object from the json string representation of a spec item
+            JSONObject json = new JSONObject(specItemAsJsonString);
+
+            // Save tags to the tags table, which involves:
+            // 1. fetching current tags for ID & Time
+            // 2. saving the previous + new tags
+
+
+
+            // create Specitem Builder and fill it with attributes
+            SpecItemBuilder sb = new SpecItemBuilder();
+            sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
+
+            //parse tracerefs
+            sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
+
+            //parse Local date time
+            String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
+            int year = Integer.parseInt(dateParts[0]);
+            int month = Integer.parseInt(dateParts[1]);
+            int day = Integer.parseInt(dateParts[2]);
+            int hour = Integer.parseInt(dateParts[3]);
+            int minute = Integer.parseInt(dateParts[4]);
+            int second = Integer.parseInt(dateParts[5]);
+            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+
+            //Create the commit from Json object and setCommit for specitem builder
+            Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
+            sb.setCommit(c);
+
+            //create specitem
+            SpecItem s = new SpecItem(sb);
+            System.out.println("Helloo " + service.getSpecItemById(json.getString("shortname")));
+            //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
+
+            String tagList = json.getString("tagList");
+            // Split the input string on spaces
+
+            // Create a List from the resulting array
+            List<String> stringArrayList = Collections.singletonList(tagList);
+            System.out.println("SpecItem =" + s.getShortName());
+            service.fetchAndSave(s, stringArrayList, false);
+
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -197,9 +251,9 @@ public class Controller {
         int pageNumber = service.getPageNumber();
         return new ResponseEntity<>(pageNumber, HttpStatus.OK);
     }
-    
+
     @GetMapping("/get/pageNumber/{specitem}")
-    public ResponseEntity<Integer> getPageNumberOfSpecItem(@PathVariable(value = "specitem")String specitem) {	
+    public ResponseEntity<Integer> getPageNumberOfSpecItem(@PathVariable(value = "specitem")String specitem) {
     	for (int i = 1; i <= service.getPageNumber(); i++) {
     		List<SpecItem> listOfSpecItems = service.getAllSpecItems(i);
     		for(SpecItem s : listOfSpecItems) {

@@ -3,6 +3,7 @@ package amos.specitemdatabase.tagservice;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,5 +33,10 @@ public class TagServiceImpl implements TagService {
         } else {
             return "";
         }
+    }
+
+    @Override
+    public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
+
     }
 }

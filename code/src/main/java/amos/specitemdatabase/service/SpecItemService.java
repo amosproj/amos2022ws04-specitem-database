@@ -190,7 +190,7 @@ public class SpecItemService {
         final String allTags = previousTags + tags;
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
-        tagInfo.setTime(specItem.getTime());
+        tagInfo.setTime(specItem.getCommitTime());
         tagInfo.setStatus(Status.LATEST);
         tagInfo.setTags(allTags);
         return tagInfo;
@@ -199,9 +199,13 @@ public class SpecItemService {
     // The second is saving a new version of the spec item,
     // which has the previous + the new tags.
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveTags(final SpecItem taggedSpecItem, final List<String> tags) {
+    public void fetchAndSave(final SpecItem taggedSpecItem, final List<String> tags, final boolean changeTime) {
         try {
-            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+            // Fetch current tags
+            // Right now we're fetching the Latest for the same ID - OK
+            final String previousTags = this.tagService.fetchTags(taggedSpecItem);
+            // Now save previous + new for the same ID and the same time
+
             final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", tags));
             newVersionOfSpecItem.setTagInfo(tagInfo);
             log.debug("Saving the SpecItem with the ID: {} with the new tags: {}",
@@ -210,13 +214,13 @@ public class SpecItemService {
         } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
-            this.saveTags(taggedSpecItem, tags);
+            this.fetchAndSave(taggedSpecItem, tags, changeTime);
         }
     }
 
     private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
         final SpecItem newVersionOfSpecItem = new SpecItem();
-        newVersionOfSpecItem.setTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
         newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
         newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
         newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
