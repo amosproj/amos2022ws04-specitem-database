@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -75,14 +74,10 @@ public class Controller {
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
             System.out.println("-------------------");
-            return handleStatusCode200(SpecItem.class);
+            return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
             return handleStatusCode500(e, SpecItem.class);
         }
-    }
-    
-    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
-        return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
     }
     
     @SuppressWarnings("unchecked")

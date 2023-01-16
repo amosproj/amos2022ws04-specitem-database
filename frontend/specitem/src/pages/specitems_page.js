@@ -56,31 +56,29 @@ export default function SpecitemsPage() {
             if (type === 'ID') {
                 const response = await fetch('http://localhost:8080/get/' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
-                    mode: 'no-cors'
+                    // mode: 'no-cors'
                 });
 
                 const responseText = await response.text();
                 console.log(responseText)
-                //console.log(specitemsList)
+                // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList([JSON.parse(responseText)])
                 }
-                //console.log(specitemsList)
                 setMaxPage(1);
                 setPage(1);
             } else {
                 const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
-                    mode: 'no-cors'
+                    // mode: 'no-cors'
                 });
 
                 const responseText = await response.text();
                 console.log(responseText)
-                //console.log(specitemsList)
+                // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList(JSON.parse(responseText))
                 }
-                //console.log(specitemsList)
                 setMaxPage(1);
                 setPage(1);
             }
