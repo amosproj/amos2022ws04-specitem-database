@@ -3,6 +3,7 @@ package amos.specitemdatabase.repo;
 import amos.specitemdatabase.model.TagInfo;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +18,11 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
                     "AND t.shortName = :shortName")
     List<TagInfo> getLatestTagInfo(@Param("shortName") String shortName);
 
-    @Modifying
+    @Transactional
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE TagInfo t SET t.tags = :tags " +
         "WHERE t.shortName = :specItemShortName" +
-        " AND t.time = :specItemCommitTime")
+        " AND t.commitTime = :specItemCommitTime")
     void updateTags(@Param("specItemShortName") final String specItemShortName,
                     @Param("specItemCommitTime") final LocalDateTime specItemCommitTime,
                     @Param("tags") final String tags);

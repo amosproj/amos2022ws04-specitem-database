@@ -23,7 +23,7 @@ public class TagInfo {
     private String shortName;
     @Column(columnDefinition = "TIMESTAMP")
     @Id
-    private LocalDateTime time;
+    private LocalDateTime commitTime;
     // Adding the @Version annotation activates the optimistic locking mechanism.
     // Having optimistic locking, the DB will mark the version when it reads the entity,
     // and when it writes the updated entity back, it will check if the version has been modified.
@@ -55,12 +55,12 @@ public class TagInfo {
             return false;
         }
         final TagInfo tagInfo = (TagInfo) o;
-        return shortName.equals(tagInfo.shortName) && time.equals(tagInfo.time) &&
+        return shortName.equals(tagInfo.shortName) && commitTime.equals(tagInfo.commitTime) &&
             Objects.equals(version, tagInfo.version) && Objects.equals(tags, tagInfo.tags);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(shortName, time, version, tags);
+        return Objects.hash(shortName, commitTime, version, tags);
     }
 }

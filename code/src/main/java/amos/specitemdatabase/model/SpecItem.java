@@ -50,7 +50,7 @@ public class SpecItem {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumns( {
         @JoinColumn(name="short_name", referencedColumnName="short_name"),
-        @JoinColumn(name="time", referencedColumnName="time")
+        @JoinColumn(name="commit_time", referencedColumnName="commit_time")
     } )
     private TagInfo tagInfo;
     @Enumerated(EnumType.ORDINAL)

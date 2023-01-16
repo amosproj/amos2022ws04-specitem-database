@@ -190,7 +190,7 @@ public class SpecItemService {
         final String allTags = previousTags + tags;
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
-        tagInfo.setTime(specItem.getCommitTime());
+        tagInfo.setCommitTime(specItem.getCommitTime());
         tagInfo.setStatus(Status.LATEST);
         tagInfo.setTags(allTags);
         return tagInfo;
@@ -219,7 +219,7 @@ public class SpecItemService {
         } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
-            this.completeTagAdditionProcess(taggedSpecItem, newTags, changeTime);
+            this.completeTagAdditionProcess(taggedSpecItem, newTags);
         }
     }
 
@@ -230,7 +230,7 @@ public class SpecItemService {
         // Now save previous + new for the same ID and the same time
         String allTags = "";
         if (previousTags != null) {
-            allTags = previousTags + newTags;
+            allTags = previousTags + String.join(",", newTags);
         } else {
             allTags = String.join(",", newTags);
         }

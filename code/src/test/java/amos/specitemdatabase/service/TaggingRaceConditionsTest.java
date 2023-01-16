@@ -4,6 +4,7 @@ import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -27,13 +28,15 @@ public class TaggingRaceConditionsTest {
     @SpyBean
     private TagService tagService;
 
-    private String originalTag = "previousKey:previousValue";
-    private String newTagsUser1 = "key1:value1, key2:value2";
-    private String newTagsUser2 = "key3:value3, key4:value4";
+    private final String originalTag = "previousKey:previousValue";
+    private final String newTagsUser1 = "key1:value1, key2:value2";
+    private final String newTagsUser2 = "key3:value3, key4:value4";
 
     @Test
     void testTagsAdditionNoConcurrency() throws IOException {
         final SpecItem specItem = this.createSpecItemWithTag();
+        final String specItemShortName = specItem.getShortName();
+        final LocalDateTime specItemCommitTime = specItem.getCommitTime();
         // Creating a new spec item with the tag shall also make the first version of the tag
         final Long originalTagVersion = specItem.getTagInfo().getVersion();
         Assertions.assertEquals(0, originalTagVersion);

@@ -37,6 +37,6 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
-
+        this.tagsRepo.updateTags(specItemShortName, specItemCommitTime, tags);
     }
 }
