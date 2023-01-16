@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
 import PageBar from '../components/pageBar';
+import { SERVER_ADRESS } from '../constants/serverAdress';
 
 export default function SpecitemsPage() {
 
@@ -42,7 +43,7 @@ export default function SpecitemsPage() {
         }
         else {
             if (type === 'ID') {
-                const response = await fetch('http://localhost:8080/get/' + message, {
+                const response = await fetch(SERVER_ADRESS+'get/' + message, {
                     method: 'GET',
                 });
 
@@ -56,7 +57,7 @@ export default function SpecitemsPage() {
                 setMaxPage(1);
                 setPage(1);
             } else {
-                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(message), { //~!*()'
+                const response = await fetch(SERVER_ADRESS+'get/cont:' + encodeURIComponent(message), { //~!*()'
                     method: 'GET',
                 });
 
@@ -87,7 +88,7 @@ export default function SpecitemsPage() {
     }
 
     async function getMaxPage(){
-        const response = await fetch(`http://localhost:8080/pageNumber` , {
+        const response = await fetch(SERVER_ADRESS+`pageNumber` , {
             method: 'GET',
         });
         const responseText = await response.text()
@@ -117,7 +118,7 @@ export default function SpecitemsPage() {
     }
     
     async function handleGet(page){
-        const response = await fetch(`http://localhost:8080/get/all?page=${page}` , {
+        const response = await fetch(SERVER_ADRESS+`get/all?page=${page}` , {
             method: 'GET',
         });
         const responseText = await response.text();

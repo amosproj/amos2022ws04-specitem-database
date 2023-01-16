@@ -6,6 +6,7 @@ import * as ROUTES from '../constants/routes';
 import { useParams } from 'react-router-dom'
 import { toast } from "react-toastify";
 import TagsInput from '../components/tagsinput'
+import { SERVER_ADRESS } from '../constants/serverAdress';
 
 export default function SpecitemPage() {
     const { id } = useParams()
@@ -13,7 +14,7 @@ export default function SpecitemPage() {
     useEffect(() => {
         async function handleGet(){
 
-            const response = await fetch('http://localhost:8080/get/'+id , {
+            const response = await fetch(SERVER_ADRESS+'get/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -40,7 +41,7 @@ export default function SpecitemPage() {
        
         const obj = {tagList: specitem.tagInfo.tags, fingerprint: specitem.fingerprint, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
         
-        const res = await fetch("http://localhost:8080/post/tags", {
+        const res = await fetch(SERVER_ADRESS+"post/tags", {
             headers: {
                 'Content-Type': 'application/json'
                 // 'Content-Type': 'application/x-www-form-urlencoded',
