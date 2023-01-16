@@ -77,6 +77,7 @@ public class SpecItemParser implements SpecItemParserInterface{
             matcher.find();
 
             specItemBuilder.fromStringRepresentation(
+                    matcher.group("Fingerprint"),
                     matcher.group("ShortName"),
                     matcher.group("Category"),
                     matcher.group("LCStatus"),

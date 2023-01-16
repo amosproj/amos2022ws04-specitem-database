@@ -1,6 +1,5 @@
 package amos.specitemdatabase.controller;
 
-
 import amos.specitemdatabase.model.Commit;
 
 import amos.specitemdatabase.model.CompareResult;
@@ -18,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -132,7 +130,7 @@ public class Controller {
 
             // create Specitem Builder and fill it with attributes
             SpecItemBuilder sb = new SpecItemBuilder();
-            sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
+            sb.fromStringRepresentation(json.getString("fingerprint"),json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
 
             //parse tracerefs
             sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));

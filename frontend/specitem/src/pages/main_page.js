@@ -3,7 +3,7 @@ import '../App.css';
 import { useEffect, useState } from 'react';
 import { toast } from "react-toastify";
 import * as ROUTES from '../constants/routes';
-import { Link, useHistory } from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 
 export default function MainPage() {
 
@@ -23,7 +23,6 @@ export default function MainPage() {
         setSelectDocument(true);
         setDocument(doc);
         console.log(doc)
-        
     }
     const handleFileChange = (event) => {
         if (event.target.files && event.target.files[0]) {
@@ -40,7 +39,7 @@ export default function MainPage() {
             console.log(pair[0]); 
         }
         
-        const res = await fetch("http://localhost:8080/upload/filename", {
+        const res = await fetch("http://localhost:8080/upload/"+file.name, {
             method: "POST",
             body: formData,
         }).then((res) => {

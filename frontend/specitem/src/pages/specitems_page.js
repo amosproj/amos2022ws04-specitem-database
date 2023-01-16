@@ -1,4 +1,3 @@
-import Documents from '../components/documents'
 import '../App.css';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
@@ -17,8 +16,10 @@ export default function SpecitemsPage() {
     const [type, setType] = useState('ID');
     const [limitTraceRef, setLimitTraceRef] = useState('')
     const {exportList, setExportList} = useContext(Context);
-    //an array contains all specitem shortnames that are expanded
+    //an array that contains the shortnames of all expanded specitems
     const [isExpanded, setExpanded] = useState([]);
+    const maxStringLength = 20;
+    const maxItemsPerPage = 50;
 
     useEffect(() => {
         console.log(limitTraceRef)
@@ -161,10 +162,11 @@ export default function SpecitemsPage() {
     }
 
     function trimLongerStrings(stringToTrim) {
-        if(stringToTrim == null || stringToTrim.length <= 15)
+        if(stringToTrim == null || stringToTrim.length <= maxStringLength){
             return stringToTrim;
-        else if (stringToTrim.length > 20)
-            return stringToTrim.substring(0, 20) + "...";
+        } else if (stringToTrim.length > maxStringLength) {
+            return stringToTrim.substring(0, maxStringLength) + "...";
+        }
     }
     
     function timeToString(time){
@@ -179,14 +181,12 @@ export default function SpecitemsPage() {
                     <div>
                         <input onChange={handleChange}
                             value={message}>
-
                         </input>
-                    <button onClick={handleFilter}>Filter</button>
-                    <select onChange={event => handleTypeChange(event)}>
+                        <button onClick={handleFilter}>Filter</button>
+                        <select onChange={event => handleTypeChange(event)}>
                             <option value="ID">ID</option>
                             <option value="Content">Content</option>                       
                         </select>
-                        
                     </div>
 
                     <div>
@@ -199,7 +199,7 @@ export default function SpecitemsPage() {
                         <input className="checkboxClass" type="checkbox" id="UseInsteadBox" defaultChecked ></input>
                         <label htmlFor="UseInsteadBox">UseInstead</label>
                         <input className="checkboxClass" type="checkbox" id="TraceRefsBox" defaultChecked></input>
-                        <label htmlFor="TraceRefsBox">traceRefs</label>
+                        <label htmlFor="TraceRefsBox">TraceRefs</label>
                         <input className="checkboxClass" type="checkbox" id="LongNameBox" defaultChecked></input>
                         <label htmlFor="LongNameBox">LongName</label>
                         <input className="checkboxClass" type="checkbox" id="CommitBox" defaultChecked></input>
@@ -214,94 +214,87 @@ export default function SpecitemsPage() {
                         <button className='save-export-button' onClick={() => appendExportList()}>Save to Export</button>
                     </div>
                     {specitemsList.length !== 0 &&
-                    <div>
-                    <div>
-                        Displaying items {(page-1)*50+1} - {(page-1)*50 + specitemsList.length} 
-                    </div>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th className="ShortNameCell">ShortName</th>
-                                <th className="FingerprintCell">Fingerprint</th>
-                                <th className="CategoryCell">Category</th>
-                                <th className="LcStatusCell">LcStatus</th>
-                                <th className="UseInsteadCell">UseInstead</th>
-                                <th className="TraceRefsCell">traceRefs</th>
-                                <th className="LongNameCell">LongName</th>
-                                <th className="CommitCell">Commit</th>
-                                <th className="VersionCell">Version</th>
-                                <th className="ContentCell">Content</th>
-                                <th className="TagCell">Tags</th>
-                                <th>Expand</th>
-                            </tr>
+                        <div>
+                            <div>
+                                Displaying items {(page-1)*maxItemsPerPage + 1} - {(page-1)*maxItemsPerPage + specitemsList.length}
+                            </div>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <th className="ShortNameCell">ShortName</th>
+                                        <th className="FingerprintCell">Fingerprint</th>
+                                        <th className="CategoryCell">Category</th>
+                                        <th className="LcStatusCell">LcStatus</th>
+                                        <th className="UseInsteadCell">UseInstead</th>
+                                        <th className="TraceRefsCell">TraceRefs</th>
+                                        <th className="LongNameCell">LongName</th>
+                                        <th className="CommitCell">Commit</th>
+                                        <th className="VersionCell">Version</th>
+                                        <th className="ContentCell">Content</th>
+                                        <th className="TagCell">Tags</th>
+                                        <th>Expand</th>
+                                    </tr>
 
-                            {specitemsList.map((val,key) => {
-                            
-                            return [
-                                    <tr key={key}>                            
-                                        <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
-                                        <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
-                                        <td className="CategoryCell">{val.category}</td>
-                                        <td className="LcStatusCell">{val.lcStatus}</td>
-                                        <td className="UseInsteadCell">{val.useInstead}</td>
-                                        <td className="TraceRefsCell">
-                                            <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'):
-                                                <table border="2">
-                                                    {val.traceRefs.map((val,key) => {
-                                                        return (
-                                                            <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
-                                                                <td width='10px'>{trimLongerStrings(val)}</td>
-                                                                :
-                                                                <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
-                                                            }</tr>
-                                                        )
-                                                    })}
-                                                    <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
-                                                </table>)}
-                                                <div></div>
-                                                {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
-                                            </div>
-                                        </td>
-                                        
-                                        <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
-                                        <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
-                                        <td className="VersionCell">{val.version}</td>
-                                        <td className="ContentCell">{trimLongerStrings(val.content)}</td>
-                                        <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
-                                        <td>
-                                            <button onClick={() => toggleExpanded(val.shortName)}>
-                                                {isExpanded.includes(val.shortName)? "Hide" : "Show"}
-                                            </button>
-                                        </td>
-                                    </tr>,
-                                    isExpanded.includes(val.shortName) && (
-                                        <tr>
-                                            <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
-                                        </tr>
-                                    )
-                                ]
-                                })}
-                        </tbody>
-                    </table>
-                    <PageBar page={page} setPage={setPage} maxPage={maxPage}></PageBar> 
-                    </div>
+                                    {specitemsList.map((val,key) => {
+                                        return [
+                                            <tr key={key}>
+                                                <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
+                                                <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
+                                                <td className="CategoryCell">{val.category}</td>
+                                                <td className="LcStatusCell">{val.lcStatus}</td>
+                                                <td className="UseInsteadCell">{val.useInstead}</td>
+                                                <td className="TraceRefsCell">
+                                                    <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'):
+                                                        <table border="2"><tbody>
+                                                            {val.traceRefs.map((val,key) => {
+                                                                return (
+                                                                    <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
+                                                                        <td width='10px'>{trimLongerStrings(val)}</td>
+                                                                        :
+                                                                        <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
+                                                                    }</tr>
+                                                                )
+                                                            })}
+                                                            <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                                        </tbody></table>)}
+                                                        <div></div>
+                                                        {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
+                                                    </div>
+                                                </td>
+                                                <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
+                                                <td className="CommitCell">{(val.commit? val.commit.id: '')}</td>
+                                                <td className="VersionCell">{val.version}</td>
+                                                <td className="ContentCell">{trimLongerStrings(val.content)}</td>
+                                                <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
+                                                <td>
+                                                    <button onClick={() => toggleExpanded(val.shortName)}>
+                                                        {isExpanded.includes(val.shortName)? "Hide" : "Show"}
+                                                    </button>
+                                                </td>
+                                            </tr>,
+                                            isExpanded.includes(val.shortName) && (
+                                                <tr>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                </tr>
+                                            )
+                                        ]
+                                    })}
+                                </tbody>
+                            </table>
+                            <PageBar page={page} setPage={setPage} maxPage={maxPage}></PageBar>
+                        </div>
                     }
                     {specitemsList.length === 0 &&
                         <div className='App-tb' style={{marginTop:'200px'}}> 
-                        No Items Found 
+                            No Items Found
                         </div>
                     }
                     <div className='App-tb' style={{marginTop: '15px'}}>
                         <Link to={ROUTES.DASHBOARD}>
                         <button className='button-close'>Back</button>  
                         </Link>
-                        </div>
                     </div>
-
-            
-                
-                     
+                </div>
         </div>
     )
-    
 }

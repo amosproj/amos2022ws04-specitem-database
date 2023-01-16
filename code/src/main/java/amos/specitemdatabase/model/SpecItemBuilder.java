@@ -24,9 +24,10 @@ public class SpecItemBuilder {
 
     private Commit commit;
 
-    public SpecItemBuilder fromStringRepresentation(final String shortName, final String category,
-                                                    final String lcStatus, final String longName,
-                                                    final String content) {
+    public SpecItemBuilder fromStringRepresentation(final String fingerprint, final String shortName,
+                                                    final String category, final String lcStatus,
+                                                    final String longName, final String content) {
+        this.fingerprint = fingerprint;
         this.shortName = shortName;
         this.category = Category.get(category);
         this.lcStatus = LcStatus.get(lcStatus);

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -102,6 +103,7 @@ public class SpecItemService {
      * save text file as document object and its relating Specitem objects in database
      * @param filename name of the document text file stored in tmp folder
      */
+    @Transactional
     public void saveDocument(String filename) throws IOException{
         String filepath = fileConfig.getUploadDir() + filename;
         File file = new File(filepath);
