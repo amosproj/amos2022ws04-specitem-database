@@ -68,7 +68,7 @@ export default function SpecitemsPage() {
                 setMaxPage(1);
                 setPage(1);
             } else {
-                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(toHex(message)), { //\/%
+                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
                     mode: 'no-cors'
                 });
