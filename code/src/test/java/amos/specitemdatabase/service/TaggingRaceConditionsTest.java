@@ -38,8 +38,8 @@ public class TaggingRaceConditionsTest {
         final Long originalTagVersion = specItem.getTagInfo().getVersion();
         Assertions.assertEquals(0, originalTagVersion);
         // Make two subsequent updates of the tag
-        this.specItemService.fetchAndSave(specItem, Collections.singletonList(newTagsUser1));
-        this.specItemService.fetchAndSave(specItem, Collections.singletonList(newTagsUser2));
+        this.specItemService.completeTagAdditionProcess(specItem, Collections.singletonList(newTagsUser1));
+        this.specItemService.completeTagAdditionProcess(specItem, Collections.singletonList(newTagsUser2));
         final SpecItem specItemWithAllNewTags = this.specItemRepo.getLatestSpecItemByID(specItem.getShortName());
         final String expectedAllTags = String.join(",", List.of(originalTag, newTagsUser1, newTagsUser2));
         Assertions.assertAll(
@@ -55,7 +55,7 @@ public class TaggingRaceConditionsTest {
         this.specItemService.saveDocument("simpleSpecItem.txt");
         final SpecItem specItemNoTags = this.specItemRepo.findAll().get(0);
         // Step 2: Add some tags
-        this.specItemService.fetchAndSave(specItemNoTags, List.of(originalTag));
+        this.specItemService.completeTagAdditionProcess(specItemNoTags, List.of(originalTag));
         // Step 3: Get the spec item
         return this.specItemRepo.getLatestSpecItemByID(specItemNoTags.getShortName());
     }

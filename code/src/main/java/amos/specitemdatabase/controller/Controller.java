@@ -16,8 +16,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -122,58 +124,53 @@ public class Controller {
      */
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateTags(@RequestBody final String specItemAsJsonString){
-        //saving content to a file in /tmp folder
         log.info("Received a request for updating the tags.");
         try {
-            // Create a json object from the json string representation of a spec item
-            JSONObject json = new JSONObject(specItemAsJsonString);
-
-            // Save tags to the tags table, which involves:
+            // Step 1: Create a spec item out of the json representation
+            final Pair<SpecItem, String> specItemTagPair = this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
+            // Step 2: Complete the tag addition procedure, which involves
             // 1. fetching current tags for ID & Time
             // 2. saving the previous + new tags
-
-
-
-            // create Specitem Builder and fill it with attributes
-            SpecItemBuilder sb = new SpecItemBuilder();
-            sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
-
-            //parse tracerefs
-            sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
-
-            //parse Local date time
-            String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
-            int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1]);
-            int day = Integer.parseInt(dateParts[2]);
-            int hour = Integer.parseInt(dateParts[3]);
-            int minute = Integer.parseInt(dateParts[4]);
-            int second = Integer.parseInt(dateParts[5]);
-            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-
-            //Create the commit from Json object and setCommit for specitem builder
-            Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
-            sb.setCommit(c);
-
-            //create specitem
-            SpecItem s = new SpecItem(sb);
-            System.out.println("Helloo " + service.getSpecItemById(json.getString("shortname")));
-            //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
-
-            String tagList = json.getString("tagList");
-            // Split the input string on spaces
-
-            // Create a List from the resulting array
-            List<String> stringArrayList = Collections.singletonList(tagList);
-            System.out.println("SpecItem =" + s.getShortName());
-            service.fetchAndSave(s, stringArrayList, false);
-
+            // 3. creating a new spec item and a new taginfo entry
+            this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
+                Collections.singletonList(specItemTagPair.getSecond()));
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        System.out.println("Upload Successful!");
-        return new ResponseEntity<>("Upload Successful!", HttpStatus.CREATED);
+        log.info("Tags have been added successfully!");
+        return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
+    }
+
+    private Pair<SpecItem, String> extractSpecItemAndTagOutOfJsonRepresentation(final String specItemAsJsonString) throws JSONException {
+        // Create a json object from the json string representation of a spec item
+        // and get the spec item out of it
+        final JSONObject json = new JSONObject(specItemAsJsonString);
+        // create Specitem Builder and fill it with attributes
+        final SpecItemBuilder sb = new SpecItemBuilder();
+        sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),
+            json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
+        sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
+
+        final String[] dateParts = json.getString("commitTime")
+            .replace("[", "").replace("]", "").split(",");
+        int year = Integer.parseInt(dateParts[0]);
+        int month = Integer.parseInt(dateParts[1]);
+        int day = Integer.parseInt(dateParts[2]);
+        int hour = Integer.parseInt(dateParts[3]);
+        int minute = Integer.parseInt(dateParts[4]);
+        int second = Integer.parseInt(dateParts[5]);
+        final LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+
+        final Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),
+            dateTime,json.getString("commitAuthor"));
+        sb.setCommit(c);
+
+        final SpecItem specItem = new SpecItem(sb);
+        final String tagList = json.getString("tagList");
+
+        // TODO: frontend must provide the info about the creation time
+        return Pair.of(specItem, tagList);
     }
 
     
