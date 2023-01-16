@@ -54,8 +54,9 @@ export default function SpecitemsPage() {
         }
         else {
             if (type === 'ID') {
-                const response = await fetch('http://localhost:8080/get/' + message, {
+                const response = await fetch('http://localhost:8080/get/' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
+                    mode: 'no-cors'
                 });
 
                 const responseText = await response.text();

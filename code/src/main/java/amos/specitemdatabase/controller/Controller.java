@@ -48,6 +48,10 @@ public class Controller {
             System.err.println(e.getMessage());
     }
 
+    private <T> ResponseEntity<T> handleStatusCode200(Class<T> type) {
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
         printErrorMessage(e);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -66,9 +70,12 @@ public class Controller {
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
+                System.out.println("SpecItem shortname: " + specItem.get().getShortName());
+                System.out.println("-------------------");
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
-            return handleStatusCode404(null, SpecItem.class);
+            System.out.println("-------------------");
+            return handleStatusCode200(SpecItem.class);
         } catch (Exception e) {
             return handleStatusCode500(e, SpecItem.class);
         }
@@ -192,7 +199,9 @@ public class Controller {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        System.out.println("ID (raw): " + id);
         id = getDecodedURLWithoutSpecialCharacters(id);
+        System.out.println("ID (cleaned): " + id);
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
         return returnSpecItemAndStatusCode(specItem);
     }
