@@ -49,9 +49,10 @@ public class SpecItemService {
         );
     }
 
-    // Bug? Handling of special characters like "/" is missing
     public List<SpecItem> getListOfSpecItemsByContent(String content, int page) {
         Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
+        content = content.replaceAll("%", "\\\\%");
+        System.out.println(content);
         List<SpecItem> listOfSpecItems = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
         return listOfSpecItems;
     }
