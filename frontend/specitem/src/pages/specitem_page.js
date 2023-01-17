@@ -13,7 +13,6 @@ export default function SpecitemPage() {
     const [specitem, setSpecitem] = useState()
     useEffect(() => {
         async function handleGet(){
-
             const response = await fetch(SERVER_ADRESS+'get/'+id , {
                 method: 'GET',
             });
@@ -21,7 +20,7 @@ export default function SpecitemPage() {
             console.log(responseText)
             if(responseText !== ''){setSpecitem(JSON.parse(responseText))}
         }
-        
+        console.log("Sending request to " + SERVER_ADRESS+'get/'+id)
         handleGet()
       }, []);
 
@@ -86,6 +85,11 @@ export default function SpecitemPage() {
         <div style={{width: '100%'}} className='App-tb'>
         { specitem &&
             <div>
+                <div className='history-button-container'> 
+                    <Link to={"/specitem/history/" + id}>
+                        <button>View History</button>
+                    </Link>
+                </div>
                 <div>
                     ID: {specitem.shortName}
                 </div>

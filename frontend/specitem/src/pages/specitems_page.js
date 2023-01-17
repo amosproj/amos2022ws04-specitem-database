@@ -53,6 +53,9 @@ export default function SpecitemsPage() {
                 if (responseText !== '') {
                     setSpecitemsList([JSON.parse(responseText)])
                 }
+                else {
+                    setSpecitemsList([]);
+                }
                 //console.log(specitemsList)
                 setMaxPage(1);
                 setPage(1);
@@ -226,7 +229,11 @@ export default function SpecitemsPage() {
                                     {specitemsList.map((val,key) => {
                                         return [
                                             <tr key={key}>
-                                                <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
+                                                <td className="ShortNameCell">
+                                                    <Link to={"/specitem/" + val.shortName}>
+                                                        <href>{trimLongerStrings(val.shortName)}</href>
+                                                    </Link>
+                                                </td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
                                                 <td className="LcStatusCell">{val.lcStatus}</td>

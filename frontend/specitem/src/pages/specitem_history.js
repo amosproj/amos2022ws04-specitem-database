@@ -361,7 +361,7 @@ export default function SpecitemsPage() {
                 }
 
                 <div className='App-tb' style={{marginTop: '15px'}}>
-                    <Link to={ROUTES.DASHBOARD}>
+                    <Link to={"/specitem/" + id}>
                         <button className='button-close' >
                             Back
                         </button>
