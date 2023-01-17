@@ -118,15 +118,15 @@ public class Controller {
             //parse Local date time
             String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
             int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1]);
+            int month = Integer.parseInt(dateParts[1])+1;
             int day = Integer.parseInt(dateParts[2]);
             int hour = Integer.parseInt(dateParts[3]);
             int minute = Integer.parseInt(dateParts[4]);
             int second = Integer.parseInt(dateParts[5]);
-            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-
+            //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+            LocalDateTime dateTime = LocalDateTime.now();
             //Create the commit from Json object and setCommit for specitem builder
-            Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
+            Commit c = new Commit(json.getString("commitHash") + "deneme1",json.getString("commitMsg") + "deneme1",dateTime,json.getString("commitAuthor")+ "deneme1");
             sb.setCommit(c);
 
             //create specitem
@@ -139,8 +139,10 @@ public class Controller {
 
             // Create a List from the resulting array
             List<String> stringArrayList = Collections.singletonList(tagList);
+            List<SpecItem> sc = Arrays.asList(s);
             System.out.println("SpecItem =" + s.getShortName());
-            service.saveTags(s, stringArrayList);
+            //service.saveTags(s, stringArrayList);
+            service.saveDocumentWithTag("deneme", sc, c, stringArrayList);
 
         } catch (Exception e) {
             e.printStackTrace();
