@@ -144,8 +144,7 @@ public class SpecItemService {
     }
 
     public int getPageNumber() {
-        int pageNumber = (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
-        return pageNumber;
+        return (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
     }
 
     /***
@@ -178,16 +177,20 @@ public class SpecItemService {
         // Step 1: Fetch current tags
         specItems.forEach(specItem -> {
             final String tags = this.tagService.fetchTags(specItem);
-            final TagInfo tagInfo = createTagInfo(specItem, tags);
+            final TagInfo tagInfo = createTagInfo(specItem, tags, false);
             specItem.setTagInfo(tagInfo);
         });
     }
 
-    private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
-        // first, get the previous tags
-        final String previousTags = this.tagService.fetchTags(specItem);
-        log.debug("The previous tags of the SpecItem are: {}", previousTags);
-        final String allTags = previousTags + tags;
+    private TagInfo createTagInfo(final SpecItem specItem, final String tags, boolean isGuiUpdate) {
+        String allTags;
+        if (!isGuiUpdate) {
+            final String previousTags = this.tagService.fetchTags(specItem);
+            log.debug("The previous tags of the SpecItem are: {}", previousTags);
+            allTags = previousTags + tags;
+        } else {
+            allTags = tags;
+        }
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
         tagInfo.setCommitTime(specItem.getCommitTime());
@@ -202,16 +205,18 @@ public class SpecItemService {
         try {
             // Step 1: combine previous and new tags
             final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
-            log.info("Fetched the tags={} for the Spec Item with ShortName={} and CommitTime={}",
+            log.info("The following tags will be saved (previous and new): {}" +
+                    " for the Spec Item with ID={} and CommitTime={}",
                 allTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
             // Step 2: save tags
             log.info("Saving the tags...");
             this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
             // Step 3: now, get the tags and create a new version of a spec item
             final String tagsAfterTableUpdate = this.tagService.fetchTags(taggedSpecItem);
+            log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
             final TagInfo tagInfo = this.createTagInfo(
-                newVersionOfSpecItem, String.join(", ", tagsAfterTableUpdate));
+                newVersionOfSpecItem, String.join(", ", tagsAfterTableUpdate), true);
             newVersionOfSpecItem.setTagInfo(tagInfo);
             log.info("Creating a new version of the SpecItem with the ID: {} with the new tags: {}",
                 newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
@@ -227,8 +232,10 @@ public class SpecItemService {
         // Fetch current tags
         // Right now we're fetching the Latest for the same ID - OK
         final String previousTags = this.tagService.fetchTags(taggedSpecItem);
+        log.info("The already existing tags for ID={} CommitTime={} are {}",
+            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
         // Now save previous + new for the same ID and the same time
-        String allTags = "";
+        String allTags;
         if (previousTags != null) {
             allTags = previousTags + String.join(",", newTags);
         } else {
