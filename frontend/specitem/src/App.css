@@ -199,3 +199,8 @@ td > .LongNameCell, div .ContentCell, div {
   color: aliceblue;
   border-radius: 10px;
 }
+
+.history-button-container {
+  display: flex;
+  justify-content: center;
+}
