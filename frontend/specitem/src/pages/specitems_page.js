@@ -37,40 +37,49 @@ export default function SpecitemsPage() {
         setType(event.target.value);
     };
 
+    async function checkRef(ref){
+        return false
+    }
+
+    function toHex(s) {
+        let h = ''
+        for (let i = s.length - 1; i >= 0; i--)
+            h = '%'+ s.charCodeAt(i).toString(16) + h
+        console.log(h)
+        return h
+    }
+
     async function handleFilter(event) {
         if(message == ''){
             handleGet(1);
         }
         else {
             if (type === 'ID') {
-                const response = await fetch(SERVER_ADRESS+'get/' + message, {
+                const response = await fetch(SERVER_ADRESS+'get/' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
+                    // mode: 'no-cors'
                 });
 
                 const responseText = await response.text();
                 console.log(responseText)
-                //console.log(specitemsList)
+                // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList([JSON.parse(responseText)])
                 }
-                else {
-                    setSpecitemsList([]);
-                }
-                //console.log(specitemsList)
                 setMaxPage(1);
                 setPage(1);
             } else {
-                const response = await fetch(SERVER_ADRESS+'get/cont:' + encodeURIComponent(message), { //~!*()'
+                const response = await fetch(SERVER_ADRESS+'get/cont:' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
+                    // mode: 'no-cors'
                 });
 
                 const responseText = await response.text();
                 console.log(responseText)
-                //console.log(specitemsList)
+                // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList(JSON.parse(responseText))
                 }
-                //console.log(specitemsList)
                 setMaxPage(1);
                 setPage(1);
             }
