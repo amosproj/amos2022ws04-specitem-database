@@ -5,16 +5,11 @@ import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.time.LocalDateTime;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TagServiceImpl implements TagService {
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     private final TagsRepo tagsRepo;
     @Autowired
@@ -38,5 +33,10 @@ public class TagServiceImpl implements TagService {
     @Override
     public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
         this.tagsRepo.updateTags(specItemShortName, specItemCommitTime, tags);
+    }
+
+    @Override
+    public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
+        return this.tagsRepo.getByShortNameCommitTime(specItemShortName, commitTime);
     }
 }

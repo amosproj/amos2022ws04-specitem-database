@@ -200,7 +200,7 @@ public class SpecItemService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
         try {
             // Step 1: combine previous and new tags
@@ -237,7 +237,11 @@ public class SpecItemService {
         // Now save previous + new for the same ID and the same time
         String allTags;
         if (previousTags != null) {
-            allTags = previousTags + String.join(",", newTags);
+            if (previousTags.isEmpty()) {
+                allTags = String.join(",", newTags);
+            } else {
+                allTags = previousTags + "," + String.join(",", newTags);
+            }
         } else {
             allTags = String.join(",", newTags);
         }
