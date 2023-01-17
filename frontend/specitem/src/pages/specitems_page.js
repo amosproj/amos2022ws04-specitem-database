@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
 import PageBar from '../components/pageBar';
+import { SERVER_ADRESS } from '../constants/serverAdress';
 
 export default function SpecitemsPage() {
 
@@ -54,7 +55,7 @@ export default function SpecitemsPage() {
         }
         else {
             if (type === 'ID') {
-                const response = await fetch('http://localhost:8080/get/' + encodeURIComponent(toHex(message)), {
+                const response = await fetch(SERVER_ADRESS+'get/' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
                     // mode: 'no-cors'
                 });
@@ -68,7 +69,7 @@ export default function SpecitemsPage() {
                 setMaxPage(1);
                 setPage(1);
             } else {
-                const response = await fetch('http://localhost:8080/get/cont:' + encodeURIComponent(toHex(message)), {
+                const response = await fetch(SERVER_ADRESS+'get/cont:' + encodeURIComponent(toHex(message)), {
                     method: 'GET',
                     // mode: 'no-cors'
                 });
@@ -99,7 +100,7 @@ export default function SpecitemsPage() {
     }
 
     async function getMaxPage(){
-        const response = await fetch(`http://localhost:8080/pageNumber` , {
+        const response = await fetch(SERVER_ADRESS+`pageNumber` , {
             method: 'GET',
         });
         const responseText = await response.text()
@@ -129,7 +130,7 @@ export default function SpecitemsPage() {
     }
     
     async function handleGet(page){
-        const response = await fetch(`http://localhost:8080/get/all?page=${page}` , {
+        const response = await fetch(SERVER_ADRESS+`get/all?page=${page}` , {
             method: 'GET',
         });
         const responseText = await response.text();
@@ -237,7 +238,11 @@ export default function SpecitemsPage() {
                                     {specitemsList.map((val,key) => {
                                         return [
                                             <tr key={key}>
-                                                <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
+                                                <td className="ShortNameCell">
+                                                    <Link to={"/specitem/" + val.shortName}>
+                                                        <href>{trimLongerStrings(val.shortName)}</href>
+                                                    </Link>
+                                                </td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
                                                 <td className="LcStatusCell">{val.lcStatus}</td>

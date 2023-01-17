@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useParams } from 'react-router-dom'
 import CollapseContent from '../components/collapseContent';
 import Context from '../context/Context';
+import { SERVER_ADRESS } from '../constants/serverAdress';
 
 export default function SpecitemsPage() {
 
@@ -51,7 +52,7 @@ export default function SpecitemsPage() {
 
     async function handleFilter(event) {
         if(message == ''){
-            const response = await fetch('http://localhost:8080/get/history/'+id , {
+            const response = await fetch(SERVER_ADRESS+'get/history/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -60,7 +61,7 @@ export default function SpecitemsPage() {
         }
         else {
             if(type === 'Content') {
-                const response = await fetch(`http://localhost:8080/get/cont:${message}/id:${id}`, {
+                const response = await fetch(SERVER_ADRESS+`get/cont:${message}/id:${id}`, {
                     method: 'GET',
                 });
                 const responseText = await response.text();
@@ -125,7 +126,7 @@ export default function SpecitemsPage() {
        
     useEffect(() => {
         async function handleGet(){
-            const response = await fetch('http://localhost:8080/get/history/'+id , {
+            const response = await fetch(SERVER_ADRESS+'get/history/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -201,7 +202,7 @@ export default function SpecitemsPage() {
             let strNew = arrToDigNew[0]+'-'+arrToDigNew[1]+'-'+arrToDigNew[2]+' ' + arrToDigNew[3]+':'+arrToDigNew[4]+':'+arrToDigNew[5];
 
             console.log(strNew)
-            const response = await fetch('http://localhost:8080/compare/markup/'+id+'?old='+strOld+'&new='+strNew , {
+            const response = await fetch(SERVER_ADRESS+'compare/markup/'+id+'?old='+strOld+'&new='+strNew , {
                 method: 'GET',
             });
             const responseText = await response.text();
@@ -360,7 +361,7 @@ export default function SpecitemsPage() {
                 }
 
                 <div className='App-tb' style={{marginTop: '15px'}}>
-                    <Link to={ROUTES.DASHBOARD}>
+                    <Link to={"/specitem/" + id}>
                         <button className='button-close' >
                             Back
                         </button>
