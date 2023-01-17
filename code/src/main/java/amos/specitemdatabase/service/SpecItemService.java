@@ -115,6 +115,15 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
         System.out.println(specItemRepo.findAll().size());
     }
+    public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) throws IOException{
+
+        //addTags(sp);
+        final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags));
+        sp.get(0).setTagInfo(tagInfo);
+        DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
+        documentRepo.save(documentEntity);
+        System.out.println(specItemRepo.findAll().size());
+    }
 
     private void addTags(final List<SpecItem> specItems) {
         // Step 1: Fetch current tags

@@ -31,7 +31,7 @@ export default function SpecitemPage() {
         clone.tagInfo.tags = clone.tagInfo.tags.replace(o,'');
 
         if(clone.tagInfo.tags.length == 0){
-            clone.tagInfo.tags = null
+            clone.tagInfo.tags = ""
         }
         setSpecitem(clone);
     }
@@ -55,6 +55,7 @@ export default function SpecitemPage() {
                 console.log(res)
             }}
         });
+        window.location.reload(true);
     };
     function addTag(){
         let inputKey = document.getElementById("newKey").value;
@@ -79,6 +80,8 @@ export default function SpecitemPage() {
 
         clone.tagInfo.tags = clone.tagInfo.tags + newTag;
         setSpecitem(clone);
+        document.getElementById("newKey").value = ""
+         document.getElementById("newValue").value = ""
     }
       
     return(
