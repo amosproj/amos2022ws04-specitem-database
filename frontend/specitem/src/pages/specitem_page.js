@@ -6,21 +6,21 @@ import * as ROUTES from '../constants/routes';
 import { useParams } from 'react-router-dom'
 import { toast } from "react-toastify";
 import TagsInput from '../components/tagsinput'
+import { SERVER_ADRESS } from '../constants/serverAdress';
 
 export default function SpecitemPage() {
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
     useEffect(() => {
         async function handleGet(){
-
-            const response = await fetch('http://localhost:8080/get/'+id , {
+            const response = await fetch(SERVER_ADRESS+'get/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
             console.log(responseText)
             if(responseText !== ''){setSpecitem(JSON.parse(responseText))}
         }
-        
+        console.log("Sending request to " + SERVER_ADRESS+'get/'+id)
         handleGet()
       }, []);
 
@@ -31,16 +31,16 @@ export default function SpecitemPage() {
         clone.tagInfo.tags = clone.tagInfo.tags.replace(o,'');
 
         if(clone.tagInfo.tags.length == 0){
-            clone.tagInfo.tags = null
+            clone.tagInfo.tags = ""
         }
         setSpecitem(clone);
     }
 
     const saveTags = async (data) => {
        
-        const obj = {tagList: specitem.tagInfo.tags, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
+        const obj = {tagList: specitem.tagInfo.tags, fingerprint: specitem.fingerprint, shortname: specitem.shortName, category: specitem.category, lcStatus: specitem.lcStatus, longname: specitem.longName, content: specitem.content, traceref: specitem.traceRefs, commitHash: specitem.commit.commitHash, commitMsg:specitem.commit.commitMessage, commitTime: specitem.commit.commitTime, commitAuthor: specitem.commit.commitAuthor}
         
-        const res = await fetch("http://localhost:8080/post/tags", {
+        const res = await fetch(SERVER_ADRESS+"post/tags", {
             headers: {
                 'Content-Type': 'application/json'
                 // 'Content-Type': 'application/x-www-form-urlencoded',
@@ -55,6 +55,7 @@ export default function SpecitemPage() {
                 console.log(res)
             }}
         });
+        window.location.reload(true);
     };
     function addTag(){
         let inputKey = document.getElementById("newKey").value;
@@ -79,12 +80,19 @@ export default function SpecitemPage() {
 
         clone.tagInfo.tags = clone.tagInfo.tags + newTag;
         setSpecitem(clone);
+        document.getElementById("newKey").value = ""
+         document.getElementById("newValue").value = ""
     }
       
     return(
         <div style={{width: '100%'}} className='App-tb'>
         { specitem &&
             <div>
+                <div className='history-button-container'> 
+                    <Link to={"/specitem/history/" + id}>
+                        <button>View History</button>
+                    </Link>
+                </div>
                 <div>
                     ID: {specitem.shortName}
                 </div>
@@ -165,16 +173,10 @@ export default function SpecitemPage() {
             <div className='App-tb' style={{marginTop: '15px'}}>
                 <Link to={ROUTES.SPECITEMS}>
                 <button className='button-close' >     
-                Back
-            </button>  
+                    Back
+                </button>
                 </Link>
-                </div>
-
-            
-                
-        
-                
-                    
+            </div>
         </div>
     )
     

@@ -1,6 +1,5 @@
 package amos.specitemdatabase.controller;
 
-
 import amos.specitemdatabase.model.Commit;
 
 import amos.specitemdatabase.model.CompareResult;
@@ -19,18 +18,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import java.nio.file.FileSystemException;
 
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin("*")
 public class Controller {
 
     private final FileStorageService fileStorageService;
@@ -46,6 +45,10 @@ public class Controller {
     private void printErrorMessage(Exception e) {
         if (e != null)
             System.err.println(e.getMessage());
+    }
+
+    private <T> ResponseEntity<T> handleStatusCode200(Class<T> type) {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
@@ -66,22 +69,27 @@ public class Controller {
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
+                System.out.println("SpecItem shortname: " + specItem.get().getShortName());
+                System.out.println("-------------------");
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
-            return handleStatusCode404(null, SpecItem.class);
+            System.out.println("-------------------");
+            return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
             return handleStatusCode500(e, SpecItem.class);
         }
-    }
-    
-    private boolean isListOfSpecItemsPresentAndNotEmpty(Optional<List<SpecItem>> listOfSpecItems) {
-        return listOfSpecItems.isPresent() && ! listOfSpecItems.get().isEmpty();
     }
     
     @SuppressWarnings("unchecked")
     private ResponseEntity<List<SpecItem>> returnListOfSpecItemAndStatusCode(Optional<List<SpecItem>> listOfSpecItems) {
         try {
             if (listOfSpecItems.isPresent()) {
+                List<SpecItem> list = listOfSpecItems.get();
+                System.out.println("Number of SpecItems: " + list.size());
+                for (SpecItem e : list) {
+                    System.out.println("SpecItem shortname: " + e.getShortName());
+                }
+                System.out.println("-------------------");
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
@@ -91,8 +99,20 @@ public class Controller {
     }
 
     private String getDecodedURLWithoutSpecialCharacters(String urlWithSpecialCharacters) {
-        String decodedURL = URLDecoder.decode(urlWithSpecialCharacters, StandardCharsets.UTF_8);
-        return decodedURL;
+        String decodedURL = "";
+        try {
+            urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+            urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("\\+", "%2B");
+
+            decodedURL = URLDecoder.decode(urlWithSpecialCharacters, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            System.err.println(e.getMessage());
+			return decodedURL;
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        System.out.println("Search pattern (decoded): "+decodedURL);
+        return decodedURL;			
     }
 
     /***
@@ -112,7 +132,7 @@ public class Controller {
 
             // create Specitem Builder and fill it with attributes
             SpecItemBuilder sb = new SpecItemBuilder();
-            sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
+            sb.fromStringRepresentation(json.getString("fingerprint"),json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
 
             //parse tracerefs
             sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
@@ -120,15 +140,15 @@ public class Controller {
             //parse Local date time
             String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
             int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1]);
+            int month = Integer.parseInt(dateParts[1])+1;
             int day = Integer.parseInt(dateParts[2]);
             int hour = Integer.parseInt(dateParts[3]);
             int minute = Integer.parseInt(dateParts[4]);
             int second = Integer.parseInt(dateParts[5]);
-            LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-
+            //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+            LocalDateTime dateTime = LocalDateTime.now();
             //Create the commit from Json object and setCommit for specitem builder
-            Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),dateTime,json.getString("commitAuthor"));
+            Commit c = new Commit(json.getString("commitHash") + "deneme1",json.getString("commitMsg") + "deneme1",dateTime,json.getString("commitAuthor")+ "deneme1");
             sb.setCommit(c);
 
             //create specitem
@@ -141,8 +161,10 @@ public class Controller {
 
             // Create a List from the resulting array
             List<String> stringArrayList = Collections.singletonList(tagList);
+            List<SpecItem> sc = Arrays.asList(s);
             System.out.println("SpecItem =" + s.getShortName());
-            service.saveTags(s, stringArrayList);
+            //service.saveTags(s, stringArrayList);
+            service.saveDocumentWithTag("deneme", sc, c, stringArrayList);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,6 +196,9 @@ public class Controller {
 
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
+        System.out.println("ID (raw): " + id);
+        id = getDecodedURLWithoutSpecialCharacters(id);
+        System.out.println("ID (cleaned): " + id);
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
         return returnSpecItemAndStatusCode(specItem);
     }
@@ -191,8 +216,15 @@ public class Controller {
     }
 
     @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) throws UnsupportedEncodingException {
+        System.out.println("Search pattern (raw): " + content);
+
+        // content = content.replaceAll("^(00)+", "");
+        // byte[] bytes = DatatypeConverter.parseHexBinary(content);
+        // content =  new String(bytes, "UTF-16");
+
 		content = getDecodedURLWithoutSpecialCharacters(content);
+        System.out.println("Search pattern (cleaned): " + content);
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
