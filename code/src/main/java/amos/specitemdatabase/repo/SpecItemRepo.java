@@ -52,6 +52,13 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
     SpecItem getLatestSpecItemByID(@Param("short_name") String ID);
 
     @Query(
+        value = "DELETE FROM spec_item s1" +
+                "WHERE s1.short_name = :short_name",
+        nativeQuery = true
+    )
+    void deleteLatestSpecItemByID(@Param("short_name") String ID);
+
+    @Query(
         value = "SELECT * " +
                 "FROM spec_item " +
                 "WHERE short_name = :short_name",

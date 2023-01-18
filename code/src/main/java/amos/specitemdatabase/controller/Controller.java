@@ -47,10 +47,6 @@ public class Controller {
             System.err.println(e.getMessage());
     }
 
-    private <T> ResponseEntity<T> handleStatusCode200(Class<T> type) {
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
         printErrorMessage(e);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -69,11 +65,8 @@ public class Controller {
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
             if (specItem.isPresent()) {
-                System.out.println("SpecItem shortname: " + specItem.get().getShortName());
-                System.out.println("-------------------");
                 return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
             }
-            System.out.println("-------------------");
             return new ResponseEntity<>(null, HttpStatus.OK);
         } catch (Exception e) {
             return handleStatusCode500(e, SpecItem.class);
@@ -85,11 +78,6 @@ public class Controller {
         try {
             if (listOfSpecItems.isPresent()) {
                 List<SpecItem> list = listOfSpecItems.get();
-                System.out.println("Number of SpecItems: " + list.size());
-                for (SpecItem e : list) {
-                    System.out.println("SpecItem shortname: " + e.getShortName());
-                }
-                System.out.println("-------------------");
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
             return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
@@ -111,7 +99,6 @@ public class Controller {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-        System.out.println("Search pattern (decoded): "+decodedURL);
         return decodedURL;			
     }
 
@@ -194,11 +181,20 @@ public class Controller {
         }
     }
 
+    @DeleteMapping("/delete/{specItemId}&{documentId}")
+    public ResponseEntity<String> deleteSpecItemById(@PathVariable(value = "specItemId")String specItemId, @PathVariable(value = "documentId")String documentId) {
+        try {
+            service.deleteSpecItemById(specItemId, documentId);
+            System.out.println("Finishing...");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return handleStatusCode400(e, String.class);
+        }
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
-        System.out.println("ID (raw): " + id);
         id = getDecodedURLWithoutSpecialCharacters(id);
-        System.out.println("ID (cleaned): " + id);
         Optional<SpecItem> specItem = Optional.ofNullable(service.getSpecItemById(id));
         return returnSpecItemAndStatusCode(specItem);
     }
@@ -217,14 +213,7 @@ public class Controller {
 
     @GetMapping("/get/cont:{content}")
     public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) throws UnsupportedEncodingException {
-        System.out.println("Search pattern (raw): " + content);
-
-        // content = content.replaceAll("^(00)+", "");
-        // byte[] bytes = DatatypeConverter.parseHexBinary(content);
-        // content =  new String(bytes, "UTF-16");
-
 		content = getDecodedURLWithoutSpecialCharacters(content);
-        System.out.println("Search pattern (cleaned): " + content);
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);
     }
