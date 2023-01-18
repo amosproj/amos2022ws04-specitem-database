@@ -181,6 +181,17 @@ public class Controller {
         }
     }
 
+    @DeleteMapping("/delete/{specItemId}&{documentId}")
+    public ResponseEntity<String> deleteSpecItemById(@PathVariable(value = "specItemId")String specItemId, @PathVariable(value = "documentId")String documentId) {
+        try {
+            service.deleteSpecItemById(specItemId, documentId);
+            System.out.println("Finishing...");
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return handleStatusCode400(e, String.class);
+        }
+    }
+
     @GetMapping("/get/{id}")
     public ResponseEntity<SpecItem> getSpecItemById(@PathVariable(value = "id")String id) {
         id = getDecodedURLWithoutSpecialCharacters(id);
