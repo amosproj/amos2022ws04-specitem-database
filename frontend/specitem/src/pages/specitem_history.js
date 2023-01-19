@@ -310,26 +310,27 @@ export default function SpecitemsPage() {
                                     return [
                                             <tr key={key}>
                                                 <td className="CompareCheckboxCell"><input type="checkbox" id={"chkbox" + key} className="compareCheckbox"></input></td>
-                                                <td className="ShortNameCell">{trimLongerStrings(val.shortName)}</td>
+                                                <td className="ShortNameCell">
+                                                    <Link to={"/specitem/" + val.shortName}>
+                                                        <href>{trimLongerStrings(val.shortName)}</href>
+                                                    </Link></td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
                                                 <td className="LcStatusCell">{val.lcStatus}</td>
                                                 <td className="UseInsteadCell">{val.useInstead}</td>
                                                 <td className="TraceRefsCell">
-                                                    <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'): <table border="2" bordercolor="blue"><tbody>
-                                                        {val.traceRefs.map((val,key) => {
-                                                            return (
-                                                            <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
-                                                                <td width='10px' >{trimLongerStrings(val)}</td>
-                                                                :
-                                                                <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
-                                                            }
-                                                            </tr>)
-                                                        })}
+                                                    <div>{(limitTraceRef != val? trimLongerStrings(val.traceRefs[0]+'...'): 
+                                                        <table border="2" bordercolor="blue"><tbody>
+                                                            {val.traceRefs.map((v,k) => {
+                                                                return (
+                                                                <tr key={k}> {
+                                                                    <Link to={`/specitem/history/${v}`} onClick={useEffect}>{trimLongerStrings(v)}</Link>
+                                                                }</tr>)
+                                                            })}
                                                         <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
                                                     </tbody></table>)}
                                                     <div></div>
-                                                    {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
+                                                    {limitTraceRef != val && <button onClick={()=>{setLimitTraceRef(val)}}>Expand</button>}
                                                     </div>
                                                 </td>
                                                 <td className="LongNameCell">{trimLongerStrings(val.longName)}</td>
