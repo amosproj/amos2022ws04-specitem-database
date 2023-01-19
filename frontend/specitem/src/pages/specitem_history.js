@@ -312,7 +312,7 @@ export default function SpecitemsPage() {
                                                 <td className="CompareCheckboxCell"><input type="checkbox" id={"chkbox" + key} className="compareCheckbox"></input></td>
                                                 <td className="ShortNameCell">
                                                     <Link to={"/specitem/" + val.shortName}>
-                                                        <href>{trimLongerStrings(val.shortName)}</href>
+                                                        {trimLongerStrings(val.shortName)}
                                                     </Link></td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
