@@ -234,10 +234,7 @@ public class Controller {
     }
     
     @GetMapping("/get/pageNumber/{specitem}")
-    public ResponseEntity<Integer> getPageNumberOfSpecItem(@PathVariable(value = "specitem")String specitem) {
-    	
-    	System.out.println(specitem);
-    	
+    public ResponseEntity<Integer> getPageNumberOfSpecItem(@PathVariable(value = "specitem")String specitem) {	
     	for (int i = 1; i <= service.getPageNumber(); i++) {
     		List<SpecItem> listOfSpecItems = service.getAllSpecItems(i);
     		for(SpecItem s : listOfSpecItems) {
@@ -245,7 +242,6 @@ public class Controller {
     				return new ResponseEntity<>(i, HttpStatus.OK);
     			}
     		}
-    		System.out.println(listOfSpecItems);
     	}
     	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
