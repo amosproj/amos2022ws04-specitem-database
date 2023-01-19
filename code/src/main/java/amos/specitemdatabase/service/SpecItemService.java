@@ -9,6 +9,7 @@ import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,6 @@ public class SpecItemService {
     }
 
     private void deleteSpecItemFromDocument(DocumentEntity documentEntity, SpecItem specItem) {
-        // Problem
         documentEntity.getSpecItems().remove(specItem);
         documentRepo.save(documentEntity);
     }
@@ -94,8 +94,8 @@ public class SpecItemService {
     }
 
     @Transactional
-    public void deleteSpecItemByIdInDocument(String specItemId, String documentId) {
-        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID("name");
+    public void deleteSpecItemByIdInDocument(String specItemId, BigInteger documentId) {
+        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentId);
         this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
     }
     
@@ -107,8 +107,9 @@ public class SpecItemService {
 
         try {
             if (latestSpecItem.getTime().compareTo(timeOfSpecItemInsertedViaDocument) == 0) {
-                // Prototype
-                this.deleteSpecItemByIdInDocument(specItemId, "name");
+                BigInteger idOfDocument = documentRepo.getDocumentEntityIDBySpecItem(specItemId, timeOfSpecItemInsertedViaDocument);
+                System.err.println("Where is the problem?");
+                this.deleteSpecItemByIdInDocument(specItemId, idOfDocument);
             } else {
                 specItemRepo.deleteLatestSpecItemByID(specItemId);
             }
