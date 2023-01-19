@@ -139,6 +139,12 @@ export default function SpecitemsPage() {
         if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         setPage(page);
         await getMaxPage();
+
+        let curr = document.getElementById(selected);
+        window.scrollTo({
+            top:curr.offsetTop,
+            behavior:"smooth"
+        });
     }
 
     async function getPageOfSpecItem(shortName){
@@ -146,11 +152,18 @@ export default function SpecitemsPage() {
             method: 'GET',
         });
         const responseCode = await response.status;
-        if(responseCode == "404"){      
+        if(responseCode == "404"){     
+            toast.error("SpecItem: " + shortName + " does not exist.");
+            return;
         }else{
             const responseText = await response.text();
             setSelected(shortName);
-            setPage(responseText);    
+            setPage(parseInt(responseText));  
+        let curr = document.getElementById(shortName);
+        window.scrollTo({
+            top:curr.offsetTop,
+            behavior:"smooth"
+        });
         }
     }
 
@@ -290,7 +303,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.shortName) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} getPageOfSpecItem={getPageOfSpecItem} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
                                                 </tr>
                                             )
                                         ]
