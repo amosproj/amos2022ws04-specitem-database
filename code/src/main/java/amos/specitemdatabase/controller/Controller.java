@@ -181,11 +181,15 @@ public class Controller {
         }
     }
 
-    @DeleteMapping("/delete/{specItemId}&{documentId}")
-    public ResponseEntity<String> deleteSpecItemById(@PathVariable(value = "specItemId")String specItemId, @PathVariable(value = "documentId")String documentId) {
+    // @DeleteMapping("/delete/{specItemId}&{documentId}")
+    // public ResponseEntity<String> deleteSpecItemById(@PathVariable(value =
+    // "specItemId")String specItemId, @PathVariable(value = "documentId")String
+    // documentId) {
+    @DeleteMapping("/delete/{specItemId}")
+    public ResponseEntity<String> deleteSpecItemById(@PathVariable(value = "specItemId")String specItemId) {
         try {
-            service.deleteSpecItemById(specItemId, documentId);
-            System.out.println("Finishing...");
+            // service.deleteSpecItemById(specItemId, documentId);
+            service.deleteSpecItemById(specItemId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return handleStatusCode400(e, String.class);
