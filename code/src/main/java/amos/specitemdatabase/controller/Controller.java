@@ -232,6 +232,23 @@ public class Controller {
         int pageNumber = service.getPageNumber();
         return new ResponseEntity<>(pageNumber, HttpStatus.OK);
     }
+    
+    @GetMapping("/get/pageNumber/{specitem}")
+    public ResponseEntity<Integer> getPageNumberOfSpecItem(@PathVariable(value = "specitem")String specitem) {
+    	
+    	System.out.println(specitem);
+    	
+    	for (int i = 1; i <= service.getPageNumber(); i++) {
+    		List<SpecItem> listOfSpecItems = service.getAllSpecItems(i);
+    		for(SpecItem s : listOfSpecItems) {
+    			if (s.getShortName().equals(specitem)) {
+    				return new ResponseEntity<>(i, HttpStatus.OK);
+    			}
+    		}
+    		System.out.println(listOfSpecItems);
+    	}
+    	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     @GetMapping("/compare/{shortName}")
     public ResponseEntity compareVersions(@PathVariable(value = "shortName") String shortName,
