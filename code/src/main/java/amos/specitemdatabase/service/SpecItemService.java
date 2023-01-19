@@ -12,16 +12,17 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -91,15 +92,42 @@ public class SpecItemService {
             }
         }
     }
+
+    @Transactional
+    public void deleteSpecItemByIdInDocument(String specItemId, String documentId) {
+        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID("name");
+        this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
+    }
     
     @Transactional
-    public void deleteSpecItemById(String specItemId, String documentID) {
-    // public void deleteSpecItemById(String specItemId) {
-        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentID);
-        this.deleteLinkBetweenDocumentAndSpecItem(documentEntity,
-        specItemId);
+    // public void deleteSpecItemById(String specItemId, String documentID) {
+    public void deleteSpecItemById(String specItemId) {
+        SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
+        LocalDateTime timeOfSpecItemInsertedViaDocument = documentRepo.getLocalDateTimeForSpecItemInsertedViaDocument(specItemId);
+
+        try {
+            if (latestSpecItem.getTime().compareTo(timeOfSpecItemInsertedViaDocument) == 0) {
+                // Prototype
+                this.deleteSpecItemByIdInDocument(specItemId, "name");
+            } else {
+                specItemRepo.deleteLatestSpecItemByID(specItemId);
+            }
+        } catch (NullPointerException e) {
+            System.out.println("No match found for given ID.");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.err.println(e.getClass());
+        }
         
-        // specItemRepo.deleteLatestSpecItemByID(specItemId);
+        // try {
+        //     specItemRepo.deleteLatestSpecItemByID(specItemId);
+        // } catch (DataIntegrityViolationException e) {
+        //     // specItemRepo.updateDocumentToPointToLatestSpecItem(specItemId, specItem.getTime());
+        //     // documentRepo.deleteSpecItemByIDFromDocument(specItemId);
+        // } catch (Exception e) {
+        //     System.err.println(e.getMessage());
+        //     System.err.println(e.getClass());
+        // }
     }
 
     public int getPageNumber() {
