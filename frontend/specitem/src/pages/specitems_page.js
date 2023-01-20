@@ -19,6 +19,7 @@ export default function SpecitemsPage() {
     const {exportList, setExportList} = useContext(Context);
     //an array that contains the shortnames of all expanded specitems
     const [isExpanded, setExpanded] = useState([]);
+    const [selected, setSelected] = useState('');
     const maxStringLength = 20;
     const maxItemsPerPage = 50;
 
@@ -138,6 +139,32 @@ export default function SpecitemsPage() {
         if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         setPage(page);
         await getMaxPage();
+
+        let curr = document.getElementById(selected);
+        window.scrollTo({
+            top:curr.offsetTop,
+            behavior:"smooth"
+        });
+    }
+
+    async function getPageOfSpecItem(shortName){
+        const response = await fetch(SERVER_ADRESS+'get/pageNumber/'+ shortName, {
+            method: 'GET',
+        });
+        const responseCode = await response.status;
+        if(responseCode == "404"){     
+            toast.error("SpecItem: " + shortName + " does not exist.");
+            return;
+        }else{
+            const responseText = await response.text();
+            setSelected(shortName);
+            setPage(parseInt(responseText));  
+        let curr = document.getElementById(shortName);
+        window.scrollTo({
+            top:curr.offsetTop,
+            behavior:"smooth"
+        });
+        }
     }
 
     useEffect(() => {
@@ -237,8 +264,8 @@ export default function SpecitemsPage() {
 
                                     {specitemsList.map((val,key) => {
                                         return [
-                                            <tr key={key}>
-                                                <td className="ShortNameCell">
+                                            <tr id={val.shortName} key={key} style={(val.shortName == selected)? {backgroundColor: "#68b06d"} : {}}>    
+                                                <td className="ShortNameCell" >
                                                     <Link to={"/specitem/" + val.shortName}>
                                                         <href>{trimLongerStrings(val.shortName)}</href>
                                                     </Link>
@@ -252,11 +279,9 @@ export default function SpecitemsPage() {
                                                         <table border="2"><tbody>
                                                             {val.traceRefs.map((val,key) => {
                                                                 return (
-                                                                    <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
-                                                                        <td width='10px'>{trimLongerStrings(val)}</td>
-                                                                        :
-                                                                        <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
-                                                                    }</tr>
+                                                                    <tr key={key}>
+                                                                        <Link onClick={() => getPageOfSpecItem(val)}>{trimLongerStrings(val)}</Link>
+                                                                    </tr>
                                                                 )
                                                             })}
                                                             <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
@@ -278,7 +303,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.shortName) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} getPageOfSpecItem={getPageOfSpecItem} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
                                                 </tr>
                                             )
                                         ]

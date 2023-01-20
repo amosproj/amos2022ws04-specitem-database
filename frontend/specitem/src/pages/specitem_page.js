@@ -108,10 +108,13 @@ export default function SpecitemPage() {
                 <div>
                     useInstead: {specitem.useInstead}
                 </div>
-                    traceRefs:
-                    {
-                        ' ' + specitem.traceRefs.join(", ")
-                    }
+                TraceRefs: {specitem.traceRefs.map((val,key) => {
+                    return (
+                        <div>
+                            <Link to={`/specitem/${val}`} onClick={useEffect}>{val}</Link>
+                        </div>
+                    )
+                })}
                 <div>
                     Longname: {specitem.longName}
                 </div>
@@ -139,7 +142,7 @@ export default function SpecitemPage() {
                         </tr>
                     </thead>
                 <tbody>
-                {specitem.tagInfo.tags && specitem.tagInfo.tags.split(",").map(k =>
+                {specitem.tagInfo && specitem.tagInfo.tags && specitem.tagInfo.tags.split(",").map(k =>
                     <tr id={k}>
                         <td>
                             <div>{k.split(":")[0]}</div>  
