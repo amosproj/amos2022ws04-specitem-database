@@ -113,46 +113,7 @@ public class Controller {
 
         //saving document to database
         try {
-            //create Json object from Json string
-            JSONObject json = new JSONObject(tags);
-            //System.out.println(tags);
-
-            // create Specitem Builder and fill it with attributes
-            SpecItemBuilder sb = new SpecItemBuilder();
-            sb.fromStringRepresentation(json.getString("fingerprint"),json.getString("shortname"),json.getString("category"),json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
-
-            //parse tracerefs
-            sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
-
-            //parse Local date time
-            String[] dateParts = json.getString("commitTime").replace("[", "").replace("]", "").split(",");
-            int year = Integer.parseInt(dateParts[0]);
-            int month = Integer.parseInt(dateParts[1])+1;
-            int day = Integer.parseInt(dateParts[2]);
-            int hour = Integer.parseInt(dateParts[3]);
-            int minute = Integer.parseInt(dateParts[4]);
-            int second = Integer.parseInt(dateParts[5]);
-            //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-            LocalDateTime dateTime = LocalDateTime.now();
-            //Create the commit from Json object and setCommit for specitem builder
-            Commit c = new Commit(json.getString("commitHash") + "deneme1",json.getString("commitMsg") + "deneme1",dateTime,json.getString("commitAuthor")+ "deneme1");
-            sb.setCommit(c);
-
-            //create specitem
-            SpecItem s = new SpecItem(sb);
-            System.out.println("Helloo " + service.getSpecItemById(json.getString("shortname")));
-            //SpecItem s2 = service.getSpecItemById(json.getString("shortname"));
-
-            String tagList = json.getString("tagList");
-            // Split the input string on spaces
-
-            // Create a List from the resulting array
-            List<String> stringArrayList = Collections.singletonList(tagList);
-            List<SpecItem> sc = Arrays.asList(s);
-            System.out.println("SpecItem =" + s.getShortName());
-            //service.saveTags(s, stringArrayList);
-            service.saveDocumentWithTag("deneme", sc, c, stringArrayList);
-
+            service.updateTags(tags);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
