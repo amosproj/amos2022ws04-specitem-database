@@ -24,7 +24,6 @@ export default function SpecitemsPage() {
     const maxItemsPerPage = 50;
 
     useEffect(() => {
-        console.log(limitTraceRef)
       }, [limitTraceRef]);
 
     useEffect(() => {
@@ -135,7 +134,6 @@ export default function SpecitemsPage() {
             method: 'GET',
         });
         const responseText = await response.text();
-        console.log(responseText)
         if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
         setPage(page);
         await getMaxPage();
@@ -165,6 +163,14 @@ export default function SpecitemsPage() {
             behavior:"smooth"
         });
         }
+    }
+
+    async function specItemExists(shortName){
+        const response = await fetch(SERVER_ADRESS + 'get/' + shortName , {
+            method: 'GET',
+        })
+        const responseText = await response.text();
+        return responseText;
     }
 
     useEffect(() => {
@@ -280,11 +286,14 @@ export default function SpecitemsPage() {
                                                             {val.traceRefs.map((val,key) => {
                                                                 return (
                                                                     <tr key={key}>
+                                                                    {console.log(specItemExists(val)) && specItemExists(val) === ''?
+                                                                        <td width='10px'>{trimLongerStrings(val)}</td>
+                                                                        :
                                                                         <Link onClick={() => getPageOfSpecItem(val)}>{trimLongerStrings(val)}</Link>
-                                                                    </tr>
+                                                                    }</tr>
                                                                 )
                                                             })}
-                                                            <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                                            <button onClick={(val)=>{setLimitTraceRef('');}}>Close</button>
                                                         </tbody></table>)}
                                                         <div></div>
                                                         {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
@@ -303,7 +312,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.shortName) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} getPageOfSpecItem={getPageOfSpecItem} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={getPageOfSpecItem} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
                                                 </tr>
                                             )
                                         ]

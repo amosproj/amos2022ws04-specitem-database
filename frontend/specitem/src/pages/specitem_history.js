@@ -21,6 +21,7 @@ export default function SpecitemsPage() {
     const [isCompare, setIsCompare] = useState(false)
     const [compList, setCompList] = useState([]);
     const [respList, setRespList] = useState([]);
+    const [traceRefs, setTraceRefs] = useState([])
     const maxStringLength = 20;
     
     useEffect(() => {
@@ -34,15 +35,14 @@ export default function SpecitemsPage() {
       }, [respList]);
 
     useEffect(() => {
-        //console.log(limitTraceRef)
       }, [limitTraceRef,renderOutput,respList,compList]);
-      useEffect(() => {
-        console.log(renderOutput)
+
+    useEffect(() => {
         if(renderOutput.length>0){
             setIsCompare(true);
-           
         }
-      }, [renderOutput]);
+    }, [renderOutput]);
+
     const handleChange = event => {
         setMessage(event.target.value);
     };
@@ -57,7 +57,9 @@ export default function SpecitemsPage() {
             });
             const responseText = await response.text();
             console.log(responseText)
-            if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+            if(responseText !== ''){
+                setSpecitemsList(JSON.parse(responseText))
+            }
         }
         else {
             if(type === 'Content') {
@@ -123,6 +125,10 @@ export default function SpecitemsPage() {
         console.log(a.time)
         return 0;
     }
+
+    function historyUrl(shortName){
+        window.location.href = '/specitem/history/' + shortName;
+    }
        
     useEffect(() => {
         async function handleGet(){
@@ -130,9 +136,24 @@ export default function SpecitemsPage() {
                 method: 'GET',
             });
             const responseText = await response.text();
-            console.log(responseText)
+            
+            let specs = JSON.parse(responseText);
+            console.log(specs[1])
+            let s = specs[1]
+
+            for(let i = 0; i < s.traceRefs.length; i++){
+                const response_t = await fetch(SERVER_ADRESS+'get/'+ s.traceRefs[i] , {
+                    method: 'GET',
+                });
+                const responseText_t = await response_t.text();
+                if (responseText_t != ''){
+                    if(!traceRefs.includes(s.traceRefs[i])){
+                        traceRefs.push(s.traceRefs[i]);
+                    }
+                }
+            }
             if(responseText !== ''){
-                setSpecitemsList(JSON.parse(responseText).sort(compare))
+                setSpecitemsList(specs.sort(compare))
             }
         }
         handleGet()
@@ -323,8 +344,11 @@ export default function SpecitemsPage() {
                                                         <table border="2" bordercolor="blue"><tbody>
                                                             {val.traceRefs.map((v,k) => {
                                                                 return (
-                                                                <tr key={k}> {
-                                                                    <Link to={`/specitem/history/${v}`} onClick={useEffect}>{trimLongerStrings(v)}</Link>
+                                                                <tr key={k}> 
+                                                                {!traceRefs.includes(v)?
+                                                                        <td width='10px'>{v}</td>
+                                                                        :
+                                                                        <Link to={`/specitem/history/${v}`} onClick={useEffect}>{trimLongerStrings(v)}</Link>
                                                                 }</tr>)
                                                             })}
                                                         <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
@@ -347,7 +371,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.time.join(" ")) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={historyUrl} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
                                                 </tr>
                                             )
                                     ]

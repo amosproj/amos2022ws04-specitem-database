@@ -1,7 +1,7 @@
 import "./collapseContent.css";
 import { Link } from 'react-router-dom';
 
-export default function CollapseContent({specitemsList, specitem, getPageOfSpecItem, trimLongerStrings}) {
+export default function CollapseContent({specitemsList, specitem, click, trimLongerStrings}) {
 
     return (
         <table className="collapse-content">
@@ -26,7 +26,7 @@ export default function CollapseContent({specitemsList, specitem, getPageOfSpecI
                     {specitem.traceRefs.map((val,key) => {
                     return (
                         <span key={key}> { 
-                                <Link onClick={() => getPageOfSpecItem(val)}>{trimLongerStrings(val)}</Link>
+                                <Link onClick={() => click(val)}>{trimLongerStrings(val)}</Link>
                         } </span>
                     )})
                     }
