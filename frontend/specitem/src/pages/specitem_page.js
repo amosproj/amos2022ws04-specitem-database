@@ -11,7 +11,7 @@ import { SERVER_ADRESS } from '../constants/serverAdress';
 export default function SpecitemPage() {
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
-    const [traceRefs, setTraceRefs] = useState()
+    const [traceRefs, setTraceRefs] = useState([])
 
     useEffect(() => {
         async function handleGet(){
