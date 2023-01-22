@@ -66,6 +66,8 @@ export default function SpecitemsPage() {
                 // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList([JSON.parse(responseText)])
+                } else {
+                    setSpecitemsList([]);
                 }
                 setMaxPage(1);
                 setPage(1);
