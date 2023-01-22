@@ -138,17 +138,18 @@ export default function SpecitemsPage() {
             const responseText = await response.text();
             
             let specs = JSON.parse(responseText);
-            console.log(specs[1])
-            let s = specs[1]
 
-            for(let i = 0; i < s.traceRefs.length; i++){
-                const response_t = await fetch(SERVER_ADRESS+'get/'+ s.traceRefs[i] , {
-                    method: 'GET',
-                });
-                const responseText_t = await response_t.text();
-                if (responseText_t != ''){
-                    if(!traceRefs.includes(s.traceRefs[i])){
-                        traceRefs.push(s.traceRefs[i]);
+            for(let j = 0; j < specs.length; j++){
+                let s = specs[j];
+                for(let i = 0; i < s.traceRefs.length; i++){
+                    const response_t = await fetch(SERVER_ADRESS+'get/'+ s.traceRefs[i] , {
+                        method: 'GET',
+                    });
+                    const responseText_t = await response_t.text();
+                    if (responseText_t != ''){
+                        if(!traceRefs.includes(s.traceRefs[i])){
+                            traceRefs.push(s.traceRefs[i]);
+                        }
                     }
                 }
             }
