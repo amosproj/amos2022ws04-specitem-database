@@ -1,7 +1,7 @@
 import "./collapseContent.css";
 import { Link } from 'react-router-dom';
 
-export default function CollapseContent({specitemsList, specitem, click, trimLongerStrings}) {
+export default function CollapseContent({specitemsList, specitem, click, trimLongerStrings, traceRefs}) {
 
     return (
         <table className="collapse-content">
@@ -25,9 +25,12 @@ export default function CollapseContent({specitemsList, specitem, click, trimLon
                 <td>
                     {specitem.traceRefs.map((val,key) => {
                     return (
-                        <span key={key}> { 
+                        <span key={key}> 
+                        {!traceRefs.includes(val)?
+                                <td width='10px'>{val}</td>
+                                :
                                 <Link onClick={() => click(val)}>{trimLongerStrings(val)}</Link>
-                        } </span>
+                        }</span>
                     )})
                     }
                 </td>

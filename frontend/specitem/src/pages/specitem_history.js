@@ -371,7 +371,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.time.join(" ")) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={historyUrl} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={historyUrl} trimLongerStrings={trimLongerStrings} traceRefs={traceRefs}></CollapseContent></td>
                                                 </tr>
                                             )
                                     ]
