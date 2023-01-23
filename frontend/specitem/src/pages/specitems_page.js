@@ -20,6 +20,7 @@ export default function SpecitemsPage() {
     //an array that contains the shortnames of all expanded specitems
     const [isExpanded, setExpanded] = useState([]);
     const [selected, setSelected] = useState('');
+    const [traceRefs, setTraceRefs] = useState([])
     const maxStringLength = 20;
     const maxItemsPerPage = 50;
 
@@ -134,15 +135,37 @@ export default function SpecitemsPage() {
             method: 'GET',
         });
         const responseText = await response.text();
-        if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+        if(responseText !== ''){
+            let specs = JSON.parse(responseText);
+            console.log(specs)
+            for(let i = 0; i < specs.length; i++){
+                let s = specs[i];
+                for(let j = 0; j < s.traceRefs.length; j++){
+                    let tr = s.traceRefs[j];
+                    if(!traceRefs.includes(tr)){
+                        const response_t = await fetch(SERVER_ADRESS+'get/'+ tr , {
+                            method: 'GET',
+                        });
+                        const responseText_t = await response_t.text();
+                        if (responseText_t != ''){    
+                            traceRefs.push(tr);
+                        }
+                    }
+                }
+            }
+
+            setSpecitemsList(specs);
+        }
         setPage(page);
         await getMaxPage();
-
+        
         let curr = document.getElementById(selected);
-        window.scrollTo({
-            top:curr.offsetTop,
-            behavior:"smooth"
-        });
+        if(curr != null){
+            window.scrollTo({
+                top:curr.offsetTop,
+                behavior:"smooth"
+            });
+        }
     }
 
     async function getPageOfSpecItem(shortName){
@@ -156,21 +179,15 @@ export default function SpecitemsPage() {
         }else{
             const responseText = await response.text();
             setSelected(shortName);
-            setPage(parseInt(responseText));  
-        let curr = document.getElementById(shortName);
-        window.scrollTo({
-            top:curr.offsetTop,
-            behavior:"smooth"
-        });
+            setPage(parseInt(responseText));
+            let curr = document.getElementById(shortName);
+            if (curr != null){
+                window.scrollTo({
+                    top:curr.offsetTop,
+                    behavior:"smooth"
+                });
+            }
         }
-    }
-
-    async function specItemExists(shortName){
-        const response = await fetch(SERVER_ADRESS + 'get/' + shortName , {
-            method: 'GET',
-        })
-        const responseText = await response.text();
-        return responseText;
     }
 
     useEffect(() => {
@@ -284,9 +301,9 @@ export default function SpecitemsPage() {
                                                     <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'):
                                                         <table border="2"><tbody>
                                                             {val.traceRefs.map((val,key) => {
-                                                                return (
+                                                                return (      
                                                                     <tr key={key}>
-                                                                    {console.log(specItemExists(val)) && specItemExists(val) === ''?
+                                                                    {!traceRefs.includes(val)?
                                                                         <td width='10px'>{trimLongerStrings(val)}</td>
                                                                         :
                                                                         <Link onClick={() => getPageOfSpecItem(val)}>{trimLongerStrings(val)}</Link>
@@ -312,7 +329,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.shortName) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={getPageOfSpecItem} trimLongerStrings={trimLongerStrings}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={getPageOfSpecItem} trimLongerStrings={trimLongerStrings} traceRefs={traceRefs}></CollapseContent></td>
                                                 </tr>
                                             )
                                         ]
@@ -324,7 +341,7 @@ export default function SpecitemsPage() {
                     }
                     {specitemsList.length === 0 &&
                         <div className='App-tb' style={{marginTop:'200px'}}> 
-                            No Items Found
+                            Loading...
                         </div>
                     }
                     <div className='App-tb' style={{marginTop: '15px'}}>
