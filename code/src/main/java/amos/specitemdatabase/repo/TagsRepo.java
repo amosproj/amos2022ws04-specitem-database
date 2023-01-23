@@ -22,15 +22,15 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE TagInfo t SET t.tags = :tags " +
-        "WHERE t.shortName = :specItemShortName" +
-        " AND t.commitTime = :specItemCommitTime")
-    void updateTags(@Param("specItemShortName") final String specItemShortName,
-                    @Param("specItemCommitTime") final LocalDateTime specItemCommitTime,
+        "WHERE t.shortName = :shortName" +
+        " AND t.commitTime = :commitTime")
+    void updateTags(@Param("shortName") final String shortName,
+                    @Param("commitTime") final LocalDateTime commitTime,
                     @Param("tags") final String tags);
 
     @Query(value = "SELECT t FROM TagInfo t " +
-        "WHERE t.commitTime = :specItemCommitTime " +
-        "AND t.shortName = :specItemShortName")
-    TagInfo getByShortNameCommitTime(@Param("specItemShortName") final String specItemShortName,
-                                     @Param("specItemCommitTime") final LocalDateTime specItemCommitTime);
+        "WHERE t.commitTime = :commitTime " +
+        "AND t.shortName = :shortName")
+    TagInfo getByShortNameCommitTime(@Param("shortName") final String shortName,
+                                     @Param("commitTime") final LocalDateTime commitTime);
 }

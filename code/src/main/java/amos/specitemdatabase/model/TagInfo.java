@@ -28,8 +28,9 @@ public class TagInfo {
     // Having optimistic locking, the DB will mark the version when it reads the entity,
     // and when it writes the updated entity back, it will check if the version has been modified.
     // If yes, an exception will be thrown.
+    @Column(name = "version", columnDefinition = "integer DEFAULT 0", nullable = false)
     @Version
-    private Long version;
+    private Long version = 0L;
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 

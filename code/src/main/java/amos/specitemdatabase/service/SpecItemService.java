@@ -200,7 +200,7 @@ public class SpecItemService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
         try {
             // Step 1: combine previous and new tags
