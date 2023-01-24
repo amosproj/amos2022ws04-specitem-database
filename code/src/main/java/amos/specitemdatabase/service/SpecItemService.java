@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import org.json.JSONException;
@@ -216,9 +217,9 @@ public class SpecItemService {
         int minute = Integer.parseInt(dateParts[4]);
         int second = Integer.parseInt(dateParts[5]);
         //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-        LocalDateTime dateTime = LocalDateTime.now();
+        LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);;;
         //Create the commit from Json object and setCommit for specitem builder
-        Commit c = new Commit(json.getString("commitHash") + "deneme1",json.getString("commitMsg") + "deneme1",dateTime,json.getString("commitAuthor")+ "deneme1");
+        Commit c = new Commit(json.getString("commitHash") + "tag"+ dateTime.toString(),json.getString("commitMsg") + "tag"+ dateTime.toString()+ "tag"+ dateTime.toString(),dateTime,json.getString("commitAuthor")+ "tag"+ dateTime.toString());
         sb.setCommit(c);
 
         //create specitem
