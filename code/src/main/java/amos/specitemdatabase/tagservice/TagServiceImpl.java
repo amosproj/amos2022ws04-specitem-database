@@ -39,10 +39,4 @@ public class TagServiceImpl implements TagService {
     public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
         return this.tagsRepo.getByShortNameCommitTime(specItemShortName, commitTime);
     }
-
-    @Override
-    public void updateVersion(final String specItemShortName, final LocalDateTime specItemCommitTime,
-                              final long version) {
-        this.tagsRepo.updateVersion(specItemShortName, specItemCommitTime, version);
-    }
 }

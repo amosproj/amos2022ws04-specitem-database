@@ -32,7 +32,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
@@ -210,7 +209,6 @@ public class SpecItemService {
             // Step 2: save tags
             log.info("Saving the tags...");
             this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
-            //this.tagService.updateVersion(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), 2L);
             // Step 3: now, get the tags and create a new version of a spec item
             final String tagsAfterTableUpdate = this.tagService.fetchTags(taggedSpecItem);
             log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
@@ -221,7 +219,7 @@ public class SpecItemService {
             log.info("Creating a new version of the SpecItem with the ID: {} with the new tags: {}",
                 newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
             this.specItemRepo.save(newVersionOfSpecItem);
-        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
+        } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
             this.completeTagAdditionProcess(taggedSpecItem, newTags);
@@ -229,16 +227,13 @@ public class SpecItemService {
     }
 
     private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
-        // Fetch current tags
-        // Right now we're fetching the Latest for the same ID - OK
-        final String previousTags = this.tagService.getTagsBySpecItemIdAndCommitTime(
-            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime()).getTags();
-        // TODO: check null
-        log.info("The already existing tags for ID={} CommitTime={} are {}",
-            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
-        // Now save previous + new for the same ID and the same time
+        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
+            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
         String allTags;
-        if (previousTags != null) {
+        if (previousTagInfo != null) {
+            final String previousTags = previousTagInfo.getTags();
+            log.info("The already existing tags for ID={} CommitTime={} are {}",
+                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
             if (previousTags.isEmpty()) {
                 allTags = String.join(",", newTags);
             } else {

@@ -20,8 +20,6 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
                     "AND t.shortName = :shortName")
     List<TagInfo> getLatestTagInfo(@Param("shortName") String shortName);
 
-
-
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE TagInfo t SET t.tags = :tags " +
         "WHERE t.shortName = :shortName" +
@@ -29,6 +27,7 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
     void updateTags(@Param("shortName") final String shortName,
                     @Param("commitTime") final LocalDateTime commitTime,
                     @Param("tags") final String tags);
+
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     @Query(value = "SELECT t FROM TagInfo t " +
         "WHERE t.commitTime = :commitTime " +
@@ -36,10 +35,4 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
     TagInfo getByShortNameCommitTime(@Param("shortName") final String shortName,
                                      @Param("commitTime") final LocalDateTime commitTime);
 
-    @Modifying
-    @Query(value = "UPDATE TagInfo t SET t.version = :version" +
-        " WHERE t.shortName = :shortName AND t.commitTime = :commitTime")
-    void updateVersion(@Param("shortName") final String shortName,
-                    @Param("commitTime") final LocalDateTime commitTime,
-                       @Param("version") final long version);
 }
