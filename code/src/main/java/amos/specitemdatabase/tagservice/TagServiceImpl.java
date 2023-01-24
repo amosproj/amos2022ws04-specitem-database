@@ -3,6 +3,7 @@ package amos.specitemdatabase.tagservice;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,15 @@ public class TagServiceImpl implements TagService {
         } else {
             return "";
         }
+    }
+
+    @Override
+    public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
+        this.tagsRepo.updateTags(specItemShortName, specItemCommitTime, tags);
+    }
+
+    @Override
+    public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
+        return this.tagsRepo.getByShortNameCommitTime(specItemShortName, commitTime);
     }
 }
