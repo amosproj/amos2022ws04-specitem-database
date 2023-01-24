@@ -5,7 +5,6 @@ import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemBuilder;
-import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import java.net.URLDecoder;
@@ -25,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,16 +33,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
-import java.nio.file.FileSystemException;
-
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 @RestController
 @CrossOrigin("*")
 @Slf4j
@@ -50,8 +40,7 @@ public class Controller {
 
     private final FileStorageService fileStorageService;
     private final SpecItemService service;
-    @Autowired
-    private SpecItemRepo specItemRepo;
+
     @Autowired
     public Controller(SpecItemService service, FileStorageService fileStorageService) {
         this.service = service;
@@ -63,29 +52,27 @@ public class Controller {
             System.err.println(e.getMessage());
     }
 
-    private <T> ResponseEntity<T> handleStatusCode400(Exception e, Class<T> type) {
+    private <T> ResponseEntity<T> handleStatusCode400(Exception e) {
         printErrorMessage(e);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    private <T> ResponseEntity<T> handleStatusCode404(Exception e, Class<T> type) {
+    private <T> ResponseEntity<T> handleStatusCode404(Exception e) {
         printErrorMessage(e);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    private <T> ResponseEntity<T> handleStatusCode500(Exception e, Class<T> type) {
+    private <T> ResponseEntity<T> handleStatusCode500(Exception e) {
         printErrorMessage(e);
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<SpecItem> returnSpecItemAndStatusCode(Optional<SpecItem> specItem) {
         try {
-            if (specItem.isPresent()) {
-                return new ResponseEntity<>(specItem.get(), HttpStatus.OK);
-            }
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return specItem.map(item -> new ResponseEntity<>(item, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.OK));
         } catch (Exception e) {
-            return handleStatusCode500(e, SpecItem.class);
+            return handleStatusCode500(e);
         }
     }
 
@@ -96,9 +83,9 @@ public class Controller {
                 List<SpecItem> list = listOfSpecItems.get();
                 return new ResponseEntity<>(listOfSpecItems.get(), HttpStatus.OK);
             }
-            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
+            return handleStatusCode404(null);
         } catch (Exception e) {
-            return handleStatusCode404(null, (Class<List<SpecItem>>) (Class<?>) List.class);
+            return handleStatusCode404(null);
         }
     }
 
@@ -108,10 +95,7 @@ public class Controller {
             urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             urlWithSpecialCharacters = urlWithSpecialCharacters.replaceAll("\\+", "%2B");
 
-            decodedURL = URLDecoder.decode(urlWithSpecialCharacters, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            System.err.println(e.getMessage());
-			return decodedURL;
+            decodedURL = URLDecoder.decode(urlWithSpecialCharacters, StandardCharsets.UTF_8);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -148,7 +132,7 @@ public class Controller {
         final JSONObject json = new JSONObject(specItemAsJsonString);
         // create Specitem Builder and fill it with attributes
         final SpecItemBuilder sb = new SpecItemBuilder();
-        sb.fromStringRepresentation(json.getString("shortname"),json.getString("category"),
+        sb.fromStringRepresentation(json.getString("fingerprint"), json.getString("shortname"),json.getString("category"),
             json.getString("lcStatus"),json.getString("longname"),json.getString("content"));
         sb.setTraceRefs(json.getString("traceref").substring(1,json.getString("traceref").length()-1));
 
@@ -186,10 +170,10 @@ public class Controller {
             return new ResponseEntity<>(HttpStatus.CREATED);
 
         } catch (FileSystemException e) {
-            return handleStatusCode500(e, String.class);
+            return handleStatusCode500(e);
             
         } catch (Exception e) {
-            return handleStatusCode400(e, String.class);
+            return handleStatusCode400(e);
         }
     }
 
@@ -204,7 +188,7 @@ public class Controller {
             service.deleteSpecItemById(specItemId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            return handleStatusCode400(e, String.class);
+            return handleStatusCode400(e);
         }
     }
 
@@ -228,7 +212,7 @@ public class Controller {
     }
 
     @GetMapping("/get/cont:{content}")
-    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) throws UnsupportedEncodingException {
+    public ResponseEntity<List<SpecItem>> getSpecItemByContent(@PathVariable(value = "content") String content, @RequestParam(defaultValue = "1") int page) {
 		content = getDecodedURLWithoutSpecialCharacters(content);
         Optional<List<SpecItem>> listOfSpecItems = Optional.ofNullable(service.getListOfSpecItemsByContent(content, page));
         return returnListOfSpecItemAndStatusCode(listOfSpecItems);

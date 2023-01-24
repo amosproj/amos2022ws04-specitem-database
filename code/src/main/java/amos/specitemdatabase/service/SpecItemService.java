@@ -3,6 +3,7 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
+import amos.specitemdatabase.model.Commit;
 import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.DocumentEntity;
@@ -21,19 +22,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import java.util.*;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -116,7 +109,7 @@ public class SpecItemService {
         LocalDateTime timeOfSpecItemInsertedViaDocument = documentRepo.getLocalDateTimeForSpecItemInsertedViaDocument(specItemId);
 
         try {
-            if (latestSpecItem.getTime().compareTo(timeOfSpecItemInsertedViaDocument) == 0) {
+            if (latestSpecItem.getCommitTime().isEqual(timeOfSpecItemInsertedViaDocument)) {
                 BigInteger idOfDocument = documentRepo.getDocumentEntityIDBySpecItem(specItemId, timeOfSpecItemInsertedViaDocument);
                 System.err.println("Where is the problem?");
                 this.deleteSpecItemByIdInDocument(specItemId, idOfDocument);
@@ -161,10 +154,10 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
         System.out.println(specItemRepo.findAll().size());
     }
-    public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) throws IOException{
+    public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
 
         //addTags(sp);
-        final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags));
+        final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
         sp.get(0).setTagInfo(tagInfo);
         DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
         documentRepo.save(documentEntity);
