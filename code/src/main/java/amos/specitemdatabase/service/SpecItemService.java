@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -193,6 +195,9 @@ public class SpecItemService {
 
     @Transactional
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
+        final LocalDateTime dateTime = LocalDateTime.now();
+        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
+
         try {
             // Step 1: combine previous and new tags
             final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
@@ -206,12 +211,18 @@ public class SpecItemService {
             final String tagsAfterTableUpdate = this.tagService.fetchTags(taggedSpecItem);
             log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+            newVersionOfSpecItem.setCommit(c);
             final TagInfo tagInfo = this.createTagInfo(
-                newVersionOfSpecItem, String.join(", ", tagsAfterTableUpdate), true);
+                newVersionOfSpecItem, String.join(", ", allTags), true);
             newVersionOfSpecItem.setTagInfo(tagInfo);
             log.info("Creating a new version of the SpecItem with the ID: {} with the new tags: {}",
                 newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
-            this.specItemRepo.save(newVersionOfSpecItem);
+
+
+
+            DocumentEntity documentEntity = new DocumentEntity("filename", Arrays.asList(newVersionOfSpecItem), c);
+            documentRepo.save(documentEntity);
+            //this.specItemRepo.save(newVersionOfSpecItem);
         } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
