@@ -365,12 +365,12 @@ export default function SpecitemsPage() {
                                                 <td className="ContentCell">{trimLongerStrings(val.content)}</td>
                                                 <td className="TagCell">{val.tagInfo && val.tagInfo.tags? val.tagInfo.tags: ''}</td>
                                                 <td>
-                                                    <button onClick={() => toggleExpanded(val.time.join(" "))}>
-                                                        {isExpanded.includes(val.time.join(" "))? "Hide" : "Show"}
+                                                    <button onClick={() => toggleExpanded(val.commitTime.join(" "))}>
+                                                        {isExpanded.includes(val.commitTime.join(" "))? "Hide" : "Show"}
                                                     </button>
                                                 </td>
                                             </tr>,
-                                            isExpanded.includes(val.time.join(" ")) && (
+                                            isExpanded.includes(val.commitTime.join(" ")) && (
                                                 <tr>
                                                     <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={historyUrl} trimLongerStrings={trimLongerStrings} traceRefs={traceRefs}></CollapseContent></td>
                                                 </tr>
