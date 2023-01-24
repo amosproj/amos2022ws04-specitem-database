@@ -219,7 +219,7 @@ public class SpecItemService {
         //LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);;;
         //Create the commit from Json object and setCommit for specitem builder
-        Commit c = new Commit(json.getString("commitHash") + "tag"+ dateTime.toString(),json.getString("commitMsg") + "tag"+ dateTime.toString()+ "tag"+ dateTime.toString(),dateTime,json.getString("commitAuthor")+ "tag"+ dateTime.toString());
+        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
         sb.setCommit(c);
 
         //create specitem
