@@ -11,4 +11,6 @@ public interface TagService {
     void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags);
 
     TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemId, final LocalDateTime commitTime);
+
+    void updateVersion(final String specItemShortName, final LocalDateTime specItemCommitTime, final long version);
 }

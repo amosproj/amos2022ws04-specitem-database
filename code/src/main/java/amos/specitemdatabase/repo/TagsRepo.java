@@ -3,7 +3,9 @@ package amos.specitemdatabase.repo;
 import amos.specitemdatabase.model.TagInfo;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,10 +29,17 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
     void updateTags(@Param("shortName") final String shortName,
                     @Param("commitTime") final LocalDateTime commitTime,
                     @Param("tags") final String tags);
-
+    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     @Query(value = "SELECT t FROM TagInfo t " +
         "WHERE t.commitTime = :commitTime " +
         "AND t.shortName = :shortName")
     TagInfo getByShortNameCommitTime(@Param("shortName") final String shortName,
                                      @Param("commitTime") final LocalDateTime commitTime);
+
+    @Modifying
+    @Query(value = "UPDATE TagInfo t SET t.version = :version" +
+        " WHERE t.shortName = :shortName AND t.commitTime = :commitTime")
+    void updateVersion(@Param("shortName") final String shortName,
+                    @Param("commitTime") final LocalDateTime commitTime,
+                       @Param("version") final long version);
 }

@@ -1,5 +1,7 @@
 package amos.specitemdatabase.model;
 
+import static org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -12,9 +14,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
 
 @IdClass(SpecItemId.class)
 @Entity
+@Cache(usage = READ_WRITE)
 @Getter
 @Setter
 public class TagInfo {
