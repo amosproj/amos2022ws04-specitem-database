@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -144,10 +145,9 @@ public class Controller {
         int hour = Integer.parseInt(dateParts[3]);
         int minute = Integer.parseInt(dateParts[4]);
         int second = Integer.parseInt(dateParts[5]);
-        final LocalDateTime dateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+        final LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
-        final Commit c = new Commit(json.getString("commitHash"),json.getString("commitMsg"),
-            dateTime,json.getString("commitAuthor"));
+        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
         sb.setCommit(c);
 
         final SpecItem specItem = new SpecItem(sb);
