@@ -11,16 +11,33 @@ import { SERVER_ADRESS } from '../constants/serverAdress';
 export default function SpecitemPage() {
     const { id } = useParams()
     const [specitem, setSpecitem] = useState()
+    const [traceRefs, setTraceRefs] = useState([])
+
     useEffect(() => {
         async function handleGet(){
             const response = await fetch(SERVER_ADRESS+'get/'+id , {
                 method: 'GET',
             });
             const responseText = await response.text();
-            console.log(responseText)
-            if(responseText !== ''){setSpecitem(JSON.parse(responseText))}
+                
+            if(responseText !== ''){
+                let s = JSON.parse(responseText);
+                
+                let arr = [];
+                for(let i = 0; i < s.traceRefs.length; i++){
+                    const response_t = await fetch(SERVER_ADRESS+'get/'+ s.traceRefs[i] , {
+                        method: 'GET',
+                    });
+                    const responseText_t = await response_t.text();
+                    if (responseText_t != ''){
+                        arr.push(s.traceRefs[i]);
+                    }
+                }
+                setTraceRefs(arr);
+                setSpecitem(s);
+            }
         }
-        console.log("Sending request to " + SERVER_ADRESS+'get/'+id)
+
         handleGet()
       }, []);
 
@@ -108,10 +125,16 @@ export default function SpecitemPage() {
                 <div>
                     useInstead: {specitem.useInstead}
                 </div>
-                    traceRefs:
-                    {
-                        ' ' + specitem.traceRefs.join(", ")
-                    }
+                TraceRefs: {specitem.traceRefs.map((val,key) => {
+                    return (
+                        <div>
+                            {!traceRefs.includes(val)?
+                            <td width='10px'>{val}</td>
+                            :
+                            <Link to={`/specitem/${val}`} onClick={useEffect}>{val}</Link>
+                    }</div>
+                    )
+                })}
                 <div>
                     Longname: {specitem.longName}
                 </div>
@@ -139,7 +162,7 @@ export default function SpecitemPage() {
                         </tr>
                     </thead>
                 <tbody>
-                {specitem.tagInfo.tags && specitem.tagInfo.tags.split(",").map(k =>
+                {specitem.tagInfo && specitem.tagInfo.tags && specitem.tagInfo.tags.split(",").map(k =>
                     <tr id={k}>
                         <td>
                             <div>{k.split(":")[0]}</div>  

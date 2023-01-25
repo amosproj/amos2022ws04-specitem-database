@@ -19,11 +19,12 @@ export default function SpecitemsPage() {
     const {exportList, setExportList} = useContext(Context);
     //an array that contains the shortnames of all expanded specitems
     const [isExpanded, setExpanded] = useState([]);
+    const [selected, setSelected] = useState('');
+    const [traceRefs, setTraceRefs] = useState([])
     const maxStringLength = 20;
     const maxItemsPerPage = 50;
 
     useEffect(() => {
-        console.log(limitTraceRef)
       }, [limitTraceRef]);
 
     useEffect(() => {
@@ -65,6 +66,8 @@ export default function SpecitemsPage() {
                 // console.log(specitemsList)
                 if (responseText !== '') {
                     setSpecitemsList([JSON.parse(responseText)])
+                } else {
+                    setSpecitemsList([]);
                 }
                 setMaxPage(1);
                 setPage(1);
@@ -134,10 +137,59 @@ export default function SpecitemsPage() {
             method: 'GET',
         });
         const responseText = await response.text();
-        console.log(responseText)
-        if(responseText !== ''){setSpecitemsList(JSON.parse(responseText))}
+        if(responseText !== ''){
+            let specs = JSON.parse(responseText);
+            console.log(specs)
+            for(let i = 0; i < specs.length; i++){
+                let s = specs[i];
+                for(let j = 0; j < s.traceRefs.length; j++){
+                    let tr = s.traceRefs[j];
+                    if(!traceRefs.includes(tr)){
+                        const response_t = await fetch(SERVER_ADRESS+'get/'+ tr , {
+                            method: 'GET',
+                        });
+                        const responseText_t = await response_t.text();
+                        if (responseText_t != ''){    
+                            traceRefs.push(tr);
+                        }
+                    }
+                }
+            }
+
+            setSpecitemsList(specs);
+        }
         setPage(page);
         await getMaxPage();
+        
+        let curr = document.getElementById(selected);
+        if(curr != null){
+            window.scrollTo({
+                top:curr.offsetTop,
+                behavior:"smooth"
+            });
+        }
+    }
+
+    async function getPageOfSpecItem(shortName){
+        const response = await fetch(SERVER_ADRESS+'get/pageNumber/'+ shortName, {
+            method: 'GET',
+        });
+        const responseCode = await response.status;
+        if(responseCode == "404"){     
+            toast.error("SpecItem: " + shortName + " does not exist.");
+            return;
+        }else{
+            const responseText = await response.text();
+            setSelected(shortName);
+            setPage(parseInt(responseText));
+            let curr = document.getElementById(shortName);
+            if (curr != null){
+                window.scrollTo({
+                    top:curr.offsetTop,
+                    behavior:"smooth"
+                });
+            }
+        }
     }
 
     useEffect(() => {
@@ -237,8 +289,8 @@ export default function SpecitemsPage() {
 
                                     {specitemsList.map((val,key) => {
                                         return [
-                                            <tr key={key}>
-                                                <td className="ShortNameCell">
+                                            <tr id={val.shortName} key={key} style={(val.shortName == selected)? {backgroundColor: "#68b06d"} : {}}>    
+                                                <td className="ShortNameCell" >
                                                     <Link to={"/specitem/" + val.shortName}>
                                                         <href>{trimLongerStrings(val.shortName)}</href>
                                                     </Link>
@@ -251,15 +303,16 @@ export default function SpecitemsPage() {
                                                     <div>{(limitTraceRef != val.shortName? trimLongerStrings(val.traceRefs[0]+'...'):
                                                         <table border="2"><tbody>
                                                             {val.traceRefs.map((val,key) => {
-                                                                return (
-                                                                    <tr key={key}> { !specitemsList.map(a => a.shortName).includes(val)?
+                                                                return (      
+                                                                    <tr key={key}>
+                                                                    {!traceRefs.includes(val)?
                                                                         <td width='10px'>{trimLongerStrings(val)}</td>
                                                                         :
-                                                                        <Link to={`/specitem/${val}`}>{trimLongerStrings(val)}</Link>
+                                                                        <Link onClick={() => getPageOfSpecItem(val)}>{trimLongerStrings(val)}</Link>
                                                                     }</tr>
                                                                 )
                                                             })}
-                                                            <button onClick={(val)=>{setLimitTraceRef(''); console.log(limitTraceRef)}}>Close</button>
+                                                            <button onClick={(val)=>{setLimitTraceRef('');}}>Close</button>
                                                         </tbody></table>)}
                                                         <div></div>
                                                         {limitTraceRef != val.shortName && <button onClick={()=>{setLimitTraceRef(val.shortName)}}>Expand</button>}
@@ -278,7 +331,7 @@ export default function SpecitemsPage() {
                                             </tr>,
                                             isExpanded.includes(val.shortName) && (
                                                 <tr>
-                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList}></CollapseContent></td>
+                                                    <td colSpan="20"><CollapseContent specitem={val} specitemsList={specitemsList} click={getPageOfSpecItem} trimLongerStrings={trimLongerStrings} traceRefs={traceRefs}></CollapseContent></td>
                                                 </tr>
                                             )
                                         ]
@@ -290,7 +343,7 @@ export default function SpecitemsPage() {
                     }
                     {specitemsList.length === 0 &&
                         <div className='App-tb' style={{marginTop:'200px'}}> 
-                            No Items Found
+                            Loading...
                         </div>
                     }
                     <div className='App-tb' style={{marginTop: '15px'}}>

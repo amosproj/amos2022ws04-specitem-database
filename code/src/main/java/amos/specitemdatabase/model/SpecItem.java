@@ -31,7 +31,8 @@ public class SpecItem {
     private String shortName;
     @Column(columnDefinition = "TIMESTAMP")
     @Id
-    private LocalDateTime time;
+    private LocalDateTime commitTime;
+    private LocalDateTime creationTime;
     @Enumerated(EnumType.ORDINAL)
     private Category category;
     @Enumerated(EnumType.ORDINAL)
@@ -49,13 +50,17 @@ public class SpecItem {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumns( {
         @JoinColumn(name="short_name", referencedColumnName="short_name"),
-        @JoinColumn(name="time", referencedColumnName="time")
+        @JoinColumn(name="commit_time", referencedColumnName="commit_time")
     } )
     private TagInfo tagInfo;
     @Enumerated(EnumType.ORDINAL)
     private Status status;
 
     public SpecItem(final SpecItemBuilder specItemBuilder) {
+        this(specItemBuilder, specItemBuilder.getCommit().getCommitTime());
+    }
+
+    public SpecItem(final SpecItemBuilder specItemBuilder, final LocalDateTime creationTime) {
         this.fingerprint = specItemBuilder.getFingerprint();
         this.shortName = specItemBuilder.getShortName();
         this.category = specItemBuilder.getCategory();
@@ -65,7 +70,8 @@ public class SpecItem {
         this.longName = specItemBuilder.getLongName();
         this.content = specItemBuilder.getContent();
         this.commit = specItemBuilder.getCommit();
-        this.time = this.commit.getCommitTime();
+        this.commitTime = this.commit.getCommitTime();
+        this.creationTime = creationTime;
         this.status = Status.LATEST;
     }
 
