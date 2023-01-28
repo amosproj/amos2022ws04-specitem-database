@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -91,11 +90,13 @@ public class SpecItemService {
         return listOfSpecItems;
     }
 
+    @Deprecated
     private void deleteSpecItemFromDocument(DocumentEntity documentEntity, SpecItem specItem) {
         documentEntity.getSpecItems().remove(specItem);
         documentRepo.save(documentEntity);
     }
 
+    @Deprecated
     private void deleteLinkBetweenDocumentAndSpecItem(DocumentEntity documentEntity, String specItemID) {
         for (SpecItem specItem : documentEntity.getSpecItems()) {
             if (specItem.getShortName().equals(specItemID)) {
@@ -104,38 +105,64 @@ public class SpecItemService {
         }
     }
 
+    @Deprecated
     @Transactional
     public void deleteSpecItemByIdInDocument(String specItemId, BigInteger documentId) {
         DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentId);
         this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
     }
 
+    private SpecItem newVersionOfDeletedSpecItem(final SpecItem taggedSpecItem) {
+        final SpecItem newVersionOfSpecItem = new SpecItem();
+        newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
+        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
+        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
+        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
+        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        newVersionOfSpecItem.setTraceRefs(new ArrayList<String>(taggedSpecItem.getTraceRefs()));
+        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
+        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
+        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
+        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        newVersionOfSpecItem.setMarkedAsDeleted(true);
+        return newVersionOfSpecItem;
+    }
     @Transactional
-    // public void deleteSpecItemById(String specItemId, String documentID) {
     public void deleteSpecItemById(String specItemId) {
-        SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
-        LocalDateTime timeOfSpecItemInsertedViaDocument = documentRepo.getLocalDateTimeForSpecItemInsertedViaDocument(specItemId);
-
         try {
-            if (latestSpecItem.getCommitTime().isEqual(timeOfSpecItemInsertedViaDocument)) {
-                BigInteger idOfDocument = documentRepo.getDocumentEntityIDBySpecItem(specItemId, timeOfSpecItemInsertedViaDocument);
-                System.err.println("Where is the problem?");
-                this.deleteSpecItemByIdInDocument(specItemId, idOfDocument);
-            } else {
-                specItemRepo.deleteLatestSpecItemByID(specItemId);
+            SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
+            SpecItem specItemMarkedAsDeleted = newVersionOfDeletedSpecItem(latestSpecItem);
+
+            final LocalDateTime dateTime = LocalDateTime.now();
+            Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
+            specItemMarkedAsDeleted.setCommit(c);
+            final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
+                latestSpecItem.getShortName(), latestSpecItem.getCommitTime());
+            String allTags = "";
+            if (previousTagInfo != null) {
+                allTags = previousTagInfo.getTags();
             }
-        } catch (NullPointerException e) {
-            System.out.println("No match found for given ID.");
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.err.println(e.getClass());
+            final TagInfo tagInfo = this.createTagInfo(
+                specItemMarkedAsDeleted, String.join(", ", allTags), true);
+            specItemMarkedAsDeleted.setTagInfo(tagInfo);
+            DocumentEntity documentEntity = new DocumentEntity("filename", Arrays.asList(specItemMarkedAsDeleted), c);
+            documentRepo.save(documentEntity);
+        } catch (Exception lockingFailureException) {
+            System.err.println("Locking failure!");
         }
+        // LocalDateTime timeOfSpecItemInsertedViaDocument = documentRepo.getLocalDateTimeForSpecItemInsertedViaDocument(specItemId);
 
         // try {
-        //     specItemRepo.deleteLatestSpecItemByID(specItemId);
-        // } catch (DataIntegrityViolationException e) {
-        //     // specItemRepo.updateDocumentToPointToLatestSpecItem(specItemId, specItem.getTime());
-        //     // documentRepo.deleteSpecItemByIDFromDocument(specItemId);
+        //     if (latestSpecItem.getCommitTime().isEqual(timeOfSpecItemInsertedViaDocument)) {
+        //         BigInteger idOfDocument = documentRepo.getDocumentEntityIDBySpecItem(specItemId, timeOfSpecItemInsertedViaDocument);
+        //         System.err.println("Where is the problem?");
+        //         this.deleteSpecItemByIdInDocument(specItemId, idOfDocument);
+        //     } else {
+        //         specItemRepo.deleteLatestSpecItemByID(specItemId);
+        //     }
+        // } catch (NullPointerException e) {
+        //     System.err.println("No match found for given ID.");
         // } catch (Exception e) {
         //     System.err.println(e.getMessage());
         //     System.err.println(e.getClass());
@@ -268,6 +295,7 @@ public class SpecItemService {
         newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
         newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
         newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        newVersionOfSpecItem.setMarkedAsDeleted(false);
         return newVersionOfSpecItem;
     }
 
@@ -320,7 +348,7 @@ public class SpecItemService {
             specItem.setLongName("longName");
             specItem.setUseInstead("useInstead");
             specItem.setTraceRefs(new LinkedList<>());
-            specItem.setTime(commit.getCommitTime());
+            specItem.setCommitTime(commit.getCommitTime());
             specItem.setCategory(Category.CATEGORY1);
             specItem.setLcStatus(LcStatus.STATUS1);
 
@@ -332,7 +360,7 @@ public class SpecItemService {
             specItem2.setLongName("longName");
             specItem2.setUseInstead("useInstead");
             specItem2.setTraceRefs(new LinkedList<>());
-            specItem2.setTime(commit2.getCommitTime());
+            specItem2.setCommitTime(commit2.getCommitTime());
             specItem2.setCategory(Category.CATEGORY1);
             specItem2.setLcStatus(LcStatus.STATUS1);
 
@@ -344,7 +372,7 @@ public class SpecItemService {
             specItem3.setLongName("longName");
             specItem3.setUseInstead("useInstead");
             specItem3.setTraceRefs(new LinkedList<>());
-            specItem3.setTime(commit.getCommitTime());
+            specItem3.setCommitTime(commit.getCommitTime());
             specItem3.setCategory(Category.CATEGORY1);
             specItem3.setLcStatus(LcStatus.STATUS1);
 
@@ -360,8 +388,8 @@ public class SpecItemService {
             documentRepo.save(documentEntity2);
             
             
-            List<String> tags = List.of("Key1:Value1","Key2:Value2");
-            specItems.forEach(specs -> saveTags(specs, tags));
+            // List<String> tags = List.of("Key1:Value1","Key2:Value2");
+            // specItems.forEach(specs -> saveTags(specs, tags));
 
             //this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
         };
