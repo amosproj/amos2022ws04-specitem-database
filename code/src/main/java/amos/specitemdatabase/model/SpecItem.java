@@ -33,6 +33,8 @@ public class SpecItem {
     @Id
     private LocalDateTime commitTime;
     private LocalDateTime creationTime;
+    @Column(columnDefinition = "boolean")
+    private boolean markedAsDeleted;
     @Enumerated(EnumType.ORDINAL)
     private Category category;
     @Enumerated(EnumType.ORDINAL)
@@ -73,6 +75,7 @@ public class SpecItem {
         this.commitTime = this.commit.getCommitTime();
         this.creationTime = creationTime;
         this.status = Status.LATEST;
+        this.markedAsDeleted = false;
     }
 
     public SpecItem() {
