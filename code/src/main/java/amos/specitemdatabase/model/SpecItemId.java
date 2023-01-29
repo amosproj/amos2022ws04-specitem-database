@@ -7,11 +7,11 @@ import java.util.Objects;
 public class SpecItemId implements Serializable {
 
     private String shortName;
-    private LocalDateTime time;
+    private LocalDateTime commitTime;
 
-    public SpecItemId(final String shortName, final LocalDateTime time) {
+    public SpecItemId(final String shortName, final LocalDateTime commitTime) {
         this.shortName = shortName;
-        this.time = time;
+        this.commitTime = commitTime;
     }
 
     public SpecItemId() {
@@ -26,11 +26,11 @@ public class SpecItemId implements Serializable {
             return false;
         }
         final SpecItemId that = (SpecItemId) o;
-        return shortName.equals(that.shortName) && time.equals(that.time);
+        return shortName.equals(that.shortName) && commitTime.equals(that.commitTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(shortName, time);
+        return Objects.hash(shortName, commitTime);
     }
 }

@@ -1,13 +1,16 @@
 package amos.specitemdatabase.service;
 
-import amos.specitemdatabase.model.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import amos.specitemdatabase.model.Category;
+import amos.specitemdatabase.model.CompareResult;
+import amos.specitemdatabase.model.CompareResultMarkup;
+import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.TagInfo;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class SpecitemsComparatorTest {
 
@@ -18,8 +21,8 @@ class SpecitemsComparatorTest {
         s1.setShortName("ID1");
         s2.setShortName("ID1");
 
-        s1.setTime(LocalDateTime.of(2020, Month.AUGUST, 13, 0, 0));
-        s2.setTime(LocalDateTime.now());
+        s1.setCommitTime(LocalDateTime.of(2020, Month.AUGUST, 13, 0, 0));
+        s2.setCommitTime(LocalDateTime.now());
 
         s1.setLongName("Specitem1");
         s2.setLongName("Specitem1");
@@ -51,8 +54,8 @@ class SpecitemsComparatorTest {
         s1.setShortName("ID1");
         s2.setShortName("ID1");
 
-        s1.setTime(LocalDateTime.of(2020, Month.AUGUST, 13, 0, 0));
-        s2.setTime(LocalDateTime.now());
+        s1.setCommitTime(LocalDateTime.of(2020, Month.AUGUST, 13, 0, 0));
+        s2.setCommitTime(LocalDateTime.now());
 
         s1.setLongName("Specitem1");
         s2.setLongName("Specitem1");
