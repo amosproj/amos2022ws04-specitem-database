@@ -54,6 +54,7 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
     )
     SpecItem getLatestSpecItemByID(@Param("short_name") String ID);
 
+    @Deprecated
     @Modifying
     @Query(
         value = "UPDATE document_entity_spec_items " +

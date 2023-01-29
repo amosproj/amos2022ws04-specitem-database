@@ -24,6 +24,8 @@ public class SpecItemBuilder {
 
     private Commit commit;
 
+    private boolean markedAsDeleted;
+
     public SpecItemBuilder fromStringRepresentation(final String fingerprint, final String shortName,
                                                     final String category, final String lcStatus,
                                                     final String longName, final String content) {
