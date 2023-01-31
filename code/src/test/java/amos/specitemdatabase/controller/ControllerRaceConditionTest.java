@@ -1,24 +1,38 @@
 package amos.specitemdatabase.controller;
 
+import amos.specitemdatabase.model.Category;
+import amos.specitemdatabase.model.LcStatus;
+import amos.specitemdatabase.model.SpecItem;
+import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.SpecItemRepo;
+import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -55,8 +69,7 @@ public class ControllerRaceConditionTest {
                 "TraceRefs: ID2, ID3, ID4\n" +
                 "LongName: bla bla bla\n" +
                 "Content: \n" +
-                "fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g\n" +
-                "dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;\n" +
+                "content\n" +
                 "\n" +
                 "\n" +
                 "\n" +
@@ -64,6 +77,29 @@ public class ControllerRaceConditionTest {
     }
 
     //TODO: test case for delete specitem and addtag
+    @Test void testDelete() throws Exception {
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "test-file.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                fileContent.getBytes()
+        );
+        mockMvc.perform(multipart("/upload/test-file").file(file));
+        DeleteThread deleteThread = new DeleteThread();
+        deleteThread.start();
+        AddTagThread[] threads = new AddTagThread[numberOfThreads];
+        for (int i = 0; i < numberOfThreads; i++) {
+            //send file
+            threads[i] = new AddTagThread(i);
+            threads[i].start();
+        }
+        for (int i = 0; i < numberOfThreads; i++) {
+            threads[i].join();
+        }
+        deleteThread.join();
+        assertTrue(specItemRepo.getLatestSpecItemByID("ID1").isMarkedAsDeleted());
+    }
 
     @Test
     public void testSaveDocument() throws Exception {
@@ -90,7 +126,7 @@ public class ControllerRaceConditionTest {
                 fileContent.getBytes()
         );
         mockMvc.perform(multipart("/upload/test-file").file(file));
-        //INCOMPLETE BECAUSE THE ADD TAG FUNCTION STILL NEED TO BE CHANGED
+
         AddTagThread[] threads = new AddTagThread[numberOfThreads];
         for (int i = 0; i < numberOfThreads; i++) {
             //send file
@@ -100,21 +136,33 @@ public class ControllerRaceConditionTest {
         for (int i = 0; i < numberOfThreads; i++) {
             threads[i].join();
         }
-        String expectedTag = "Key 1:Value1,Key 2:Value2,Key 3:Value3,Key 4:Value4,Key 5:Value5,Key 6:Value6,Key 7:Value7,Key 8:Value8,Key 9:Value9,Key 10:Value10";
-        assertEquals(expectedTag, specItemRepo.getLatestSpecItemByID("ID1").getTagInfo().getTags());
+        List<SpecItem> specItems = specItemRepo.findAll();
+        assertEquals(1, specItemRepo.getCount());
+        String actualTag = specItemRepo.getLatestSpecItemByID("ID1").getTagInfo().getTags();
+        System.out.println(actualTag);
+        for (int i = 0; i < numberOfThreads; i++) {
+            assert actualTag.contains("Key " + i + ":Value " +i);
+        }
     }
 
     private class AddTagThread extends Thread {
         private int i;
-        String tag;
+        String json;
         public AddTagThread(int i) {
             this.i = i;
-            this.tag = "Key " + i + ":Value " +i;
+            String tag = "Key " + i + ":Value " +i;
+            LocalDateTime now = LocalDateTime.now();
+            String time = "[" + now.getYear() + "," + now.getMonth().getValue() + "," + now.getDayOfMonth() + "," + now.getHour() + "," + now.getMinute()+ "," + now.getSecond() + "]";
+            this.json = "{\"fingerprint\":\"abc\",\"shortname\":\"ID1\",\"commitTime\":" + time + ",\"markedAsDeleted\":false,\"category\":\"CATEGORY1\",\"lcStatus\":\"STATUS1\",\"traceref\":[\"ID2\",\"ID3\",\"ID4\"],\"longname\":\"bla bla bla\",\"content\":\"content\",\"tagInfo\":{\"version\":0,\"tags\":\""+ tag +"\"},\"tagList\":[\"" + tag +"\"]}";
+            System.out.println(json);
         }
 
+        @SneakyThrows
         @Override
         public void run() {
-            //TODO: send add tags request
+            mockMvc.perform(post("/post/tags")
+                    .contentType(new MediaType(MediaType.APPLICATION_JSON.getType(), MediaType.APPLICATION_JSON.getSubtype(), StandardCharsets.UTF_8))
+                    .content(json));
         }
     }
 
@@ -158,6 +206,13 @@ public class ControllerRaceConditionTest {
                     fileString.getBytes()
             );
             mockMvc.perform(multipart("/upload/file"+i).file(file));
+        }
+    }
+    private class DeleteThread extends Thread{
+        @SneakyThrows
+        @Override
+        public void run() {
+            mockMvc.perform(delete("/delete/ID1"));
         }
     }
 }
