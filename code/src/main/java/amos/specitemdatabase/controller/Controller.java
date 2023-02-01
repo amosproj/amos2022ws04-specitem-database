@@ -177,10 +177,6 @@ public class Controller {
         }
     }
 
-    // @DeleteMapping("/delete/{specItemId}&{documentId}")
-    // public ResponseEntity<String> deleteSpecItemById(@PathVariable(value =
-    // "specItemId")String specItemId, @PathVariable(value = "documentId")String
-    // documentId) {
     @DeleteMapping("/delete/{specItemId}")
     public ResponseEntity<String> deleteSpecItemById(@PathVariable(value = "specItemId")String specItemId) {
         try {
