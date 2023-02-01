@@ -5,9 +5,11 @@ import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class TagServiceImpl implements TagService {
 
@@ -30,9 +32,15 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+
     @Override
     public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
-        this.tagsRepo.updateTags(specItemShortName, specItemCommitTime, tags);
+        TagInfo tagInfo = new TagInfo();
+        tagInfo.setTags(tags);
+        tagInfo.setShortName(specItemShortName);
+        tagInfo.setCommitTime(specItemCommitTime);
+        TagInfo saved = this.tagsRepo.save(tagInfo);
+        log.info("Saved tags: " + saved.getTags());
     }
 
     @Override

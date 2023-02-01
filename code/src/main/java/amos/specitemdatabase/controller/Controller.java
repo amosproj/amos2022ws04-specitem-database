@@ -11,7 +11,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -139,21 +138,20 @@ public class Controller {
 
         final String[] dateParts = json.getString("commitTime")
             .replace("[", "").replace("]", "").split(",");
-        int year = Integer.parseInt(dateParts[0]);
-        int month = Integer.parseInt(dateParts[1]);
-        int day = Integer.parseInt(dateParts[2]);
-        int hour = Integer.parseInt(dateParts[3]);
-        int minute = Integer.parseInt(dateParts[4]);
-        int second = Integer.parseInt(dateParts[5]);
-        final LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        final int year = Integer.parseInt(dateParts[0]);
+        final int month = Integer.parseInt(dateParts[1]);
+        final int day = Integer.parseInt(dateParts[2]);
+        final int hour = Integer.parseInt(dateParts[3]);
+        final int minute = Integer.parseInt(dateParts[4]);
+        final int second = Integer.parseInt(dateParts[5]);
+        final LocalDateTime originalCommitDateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+        //final LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
-        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
+        final Commit c = new Commit("hash", "msg", originalCommitDateTime, "auth");
         sb.setCommit(c);
 
         final SpecItem specItem = new SpecItem(sb);
         final String tagList = json.getString("tagList");
-
-        // TODO: frontend must provide the info about the creation time
         return Pair.of(specItem, tagList);
     }
 

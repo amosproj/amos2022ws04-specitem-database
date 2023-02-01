@@ -3,12 +3,10 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
-import amos.specitemdatabase.model.Category;
 import amos.specitemdatabase.model.Commit;
 import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.DocumentEntity;
-import amos.specitemdatabase.model.LcStatus;
 import amos.specitemdatabase.model.ProcessedDocument;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemId;
@@ -16,30 +14,30 @@ import amos.specitemdatabase.model.Status;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
+import amos.specitemdatabase.repo.TagsRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
 @Slf4j
 public class SpecItemService {
+    private final TagsRepo tagsRepo;
     private final SpecItemRepo specItemRepo;
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
@@ -49,11 +47,13 @@ public class SpecItemService {
 
     @Autowired
     public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig,
-                           TagService tagService) {
+                           TagService tagService,
+                           final TagsRepo tagsRepo) {
         this.specItemRepo = specItemRepo;
         this.documentRepo = documentRepo;
         this.fileConfig = fileConfig;
         this.tagService = tagService;
+        this.tagsRepo = tagsRepo;
     }
 
     private Pageable getPageableSortedByShortNameInAscendingOrder(int page) {
@@ -67,7 +67,7 @@ public class SpecItemService {
         Commit commit = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
         return commit;
     }
-   
+
     private String tagNullCheck(TagInfo previousTagInfo) {
         return previousTagInfo != null ? previousTagInfo.getTags() : "";
     }
@@ -101,10 +101,10 @@ public class SpecItemService {
 
         saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
     }
-    
+
     private String getAllPreviousAndCurrentTags(String previousTags, List<String> newTags) {
-        return previousTags.isEmpty() 
-            ? String.join(",", newTags) 
+        return previousTags.isEmpty()
+            ? String.join(",", newTags)
             : previousTags + "," + String.join(",", newTags);
     }
 
@@ -130,7 +130,7 @@ public class SpecItemService {
         final String tagsAfterTableUpdate = this.tagService.fetchTags(specItem);
         log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
     }
-   
+
     private String getAllTagsAndCheckForGUIUpdate(SpecItem specItem, boolean isGuiUpdate, String tags) {
         return isGuiUpdate ? tags : this.tagService.fetchTags(specItem) + tags;
     }
@@ -205,7 +205,7 @@ public class SpecItemService {
     @Transactional
     public void deleteSpecItemById(String specItemId) {
         try {
-            createNewVersionOfDeletedSpecItem(specItemId);           
+            createNewVersionOfDeletedSpecItem(specItemId);
         } catch (Exception lockingFailureException) {
             System.err.println(lockingFailureException.getMessage());
         }
@@ -238,20 +238,79 @@ public class SpecItemService {
             printTagsToConsole(taggedSpecItem);
 
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem,false);
+        final Commit c = new Commit(
+            "hash", "message", dateTime, "author");
+        // Step 1: combine previous and new tags
+        final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
+        log.info("The following tags will be saved (previous and new): {}" +
+                " for the Spec Item with ID={} and CommitTime={}",
+            allTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+        try {
+            // Step 2: save tags
+            log.info("Saving the tags...");
+            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
+            // Step 3: now, get the tags and create a new version of a spec item
+            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+            // Here, we create a new commit time, and thus a new version
             newVersionOfSpecItem.setCommit(c);
-            
+
             final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", allTags), true);
             newVersionOfSpecItem.setTagInfo(tagInfo);
 
             saveSpecItemViaDocument(newVersionOfSpecItem, c);
         } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
+            log.info("Creating a new version of the SpecItem with the ID: {} and CommitTime: {}" +
+                    " with the new tags: {}", newVersionOfSpecItem.getShortName(),
+                newVersionOfSpecItem.getCommitTime(), newVersionOfSpecItem.getTagInfo().getTags());
+            final DocumentEntity documentEntity = new DocumentEntity("filename", List.of(newVersionOfSpecItem), c);
+            documentRepo.save(documentEntity);
+        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
+            log.info("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
-            this.completeTagAdditionProcess(taggedSpecItem, newTags);
+            final String tags = this.tagService.getTagsBySpecItemIdAndCommitTime(
+                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime()
+            ).getTags();
+            log.info("Retrying to save the following tags: {}", tags);
+            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), tags);
         }
     }
 
-    // Time bug?
+    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
+        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
+            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+        String allTags;
+        if (previousTagInfo != null) {
+            final String previousTags = previousTagInfo.getTags();
+            log.info("The already existing tags for ID={} CommitTime={} are {}",
+                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
+            if (previousTags.isEmpty()) {
+                allTags = String.join(",", newTags);
+            } else {
+                allTags = previousTags + "," + String.join(",", newTags);
+            }
+        } else {
+            allTags = String.join(",", newTags);
+        }
+        return allTags;
+    }
+
+    private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
+        final SpecItem newVersionOfSpecItem = new SpecItem();
+        newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
+        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
+        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
+        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
+        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        newVersionOfSpecItem.setTraceRefs(taggedSpecItem.getTraceRefs());
+        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
+        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
+        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
+        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        newVersionOfSpecItem.setMarkedAsDeleted(false);
+        return newVersionOfSpecItem;
+    }
 
     public List<CompareResult> compare(String shortName, LocalDateTime timeOld, LocalDateTime timeNew) throws IllegalAccessException {
         Optional<SpecItem> optionalsOld = specItemRepo.findById(new SpecItemId(shortName, timeOld));
