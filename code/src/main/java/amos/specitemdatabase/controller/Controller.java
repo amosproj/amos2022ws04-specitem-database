@@ -11,7 +11,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +116,7 @@ public class Controller {
             // 2. saving the previous + new tags
             // 3. creating a new spec item and a new taginfo entry
             this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
-                Collections.singletonList(specItemTagPair.getSecond()));
+                specItemTagPair.getSecond());
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

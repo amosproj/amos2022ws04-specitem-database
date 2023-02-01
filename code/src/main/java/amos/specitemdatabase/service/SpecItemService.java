@@ -225,6 +225,47 @@ public class SpecItemService {
 
     @Transactional
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
+    private TagInfo createTagInfo(final SpecItem specItem, final String tags, boolean isGuiUpdate) {
+        String allTags;
+        if (!isGuiUpdate) {
+            final String previousTags = this.tagService.fetchTags(specItem);
+            log.debug("The previous tags of the SpecItem are: {}", previousTags);
+            allTags = previousTags + tags;
+        } else {
+            allTags = tags;
+        }
+        final TagInfo tagInfo = new TagInfo();
+        tagInfo.setShortName(specItem.getShortName());
+        tagInfo.setCommitTime(specItem.getCommitTime());
+        tagInfo.setStatus(Status.LATEST);
+        tagInfo.setTags(allTags);
+        return tagInfo;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final String newTags)
+        throws InterruptedException {
+        try {
+            log.info("Saving the tags: {} for SpecItem with ID:{} and CommitTime: {}",
+                newTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), newTags );
+        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
+            log.info("Somebody has just updated the tags for the SpecItem " +
+                "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
+            log.info("There are going to be 5 consecutive attempts to save the tags: {}", newTags);
+            for (int i = 0; i < 5; i++) {
+                Thread.sleep(3000);
+                boolean savedContainNew = this.tagService.saveTags(
+                    taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), newTags);
+
+                if (savedContainNew) break;
+            }
+            log.info("Didn't manage to save the tags. There might be some lost update.");
+        }
+        this.createAndSaveNewVersion(taggedSpecItem);
+    }
+
+    private void createAndSaveNewVersion(final SpecItem taggedSpecItem) {
         final LocalDateTime dateTime = LocalDateTime.now();
         Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
 
@@ -236,40 +277,17 @@ public class SpecItemService {
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem,false);
         final Commit c = new Commit(
             "hash", "message", dateTime, "author");
-        // Step 1: combine previous and new tags
-        final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
-        log.info("The following tags will be saved (previous and new): {}" +
-                " for the Spec Item with ID={} and CommitTime={}",
-            allTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-        try {
-            // Step 2: save tags
-            log.info("Saving the tags...");
-            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
-            // Step 3: now, get the tags and create a new version of a spec item
-            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
-            // Here, we create a new commit time, and thus a new version
-            newVersionOfSpecItem.setCommit(c);
-
-            final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", allTags), true);
-            newVersionOfSpecItem.setTagInfo(tagInfo);
-
-            saveSpecItemViaDocument(newVersionOfSpecItem, c);
-        } catch (Exception lockingFailureException) {
-            log.warn("Somebody has just updated the tags for the SpecItem " +
-            log.info("Creating a new version of the SpecItem with the ID: {} and CommitTime: {}" +
-                    " with the new tags: {}", newVersionOfSpecItem.getShortName(),
-                newVersionOfSpecItem.getCommitTime(), newVersionOfSpecItem.getTagInfo().getTags());
-            final DocumentEntity documentEntity = new DocumentEntity("filename", List.of(newVersionOfSpecItem), c);
-            documentRepo.save(documentEntity);
-        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
-            log.info("Somebody has just updated the tags for the SpecItem " +
-                "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
-            final String tags = this.tagService.getTagsBySpecItemIdAndCommitTime(
-                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime()
-            ).getTags();
-            log.info("Retrying to save the following tags: {}", tags);
-            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), tags);
-        }
+        final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+        newVersionOfSpecItem.setCommit(c);
+        final TagInfo tagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
+            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime()
+        );
+        newVersionOfSpecItem.setTagInfo(tagInfo);
+        log.info("Creating a new version of the SpecItem with the ID: {} and CommitTime: {}" +
+                " with the new tags: {}", newVersionOfSpecItem.getShortName(),
+            newVersionOfSpecItem.getCommitTime(), newVersionOfSpecItem.getTagInfo().getTags());
+        final DocumentEntity documentEntity = new DocumentEntity("filename", List.of(newVersionOfSpecItem), c);
+        documentRepo.save(documentEntity);
     }
 
     private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
@@ -344,7 +362,7 @@ public class SpecItemService {
 //                    LocalDateTime.of(2019, 03, 28, 14, 33, 48, 640000),
 //                    "author"
 //                );
-
+//
 //            SpecItem specItem = new SpecItem();
 //            specItem.setShortName("ID1");
 //            specItem.setContent("content");
@@ -356,7 +374,7 @@ public class SpecItemService {
 //            specItem.setCommitTime(commit.getCommitTime());
 //            specItem.setCategory(Category.CATEGORY1);
 //            specItem.setLcStatus(LcStatus.STATUS1);
-
+//
 //            SpecItem specItem2 = new SpecItem();
 //            specItem2.setShortName("ID1");
 //            specItem2.setContent("content2");
@@ -368,7 +386,7 @@ public class SpecItemService {
 //            specItem2.setCommitTime(commit2.getCommitTime());
 //            specItem2.setCategory(Category.CATEGORY1);
 //            specItem2.setLcStatus(LcStatus.STATUS1);
-
+//
 //            SpecItem specItem3 = new SpecItem();
 //            specItem3.setShortName("ID3");
 //            specItem3.setContent("content");
@@ -380,22 +398,22 @@ public class SpecItemService {
 //            specItem3.setCommitTime(commit.getCommitTime());
 //            specItem3.setCategory(Category.CATEGORY1);
 //            specItem3.setLcStatus(LcStatus.STATUS1);
-
+//
 //            List<SpecItem> specItems = new ArrayList<>();
 //            specItems.add(specItem);
 //            specItems.add(specItem3);
 //            DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
 //            documentRepo.save(documentEntity);
-
+//
 //            List<SpecItem> specItems2 = new ArrayList<>();
 //            specItems2.add(specItem2);
 //            DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
 //            documentRepo.save(documentEntity2);
-
-
+//
+//
 //            // List<String> tags = List.of("Key1:Value1","Key2:Value2");
 //            // specItems.forEach(specs -> saveTags(specs, tags));
-
+//
 //            //this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
 //        };
 //    }

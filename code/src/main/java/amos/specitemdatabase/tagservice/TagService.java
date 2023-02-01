@@ -8,7 +8,7 @@ public interface TagService {
 
     String fetchTags(final SpecItem specItem);
 
-    void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags);
+    boolean saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags);
 
     TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemId, final LocalDateTime commitTime);
 }
