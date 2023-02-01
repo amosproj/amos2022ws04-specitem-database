@@ -14,7 +14,6 @@ import amos.specitemdatabase.model.Status;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.DocumentRepo;
 import amos.specitemdatabase.repo.SpecItemRepo;
-import amos.specitemdatabase.repo.TagsRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 public class SpecItemService {
-    private final TagsRepo tagsRepo;
     private final SpecItemRepo specItemRepo;
     private final DocumentRepo documentRepo;
     private final SpecItemParserInterface specItemParser = new SpecItemParser();
@@ -47,13 +45,11 @@ public class SpecItemService {
 
     @Autowired
     public SpecItemService(SpecItemRepo specItemRepo, DocumentRepo documentRepo, FileConfig fileConfig,
-                           TagService tagService,
-                           final TagsRepo tagsRepo) {
+                           TagService tagService) {
         this.specItemRepo = specItemRepo;
         this.documentRepo = documentRepo;
         this.fileConfig = fileConfig;
         this.tagService = tagService;
-        this.tagsRepo = tagsRepo;
     }
 
     private Pageable getPageableSortedByShortNameInAscendingOrder(int page) {
@@ -296,13 +292,7 @@ public class SpecItemService {
     }
 
     private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
-        final SpecItem newVersionOfSpecItem = new SpecItem();
-        newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
-        newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
-        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
-        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
-        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
-        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        final SpecItem newVersionOfSpecItem = prepareBaseForNewVersionOfSpecItem(taggedSpecItem);
         newVersionOfSpecItem.setTraceRefs(taggedSpecItem.getTraceRefs());
         newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
         newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
