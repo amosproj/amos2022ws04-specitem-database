@@ -94,35 +94,20 @@ public class SpecItemService {
         Commit commit = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
         return commit;
     }
-
-    private String joinPreviousAndCurrentTags(TagInfo previousTagInfo, List<String> newTags) {
-        String previousTags = previousTagInfo.getTags();
-        return previousTags.isEmpty() ? String.join(",", newTags) : previousTags + "," + String.join(",", newTags);
-    }
-
-    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
-        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-        String allTags = tagNullCheck(previousTagInfo, newTags);
-        return allTags;
-    }
-    
+   
     private String tagNullCheck(TagInfo previousTagInfo) {
         return previousTagInfo != null ? previousTagInfo.getTags() : "";
     }
-    
-    private String tagNullCheck(TagInfo previousTagInfo, List<String> newTags) {
-        return previousTagInfo != null ? joinPreviousAndCurrentTags(previousTagInfo, newTags)  : String.join(",", newTags);
-    }
 
     private String getTagsFromPreviousVersion(SpecItem latestSpecItem) {
-        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(latestSpecItem.getShortName(), latestSpecItem.getCommitTime());
+        TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(latestSpecItem.getShortName(), latestSpecItem.getCommitTime());
         String allTags = tagNullCheck(previousTagInfo);
         return allTags;
     }
 
-    private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted, boolean isGuiUpdate) {
+    private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted) {
         String allTags = getTagsFromPreviousVersion(latestSpecItem);
-        final TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags), isGuiUpdate);
+        TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags), false);
         return tagInfo;
     }
 
@@ -131,51 +116,93 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
     }
 
-    private void createNewVersionOfDeletedSpecItem(String specItemId, boolean markedAsDeleted, boolean isGuiUpdate) {
+    private void createNewVersionOfDeletedSpecItem(String specItemId) {
         SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
-        SpecItem newVersionOfTheSpecItem = prepareNewVersionOfSpecItem(latestSpecItem, markedAsDeleted);
+        SpecItem newVersionOfTheSpecItem = prepareNewVersionOfSpecItem(latestSpecItem, true);
 
         Commit commit = getCommitWithCurrentTime();
         newVersionOfTheSpecItem.setCommit(commit);
 
-        TagInfo tagInfo = getTagInfoFromLatestVersionOfASpecItem(latestSpecItem, newVersionOfTheSpecItem, isGuiUpdate);
+        TagInfo tagInfo = getTagInfoFromLatestVersionOfASpecItem(latestSpecItem, newVersionOfTheSpecItem);
         newVersionOfTheSpecItem.setTagInfo(tagInfo);
 
         saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
     }
 
-    // public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
-    //     final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
-    //     sp.get(0).setTagInfo(tagInfo);
+    // // // public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
+    // //     final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
+    // //     sp.get(0).setTagInfo(tagInfo);
 
-    //     DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
-    //     documentRepo.save(documentEntity);
+    // //     DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
+    // //     documentRepo.save(documentEntity);
     // }
 
-    private String saveTagsToTable(SpecItem taggedSpecItem, final List<String> newTags) {
-        final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
-        System.out.println(allTags);
-        this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
-        return allTags;
-    }
+    // private String saveTagsToTable(SpecItem taggedSpecItem, final List<String> newTags) {
+    //     String allTags = fetchCurrentTags(taggedSpecItem, newTags);
+    //     this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
+    //     return allTags;
+    // }
 
     @Transactional
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
-        try {
-            saveTagsToTable(taggedSpecItem, newTags);
+        final LocalDateTime dateTime = LocalDateTime.now();
+        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
 
-            createNewVersionOfDeletedSpecItem(taggedSpecItem.getShortName(), false, false);
+        try {
+            // Step 1: combine previous and new tags
+            final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
+            log.info("The following tags will be saved (previous and new): {}" +
+                    " for the Spec Item with ID={} and CommitTime={}",
+                allTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+            // Step 2: save tags
+            log.info("Saving the tags...");
+            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
+            // Step 3: now, get the tags and create a new version of a spec item
+            final String tagsAfterTableUpdate = this.tagService.fetchTags(taggedSpecItem);
+            log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
+            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem,false);
+            newVersionOfSpecItem.setCommit(c);
+            final TagInfo tagInfo = this.createTagInfo(
+                newVersionOfSpecItem, String.join(", ", allTags), true);
+            newVersionOfSpecItem.setTagInfo(tagInfo);
+            log.info("Creating a new version of the SpecItem with the ID: {} with the new tags: {}",
+                newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
+
+
+
+            DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem", Arrays.asList(newVersionOfSpecItem), c);
+            documentRepo.save(documentEntity);
+            //this.specItemRepo.save(newVersionOfSpecItem);
         } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
             this.completeTagAdditionProcess(taggedSpecItem, newTags);
         }
     }
+
+    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
+        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
+            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+        String allTags;
+        if (previousTagInfo != null) {
+            final String previousTags = previousTagInfo.getTags();
+            log.info("The already existing tags for ID={} CommitTime={} are {}",
+                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
+            if (previousTags.isEmpty()) {
+                allTags = String.join(",", newTags);
+            } else {
+                allTags = previousTags + "," + String.join(",", newTags);
+            }
+        } else {
+            allTags = String.join(",", newTags);
+        }
+        return allTags;
+    }
     
     @Transactional
     public void deleteSpecItemById(String specItemId) {
         try {
-            createNewVersionOfDeletedSpecItem(specItemId, true, true);           
+            createNewVersionOfDeletedSpecItem(specItemId);           
         } catch (Exception lockingFailureException) {
             System.err.println(lockingFailureException.getMessage());
         }
