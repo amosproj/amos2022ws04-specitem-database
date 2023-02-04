@@ -112,6 +112,11 @@ export default function SpecitemPage() {
                 </div>
                 <div>
                     ID: {specitem.shortName}
+                    {(specitem.markedAsDeleted)?
+                    <b> (DELETED)</b>
+                    :
+                    null
+                    }
                 </div>
                 <div>
                     Fingerprint: {specitem.fingerprint}

@@ -116,13 +116,12 @@ export default function SpecitemsPage() {
     }
 
     function compare(a, b) {
-        if (a.time > b.time){
+        if (a.commitTime > b.commitTime){
           return -1;
         }
-        if (a.time < b.time){
+        if (a.commitTime < b.commitTime){
           return 1;
         }
-        console.log(a.time)
         return 0;
     }
 
@@ -168,8 +167,8 @@ export default function SpecitemsPage() {
         }
         let list = exportList;
         specitemsList.forEach(specitem => {
-            if(list.filter(s => (s.shortName === specitem.shortName) & (s.time === specitem.time)).length > 0) {
-                toast(`${specitem.shortName + ' ' + timeToString(specitem.time)} already in ExportList`);
+            if(list.filter(s => (s.shortName === specitem.shortName) & (s.commitTime === specitem.commitTime)).length > 0) {
+                toast(`${specitem.shortName + ' ' + timeToString(specitem.commitTime)} already in ExportList`);
             } else {
                 list.push(specitem);
             }
@@ -335,7 +334,13 @@ export default function SpecitemsPage() {
                                                 <td className="ShortNameCell">
                                                     <Link to={"/specitem/" + val.shortName}>
                                                         {trimLongerStrings(val.shortName)}
-                                                    </Link></td>
+                                                    </Link>
+                                                    {(val.markedAsDeleted)?
+                                                    <div><b> (DELETED)</b></div>
+                                                    :
+                                                    null
+                                                    }
+                                                </td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
                                                 <td className="LcStatusCell">{val.lcStatus}</td>

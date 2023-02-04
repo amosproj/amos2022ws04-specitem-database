@@ -203,8 +203,8 @@ export default function SpecitemsPage() {
         }
         let list = exportList;
         specitemsList.forEach(specitem => {
-            if(list.filter(s => (s.shortName === specitem.shortName) & (s.time === specitem.time)).length > 0) {
-                toast(`${specitem.shortName + ' ' + timeToString(specitem.time)} already in ExportList`);
+            if(list.filter(s => (s.shortName === specitem.shortName) & (s.commitTime === specitem.commitTime)).length > 0) {
+                toast(`${specitem.shortName + ' ' + timeToString(specitem.commitTime)} already in ExportList`);
             } else {
             list.push(specitem);
             }
@@ -290,10 +290,15 @@ export default function SpecitemsPage() {
                                     {specitemsList.map((val,key) => {
                                         return [
                                             <tr id={val.shortName} key={key} style={(val.shortName == selected)? {backgroundColor: "#68b06d"} : {}}>    
-                                                <td className="ShortNameCell" >
+                                                <td className="ShortNameCell">
                                                     <Link to={"/specitem/" + val.shortName}>
                                                         <href>{trimLongerStrings(val.shortName)}</href>
                                                     </Link>
+                                                    {(val.markedAsDeleted)?
+                                                    <div><b> (DELETED)</b></div>
+                                                    :
+                                                    null
+                                                    }
                                                 </td>
                                                 <td className="FingerprintCell">{trimLongerStrings(val.fingerprint)}</td>
                                                 <td className="CategoryCell">{val.category}</td>
