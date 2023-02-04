@@ -120,9 +120,9 @@ public class SpecItemService {
         return allTags;
     }
 
-    private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted) {
+    private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted, boolean isGuiUpdate) {
         String allTags = getTagsFromPreviousVersion(latestSpecItem);
-        final TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags), true);
+        final TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags), isGuiUpdate);
         return tagInfo;
     }
 
@@ -131,17 +131,26 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
     }
 
-    private void createNewVersionOfDeletedSpecItem(String specItemId, boolean markedAsDeleted) {
+    private void createNewVersionOfDeletedSpecItem(String specItemId, boolean markedAsDeleted, boolean isGuiUpdate) {
         SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
         SpecItem newVersionOfTheSpecItem = prepareNewVersionOfSpecItem(latestSpecItem, markedAsDeleted);
 
         Commit commit = getCommitWithCurrentTime();
         newVersionOfTheSpecItem.setCommit(commit);
 
-        TagInfo tagInfo = getTagInfoFromLatestVersionOfASpecItem(latestSpecItem, newVersionOfTheSpecItem);
+        TagInfo tagInfo = getTagInfoFromLatestVersionOfASpecItem(latestSpecItem, newVersionOfTheSpecItem, isGuiUpdate);
         newVersionOfTheSpecItem.setTagInfo(tagInfo);
+
         saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
     }
+
+    // public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
+    //     final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
+    //     sp.get(0).setTagInfo(tagInfo);
+
+    //     DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
+    //     documentRepo.save(documentEntity);
+    // }
 
     private String saveTagsToTable(SpecItem taggedSpecItem, final List<String> newTags) {
         final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
@@ -155,7 +164,7 @@ public class SpecItemService {
         try {
             saveTagsToTable(taggedSpecItem, newTags);
 
-            createNewVersionOfDeletedSpecItem(taggedSpecItem.getShortName(), false);
+            createNewVersionOfDeletedSpecItem(taggedSpecItem.getShortName(), false, false);
         } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
@@ -166,7 +175,7 @@ public class SpecItemService {
     @Transactional
     public void deleteSpecItemById(String specItemId) {
         try {
-            createNewVersionOfDeletedSpecItem(specItemId, true);           
+            createNewVersionOfDeletedSpecItem(specItemId, true, true);           
         } catch (Exception lockingFailureException) {
             System.err.println(lockingFailureException.getMessage());
         }
@@ -192,14 +201,6 @@ public class SpecItemService {
         addTags(pDoc.getSpecItems());
 
         DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
-        documentRepo.save(documentEntity);
-    }
-
-    public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
-        final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
-        sp.get(0).setTagInfo(tagInfo);
-
-        DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
         documentRepo.save(documentEntity);
     }
 
