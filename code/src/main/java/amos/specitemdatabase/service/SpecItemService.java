@@ -111,8 +111,8 @@ public class SpecItemService {
         return tagInfo;
     }
 
-    private void saveSpecItemViaDocument(SpecItem specItemMarkedAsDeleted, Commit commit) {
-        DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem", Arrays.asList(specItemMarkedAsDeleted), commit);
+    private void saveSpecItemViaDocument(SpecItem specItem, Commit commit) {
+        DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem", Arrays.asList(specItem), commit);
         documentRepo.save(documentEntity);
     }
 
@@ -128,20 +128,35 @@ public class SpecItemService {
 
         saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
     }
+    
+    private String getAllPreviousAndCurrentTags(String previousTags, List<String> newTags) {
+        return previousTags.isEmpty() 
+            ? String.join(",", newTags) 
+            : previousTags + "," + String.join(",", newTags);
+    }
 
-    // // // public void saveDocumentWithTag(String filename, List<SpecItem> sp, Commit c, final List<String> tags) {
-    // //     final TagInfo tagInfo = this.createTagInfo(sp.get(0), String.join(", ", tags), false);
-    // //     sp.get(0).setTagInfo(tagInfo);
+    private String checkNullTagInfo(TagInfo tagInfo, List<String> newTags) {
+        return tagInfo != null
+            ? getAllPreviousAndCurrentTags(tagInfo.getTags(), newTags)
+            : String.join(",", newTags);
+    }
 
-    // //     DocumentEntity documentEntity = new DocumentEntity(filename, sp, c);
-    // //     documentRepo.save(documentEntity);
-    // }
+    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
+        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+        String allTags = checkNullTagInfo(previousTagInfo, newTags);
+        return allTags;
+    }
 
-    // private String saveTagsToTable(SpecItem taggedSpecItem, final List<String> newTags) {
-    //     String allTags = fetchCurrentTags(taggedSpecItem, newTags);
-    //     this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
-    //     return allTags;
-    // }
+    private String saveTagsToTable(List<String> newTags, SpecItem specItem) {
+        final String allTags = fetchCurrentTags(specItem, newTags);
+        this.tagService.saveTags(specItem.getShortName(), specItem.getCommitTime(), allTags);
+        return allTags;
+    }
+
+    private void printTagsToConsole(SpecItem specItem) {
+        final String tagsAfterTableUpdate = this.tagService.fetchTags(specItem);
+        log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
+    }
 
     @Transactional
     public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
@@ -149,54 +164,22 @@ public class SpecItemService {
         Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
 
         try {
-            // Step 1: combine previous and new tags
-            final String allTags = fetchCurrentTags(taggedSpecItem, newTags);
-            log.info("The following tags will be saved (previous and new): {}" +
-                    " for the Spec Item with ID={} and CommitTime={}",
-                allTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-            // Step 2: save tags
-            log.info("Saving the tags...");
-            this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), allTags);
-            // Step 3: now, get the tags and create a new version of a spec item
-            final String tagsAfterTableUpdate = this.tagService.fetchTags(taggedSpecItem);
-            log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
+            String allTags = saveTagsToTable(newTags, taggedSpecItem);
+
+            printTagsToConsole(taggedSpecItem);
+
             final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem,false);
             newVersionOfSpecItem.setCommit(c);
-            final TagInfo tagInfo = this.createTagInfo(
-                newVersionOfSpecItem, String.join(", ", allTags), true);
+            
+            final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", allTags), true);
             newVersionOfSpecItem.setTagInfo(tagInfo);
-            log.info("Creating a new version of the SpecItem with the ID: {} with the new tags: {}",
-                newVersionOfSpecItem.getShortName(), newVersionOfSpecItem.getTagInfo().getTags());
 
-
-
-            DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem", Arrays.asList(newVersionOfSpecItem), c);
-            documentRepo.save(documentEntity);
-            //this.specItemRepo.save(newVersionOfSpecItem);
+            saveSpecItemViaDocument(newVersionOfSpecItem, c);
         } catch (Exception lockingFailureException) {
             log.warn("Somebody has just updated the tags for the SpecItem " +
                 "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
             this.completeTagAdditionProcess(taggedSpecItem, newTags);
         }
-    }
-
-    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
-        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
-            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-        String allTags;
-        if (previousTagInfo != null) {
-            final String previousTags = previousTagInfo.getTags();
-            log.info("The already existing tags for ID={} CommitTime={} are {}",
-                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
-            if (previousTags.isEmpty()) {
-                allTags = String.join(",", newTags);
-            } else {
-                allTags = previousTags + "," + String.join(",", newTags);
-            }
-        } else {
-            allTags = String.join(",", newTags);
-        }
-        return allTags;
     }
     
     @Transactional
