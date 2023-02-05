@@ -11,7 +11,7 @@ public interface TagService {
     void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags);
 
     boolean saveTagsWithNewCommitTime(final String specItemShortName,
-                                      final LocalDateTime newCommitTime, final String tags);
+                                      final LocalDateTime newCommitTime, final String allTags);
 
     TagInfo getLatestById(final String specItemId);
 

@@ -195,6 +195,7 @@ public class SpecItemService {
                 newTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
             this.tagService.saveTags(
                 taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), newTags);
+            tagsAdded = true;
         } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
             log.info("There was a concurrent update. The new version will be saved.");
             // 1. Wait a bit

@@ -49,7 +49,7 @@ public class TagServiceImpl implements TagService {
         tagInfo.setTags(tags);
         tagInfo.setShortName(specItemShortName);
         tagInfo.setCommitTime(specItemCommitTime);
-        final TagInfo saved = this.tagsRepo.save(tagInfo);
+        final TagInfo saved = this.tagsRepo.saveAndFlush(tagInfo);
         final boolean isSaved = saved.getTags().contains(tags);
         log.info("SaveTags method: Do the saved tags contain the provided tags: {}", isSaved);
         return isSaved;
@@ -58,9 +58,8 @@ public class TagServiceImpl implements TagService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean saveTagsWithNewCommitTime(final String specItemShortName, final LocalDateTime newCommitTime,
-                                             final String tags) {
-
-        return prepareNewTagInfo(specItemShortName, newCommitTime, tags, tags);
+                                             final String allTags) {
+        return this.prepareNewTagInfo(specItemShortName, newCommitTime, allTags);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
-        return this.tagsRepo.getByShortNameCommitTime(specItemShortName, commitTime);
+        return this.tagsRepo.getByShortNameAndCommitTime(specItemShortName, commitTime);
     }
 
     private String fetchCurrentTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
