@@ -27,12 +27,9 @@ public interface TagsRepo extends JpaRepository<TagInfo, String> {
                     @Param("tags") final String tags);
 
 
+    TagInfo getByShortNameAndCommitTime(final String shortName, final LocalDateTime commitTime);
 
+    TagInfo findFirstByShortNameOrderByCommitTimeDesc(final String specItemId);
 
-    @Query(value = "SELECT t FROM TagInfo t " +
-        "WHERE t.commitTime = :commitTime " +
-        "AND t.shortName = :shortName")
-    TagInfo getByShortNameCommitTime(@Param("shortName") final String shortName,
-                                           @Param("commitTime") final LocalDateTime commitTime);
 
 }

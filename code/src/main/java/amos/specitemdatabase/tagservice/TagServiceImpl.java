@@ -4,11 +4,12 @@ import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,30 +23,49 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public String fetchTags(final SpecItem specItem) {
-        List<TagInfo> tagInfos = this.tagsRepo.getLatestTagInfo(specItem.getShortName());
-        if (tagInfos.size() > 1) {
-            // TODO: A correct mechanism must be implemented here
-            return tagInfos.get(tagInfos.size() -1).getTags();
-        } else if (tagInfos.size() == 1) {
-            return tagInfos.get(0).getTags();
+        final TagInfo tagInfos = this.tagsRepo.findFirstByShortNameOrderByCommitTimeDesc(specItem.getShortName());
+        return tagInfos != null ? tagInfos.getTags() : "";
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
+                            final String tags) {
+        final TagInfo existingTagInfo = this.tagsRepo.getByShortNameAndCommitTime(specItemShortName, specItemCommitTime);
+        if (existingTagInfo == null) {
+            log.info("No previous entry for the SpecItem with {} and {}", specItemShortName, specItemCommitTime);
+            this.prepareNewTagInfo(specItemShortName, specItemCommitTime, tags);
         } else {
-            return "";
+            log.info("There are some tags for the SpecItem with {} and {}", specItemShortName, specItemCommitTime);
+            String allTags = existingTagInfo.getTags() + ", " + tags;
+            existingTagInfo.setTags(allTags);
+            this.tagsRepo.save(existingTagInfo);
         }
     }
 
-
-    @Override
-    public boolean saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
-                            final String tags) {
-
-        final String currTags = this.fetchCurrentTags(specItemShortName, specItemCommitTime,
-            Collections.singletonList(tags));
-        TagInfo tagInfo = new TagInfo();
-        tagInfo.setTags(currTags);
+    private boolean prepareNewTagInfo(final String specItemShortName, final LocalDateTime specItemCommitTime,
+                                      final String tags) {
+        final TagInfo tagInfo = new TagInfo();
+        tagInfo.setTags(tags);
         tagInfo.setShortName(specItemShortName);
         tagInfo.setCommitTime(specItemCommitTime);
-        TagInfo saved = this.tagsRepo.saveAndFlush(tagInfo);
-        return saved.getTags().contains(tags);
+        final TagInfo saved = this.tagsRepo.save(tagInfo);
+        final boolean isSaved = saved.getTags().contains(tags);
+        log.info("SaveTags method: Do the saved tags contain the provided tags: {}", isSaved);
+        return isSaved;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public boolean saveTagsWithNewCommitTime(final String specItemShortName, final LocalDateTime newCommitTime,
+                                             final String tags) {
+
+        return prepareNewTagInfo(specItemShortName, newCommitTime, tags, tags);
+    }
+
+    @Override
+    public TagInfo getLatestById(final String specItemId) {
+        return this.tagsRepo.findFirstByShortNameOrderByCommitTimeDesc(specItemId);
     }
 
     @Override

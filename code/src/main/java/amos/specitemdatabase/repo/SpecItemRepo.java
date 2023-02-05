@@ -2,6 +2,7 @@ package amos.specitemdatabase.repo;
 
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemId;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -70,4 +71,6 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
     List<SpecItem> getAllVersionsOfASpecItemByID(@Param("short_name") String ID);
 
     List<SpecItem> findAllByShortNameAndContentContaining(String shortName, String Content);
+
+    SpecItem findFirstByShortNameContainingOrderByCommitTimeDesc(String specItemId);
 }

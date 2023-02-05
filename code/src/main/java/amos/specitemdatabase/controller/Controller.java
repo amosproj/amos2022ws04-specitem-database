@@ -5,6 +5,7 @@ import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemBuilder;
+import amos.specitemdatabase.repo.TagsRepo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import java.net.URLDecoder;
@@ -36,14 +37,17 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin("*")
 @Slf4j
 public class Controller {
+    private final TagsRepo tagsRepo;
 
     private final FileStorageService fileStorageService;
     private final SpecItemService service;
 
     @Autowired
-    public Controller(SpecItemService service, FileStorageService fileStorageService) {
+    public Controller(SpecItemService service, FileStorageService fileStorageService,
+                      final TagsRepo tagsRepo) {
         this.service = service;
         this.fileStorageService = fileStorageService;
+        this.tagsRepo = tagsRepo;
     }
 
     private void printErrorMessage(Exception e) {
@@ -108,6 +112,7 @@ public class Controller {
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateTags(@RequestBody final String specItemAsJsonString){
         log.info("Received a request for updating the tags.");
+        boolean tagsAdded = false;
         try {
             // Step 1: Create a spec item out of the json representation
             final Pair<SpecItem, String> specItemTagPair = this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
@@ -115,14 +120,20 @@ public class Controller {
             // 1. fetching current tags for ID & Time
             // 2. saving the previous + new tags
             // 3. creating a new spec item and a new taginfo entry
-            this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
+            tagsAdded = this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
                 specItemTagPair.getSecond());
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        log.info("Tags have been added successfully!");
-        return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
+        if (tagsAdded) {
+            log.info("Tags have been added successfully!");
+            return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
+        } else {
+            log.info("There was an error creating tags");
+            return new ResponseEntity<>("There was an error creating tags", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     private Pair<SpecItem, String> extractSpecItemAndTagOutOfJsonRepresentation(final String specItemAsJsonString) throws JSONException {
@@ -157,7 +168,7 @@ public class Controller {
     
     @PostMapping("upload/{filename}")
     public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {
-
+        log.info("Uploading the document: {}", filename);
         try {
             fileStorageService.storeFile(uploadedFile, filename);
             service.saveDocument(filename);

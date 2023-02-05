@@ -39,7 +39,13 @@ public class TaggingMechanismTest {
         // Step 2: Add some tags
         final List<String> tags = List.of("Tag1", "Tag2");
         specItems.forEach(specItem ->
-            this.specItemService.completeTagAdditionProcess(specItem, tags));
+        {
+            try {
+                this.specItemService.completeTagAdditionProcess(specItem, tags.toString());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
         // Note that adding the tags creates new spec items
 
         // Step 3: Update spec items
