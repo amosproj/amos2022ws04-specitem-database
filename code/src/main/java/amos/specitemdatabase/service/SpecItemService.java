@@ -115,15 +115,13 @@ public class SpecItemService {
     }
 
     private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
-        String allTags;
         final String previousTags = this.tagService.fetchTags(specItem);
         log.debug("The previous tags of the SpecItem are: {}", previousTags);
-        allTags = previousTags + tags;
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
         tagInfo.setCommitTime(specItem.getCommitTime());
         tagInfo.setStatus(Status.LATEST);
-        tagInfo.setTags(allTags);
+        tagInfo.setTags(tags);
         return tagInfo;
     }
 
@@ -264,7 +262,11 @@ public class SpecItemService {
         // Step 1: Fetch current tags
         specItems.forEach(specItem -> {
             final String tags = this.tagService.fetchTags(specItem);
-            final TagInfo tagInfo = createTagInfo(specItem, tags);
+            final TagInfo tagInfo = new TagInfo();
+            tagInfo.setShortName(specItem.getShortName());
+            tagInfo.setCommitTime(specItem.getCommitTime());
+            tagInfo.setStatus(Status.LATEST);
+            tagInfo.setTags(tags);
             specItem.setTagInfo(tagInfo);
         });
     }
