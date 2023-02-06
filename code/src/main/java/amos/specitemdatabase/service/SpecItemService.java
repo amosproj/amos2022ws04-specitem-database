@@ -213,7 +213,7 @@ public class SpecItemService {
         if (!isGuiUpdate) {
             final String previousTags = this.tagService.fetchTags(specItem);
             log.debug("The previous tags of the SpecItem are: {}", previousTags);
-            allTags = previousTags + tags;
+            allTags = previousTags;
         } else {
             allTags = tags;
         }
