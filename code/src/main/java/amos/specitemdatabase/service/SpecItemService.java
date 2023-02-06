@@ -3,12 +3,10 @@ package amos.specitemdatabase.service;
 import amos.specitemdatabase.config.FileConfig;
 import amos.specitemdatabase.importer.SpecItemParser;
 import amos.specitemdatabase.importer.SpecItemParserInterface;
-import amos.specitemdatabase.model.Category;
 import amos.specitemdatabase.model.Commit;
 import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.DocumentEntity;
-import amos.specitemdatabase.model.LcStatus;
 import amos.specitemdatabase.model.ProcessedDocument;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemId;
@@ -19,20 +17,17 @@ import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,10 +59,10 @@ public class SpecItemService {
 
     private Commit getCommitWithCurrentTime() {
         final LocalDateTime dateTime = LocalDateTime.now();
-        Commit commit = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
-        return commit;
+        return new Commit("hash"+ dateTime,"message"+ dateTime,dateTime,
+            "author"+ dateTime);
     }
-   
+
     private String tagNullCheck(TagInfo previousTagInfo) {
         return previousTagInfo != null ? previousTagInfo.getTags() : "";
     }
@@ -80,12 +75,13 @@ public class SpecItemService {
 
     private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted) {
         String allTags = getTagsFromPreviousVersion(latestSpecItem);
-        TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags), false);
+        TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags));
         return tagInfo;
     }
 
     private void saveSpecItemViaDocument(SpecItem specItem, Commit commit) {
-        DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem", Arrays.asList(specItem), commit);
+        DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem",
+            Arrays.asList(specItem), commit);
         documentRepo.save(documentEntity);
     }
 
@@ -101,58 +97,6 @@ public class SpecItemService {
 
         saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
     }
-    
-    private String getAllPreviousAndCurrentTags(String previousTags, List<String> newTags) {
-        return previousTags.isEmpty() 
-            ? String.join(",", newTags) 
-            : previousTags + "," + String.join(",", newTags);
-    }
-
-    private String checkNullTagInfo(TagInfo tagInfo, List<String> newTags) {
-        return tagInfo != null
-            ? getAllPreviousAndCurrentTags(tagInfo.getTags(), newTags)
-            : String.join(",", newTags);
-    }
-
-    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
-        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-        String allTags = checkNullTagInfo(previousTagInfo, newTags);
-        return allTags;
-    }
-
-    private String saveTagsToTable(List<String> newTags, SpecItem specItem) {
-        final String allTags = fetchCurrentTags(specItem, newTags);
-        this.tagService.saveTags(specItem.getShortName(), specItem.getCommitTime(), allTags);
-        return allTags;
-    }
-
-    private void printTagsToConsole(SpecItem specItem) {
-        final String tagsAfterTableUpdate = this.tagService.fetchTags(specItem);
-        log.info("Fetched tags after the table update: {}", tagsAfterTableUpdate);
-    }
-   
-    private String getAllTagsAndCheckForGUIUpdate(SpecItem specItem, boolean isGuiUpdate, String tags) {
-        return isGuiUpdate ? tags : this.tagService.fetchTags(specItem) + tags;
-    }
-
-    private TagInfo createTagInfo(final SpecItem specItem, final String tags, boolean isGuiUpdate) {
-        String allTags = getAllTagsAndCheckForGUIUpdate(specItem, isGuiUpdate, tags);
-        final TagInfo tagInfo = new TagInfo();
-        tagInfo.setShortName(specItem.getShortName());
-        tagInfo.setCommitTime(specItem.getCommitTime());
-        tagInfo.setStatus(Status.LATEST);
-        tagInfo.setTags(allTags);
-        return tagInfo;
-    }
-
-    private void addTags(final List<SpecItem> specItems) {
-        specItems.forEach(specItem -> {
-            final String tags = this.tagService.fetchTags(specItem);
-            final TagInfo tagInfo = createTagInfo(specItem, tags, false);
-            specItem.setTagInfo(tagInfo);
-        });
-    }
-
     private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem, boolean markedAsDeleted) {
         final SpecItem newVersionOfSpecItem = new SpecItem();
         newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
@@ -170,6 +114,95 @@ public class SpecItemService {
         return newVersionOfSpecItem;
     }
 
+    private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
+        String allTags;
+        final String previousTags = this.tagService.fetchTags(specItem);
+        log.debug("The previous tags of the SpecItem are: {}", previousTags);
+        allTags = previousTags + tags;
+        final TagInfo tagInfo = new TagInfo();
+        tagInfo.setShortName(specItem.getShortName());
+        tagInfo.setCommitTime(specItem.getCommitTime());
+        tagInfo.setStatus(Status.LATEST);
+        tagInfo.setTags(allTags);
+        return tagInfo;
+    }
+
+
+    public TagInfo completeTagAdditionProcess(final SpecItem taggedSpecItem, final String newTags)
+        throws InterruptedException {
+        final LocalDateTime newCommitTime = LocalDateTime.now();
+        TagInfo result;
+        boolean wentThroughLockingFallback = false;
+        try {
+            log.info("Saving the tags: {} for SpecItem with ID:{} and CommitTime: {}",
+                newTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+            result = this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(),
+                newTags, false);
+
+        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
+            log.info("There was a concurrent update. The new version will be saved.");
+            // 1. Wait a bit
+            Thread.sleep(3000);
+            // 2. Get the tags for the item that caused the locking (ID, Old)
+            final TagInfo currentTagOfTaggedSpecItem = this.tagService.getTagsBySpecItemIdAndCommitTime(
+                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
+            // 3. Save the tag info of the new version as the version has been increased,
+            // and it is not possible to save under the same primary key
+            String allTags = currentTagOfTaggedSpecItem.getTags() + ", " + newTags;
+            result = this.tagService.saveTags(taggedSpecItem.getShortName(), newCommitTime, allTags, true);
+            wentThroughLockingFallback = true;
+        }
+        if (wentThroughLockingFallback) {
+            this.createAndSaveNewVersion(taggedSpecItem, LocalDateTime.now());
+        } else {
+            this.createAndSaveNewVersion(taggedSpecItem, newCommitTime);
+        }
+        return result;
+    }
+
+    private void createAndSaveNewVersion(final SpecItem taggedSpecItem, final LocalDateTime newCommitTime) {
+        Commit c = new Commit(
+            "hash", "message", newCommitTime, "author");
+        final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
+        newVersionOfSpecItem.setCommit(c);
+        newVersionOfSpecItem.setCommitTime(c.getCommitTime());
+        final TagInfo tagInfo = this.tagService.getLatestById(
+            taggedSpecItem.getShortName()
+        );
+        final TagInfo newTagInfo = new TagInfo();
+        newTagInfo.setCommitTime(newCommitTime);
+        newTagInfo.setShortName(taggedSpecItem.getShortName());
+        newTagInfo.setTags(tagInfo.getTags());
+        newVersionOfSpecItem.setTagInfo(newTagInfo);
+        log.info("Creating a new version of the SpecItem with the ID: {} and CommitTime: {}" +
+                " with the new tags: {}", newVersionOfSpecItem.getShortName(),
+            newVersionOfSpecItem.getCommitTime(), newVersionOfSpecItem.getTagInfo().getTags());
+        final DocumentEntity documentEntity = new DocumentEntity("filename", List.of(newVersionOfSpecItem), c);
+        documentRepo.save(documentEntity);
+    }
+
+
+    private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
+        final SpecItem newVersionOfSpecItem = prepareBaseForNewVersionOfSpecItem(taggedSpecItem);
+        newVersionOfSpecItem.setTraceRefs(taggedSpecItem.getTraceRefs());
+        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
+        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
+        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
+        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        newVersionOfSpecItem.setMarkedAsDeleted(false);
+        return newVersionOfSpecItem;
+    }
+
+    private SpecItem prepareBaseForNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
+        final SpecItem newVersionOfSpecItem = new SpecItem();
+        //newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
+        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
+        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
+        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
+        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        return newVersionOfSpecItem;
+    }
     @Transactional
     public List<SpecItem> getListOfSpecItemsByContent(String content, int page) {
         Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
@@ -205,7 +238,7 @@ public class SpecItemService {
     @Transactional
     public void deleteSpecItemById(String specItemId) {
         try {
-            createNewVersionOfDeletedSpecItem(specItemId);           
+            createNewVersionOfDeletedSpecItem(specItemId);
         } catch (Exception lockingFailureException) {
             System.err.println(lockingFailureException.getMessage());
         }
@@ -227,28 +260,13 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
     }
 
-    @Transactional
-    public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
-        final LocalDateTime dateTime = LocalDateTime.now();
-        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
-
-        try {
-            String allTags = saveTagsToTable(newTags, taggedSpecItem);
-
-            printTagsToConsole(taggedSpecItem);
-
-            final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem,false);
-            newVersionOfSpecItem.setCommit(c);
-            
-            final TagInfo tagInfo = this.createTagInfo(newVersionOfSpecItem, String.join(", ", allTags), true);
-            newVersionOfSpecItem.setTagInfo(tagInfo);
-
-            saveSpecItemViaDocument(newVersionOfSpecItem, c);
-        } catch (Exception lockingFailureException) {
-            log.warn("Somebody has just updated the tags for the SpecItem " +
-                "with the ID: {}. Retrying...", taggedSpecItem.getShortName());
-            this.completeTagAdditionProcess(taggedSpecItem, newTags);
-        }
+    private void addTags(final List<SpecItem> specItems) {
+        // Step 1: Fetch current tags
+        specItems.forEach(specItem -> {
+            final String tags = this.tagService.fetchTags(specItem);
+            final TagInfo tagInfo = createTagInfo(specItem, tags);
+            specItem.setTagInfo(tagInfo);
+        });
     }
 
     // Time bug?

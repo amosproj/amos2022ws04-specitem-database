@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories("amos.specitemdatabase.repo")
+@EnableJpaRepositories(value = "amos.specitemdatabase.repo")
 @PropertySource("classpath:application.properties")
 public class DatabaseConfig {
 }

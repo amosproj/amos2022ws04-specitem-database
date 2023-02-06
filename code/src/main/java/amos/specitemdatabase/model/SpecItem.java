@@ -8,6 +8,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -49,7 +50,7 @@ public class SpecItem {
     @ManyToOne
     private Commit commit;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumns( {
         @JoinColumn(name="short_name", referencedColumnName="short_name"),
         @JoinColumn(name="commit_time", referencedColumnName="commit_time")
