@@ -24,8 +24,9 @@ import org.hibernate.annotations.Cache;
 public class TagInfo {
 
     @Id
+    @Column(name = "short_name")
     private String shortName;
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP", name = "commit_time")
     @Id
     private LocalDateTime commitTime;
     // Adding the @Version annotation activates the optimistic locking mechanism.
@@ -52,20 +53,9 @@ public class TagInfo {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final TagInfo tagInfo = (TagInfo) o;
-        return shortName.equals(tagInfo.shortName) && commitTime.equals(tagInfo.commitTime) &&
-            Objects.equals(version, tagInfo.version) && Objects.equals(tags, tagInfo.tags);
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(shortName, commitTime, version, tags);
     }
+
+
 }

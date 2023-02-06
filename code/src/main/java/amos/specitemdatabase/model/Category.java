@@ -1,6 +1,5 @@
 package amos.specitemdatabase.model;
 
-import javax.persistence.Entity;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

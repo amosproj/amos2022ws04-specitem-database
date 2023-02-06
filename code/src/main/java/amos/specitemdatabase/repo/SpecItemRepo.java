@@ -2,6 +2,7 @@ package amos.specitemdatabase.repo;
 
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemId;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
 @Transactional
@@ -54,16 +52,6 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
     )
     SpecItem getLatestSpecItemByID(@Param("short_name") String ID);
 
-    @Deprecated
-    @Modifying
-    @Query(
-        value = "UPDATE document_entity_spec_items " +
-                "SET spec_items_time = :new_time " +
-                "WHERE spec_items_short_name = :short_name",
-        nativeQuery = true
-    )
-    void updateDocumentToPointToLatestSpecItem(@Param("short_name")String ID, @Param("new_time")LocalDateTime time);
-
     @Modifying
     @Query(
         value = "DELETE FROM spec_item s1 " +
@@ -83,4 +71,6 @@ public interface SpecItemRepo extends JpaRepository<SpecItem, SpecItemId> {
     List<SpecItem> getAllVersionsOfASpecItemByID(@Param("short_name") String ID);
 
     List<SpecItem> findAllByShortNameAndContentContaining(String shortName, String Content);
+
+    SpecItem findFirstByShortNameContainingOrderByCommitTimeDesc(String specItemId);
 }
