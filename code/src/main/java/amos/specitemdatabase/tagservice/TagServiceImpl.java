@@ -44,7 +44,11 @@ public class TagServiceImpl implements TagService {
             if (existingTagInfo.getTags().isEmpty()) {
                 allTags = tags;
             } else {
-                allTags = existingTagInfo.getTags() + ", " + tags;
+                if (existingTagInfo.getTags().length() > tags.length()) {
+                    allTags = tags;
+                } else {
+                    allTags = existingTagInfo.getTags() + ", " + tags;
+                }
             }
             allTags = removeDuplicates(allTags);
             existingTagInfo.setTags(allTags);
