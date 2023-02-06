@@ -270,28 +270,6 @@ public class SpecItemService {
         SpecItem sNew = optionalsNew.get();
         return SpecitemsComparator.compareMarkup(sOld, sNew);
     }
-    
-    @Deprecated
-    private void deleteSpecItemFromDocument(DocumentEntity documentEntity, SpecItem specItem) {
-        documentEntity.getSpecItems().remove(specItem);
-        documentRepo.save(documentEntity);
-    }
-
-    @Deprecated
-    private void deleteLinkBetweenDocumentAndSpecItem(DocumentEntity documentEntity, String specItemID) {
-        for (SpecItem specItem : documentEntity.getSpecItems()) {
-            if (specItem.getShortName().equals(specItemID)) {
-                deleteSpecItemFromDocument(documentEntity, specItem);
-            }
-        }
-    }
-
-    @Deprecated
-    @Transactional
-    public void deleteSpecItemByIdInDocument(String specItemId, BigInteger documentId) {
-        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentId);
-        this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
-    }
 
 //    @Bean
 //    CommandLineRunner commandLineRunner(
