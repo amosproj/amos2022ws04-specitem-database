@@ -5,7 +5,7 @@ import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemBuilder;
-import amos.specitemdatabase.repo.TagsRepo;
+import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import java.net.URLDecoder;
@@ -37,17 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin("*")
 @Slf4j
 public class Controller {
-    private final TagsRepo tagsRepo;
 
     private final FileStorageService fileStorageService;
     private final SpecItemService service;
 
     @Autowired
-    public Controller(SpecItemService service, FileStorageService fileStorageService,
-                      final TagsRepo tagsRepo) {
+    public Controller(SpecItemService service, FileStorageService fileStorageService) {
         this.service = service;
         this.fileStorageService = fileStorageService;
-        this.tagsRepo = tagsRepo;
     }
 
     private void printErrorMessage(Exception e) {
@@ -112,21 +109,20 @@ public class Controller {
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateTags(@RequestBody final String specItemAsJsonString){
         log.info("Received a request for updating the tags.");
-        boolean tagsAdded = false;
+        TagInfo result;
+        boolean resultContainsTargetTags = false;
         try {
-            // Step 1: Create a spec item out of the json representation
-            final Pair<SpecItem, String> specItemTagPair = this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
-            // Step 2: Complete the tag addition procedure, which involves
-            // 1. fetching current tags for ID & Time
-            // 2. saving the previous + new tags
-            // 3. creating a new spec item and a new taginfo entry
-            tagsAdded = this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
-                specItemTagPair.getSecond());
+            final Pair<SpecItem, String> specItemTagPair =
+                this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
+            result = this.service.completeTagAdditionProcess(specItemTagPair.getFirst(), specItemTagPair.getSecond());
+            if (result.getTags().contains(specItemTagPair.getSecond())) {
+                resultContainsTargetTags = true;
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        if (tagsAdded) {
+        if (resultContainsTargetTags) {
             log.info("Tags have been added successfully!");
             return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
         } else {

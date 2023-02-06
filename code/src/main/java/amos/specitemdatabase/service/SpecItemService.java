@@ -186,45 +186,49 @@ public class SpecItemService {
     }
 
 
-    public boolean completeTagAdditionProcess(final SpecItem taggedSpecItem, final String newTags)
+    public TagInfo completeTagAdditionProcess(final SpecItem taggedSpecItem, final String newTags)
         throws InterruptedException {
         final LocalDateTime newCommitTime = LocalDateTime.now();
-        boolean tagsAdded;
+        TagInfo result;
+        boolean wentThroughLockingFallback = false;
         try {
             log.info("Saving the tags: {} for SpecItem with ID:{} and CommitTime: {}",
                 newTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-            this.tagService.saveTags(
-                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), newTags);
-            tagsAdded = true;
+            result = this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(),
+                newTags, false);
+
         } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
             log.info("There was a concurrent update. The new version will be saved.");
             // 1. Wait a bit
-            Thread.sleep(2000);
+            Thread.sleep(3000);
             // 2. Get the tags for the item that caused the locking (ID, Old)
             final TagInfo currentTagOfTaggedSpecItem = this.tagService.getTagsBySpecItemIdAndCommitTime(
                 taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
             // 3. Save the tag info of the new version as the version has been increased,
             // and it is not possible to save under the same primary key
-            String allTags = currentTagOfTaggedSpecItem + ", " + newTags;
-            tagsAdded = this.tagService.saveTagsWithNewCommitTime(
-                    taggedSpecItem.getShortName(), newCommitTime, allTags);
+            String allTags = currentTagOfTaggedSpecItem.getTags() + ", " + newTags;
+            result = this.tagService.saveTags(taggedSpecItem.getShortName(), newCommitTime, allTags, true);
+            wentThroughLockingFallback = true;
         }
-        // maybe here is the problem with the time, check if they are not the same for concurrent updates
-        this.createAndSaveNewVersion(taggedSpecItem, newCommitTime);
-        return tagsAdded;
+        if (wentThroughLockingFallback) {
+            this.createAndSaveNewVersion(taggedSpecItem, LocalDateTime.now());
+        } else {
+            this.createAndSaveNewVersion(taggedSpecItem, newCommitTime);
+        }
+        return result;
     }
 
-    private void createAndSaveNewVersion(final SpecItem taggedSpecItem, final LocalDateTime now) {
-        final Commit c = new Commit(
-            "hash", "message", now, "author");
+    private void createAndSaveNewVersion(final SpecItem taggedSpecItem, final LocalDateTime newCommitTime) {
+        Commit c = new Commit(
+            "hash", "message", newCommitTime, "author");
         final SpecItem newVersionOfSpecItem = this.prepareNewVersionOfSpecItem(taggedSpecItem);
         newVersionOfSpecItem.setCommit(c);
         newVersionOfSpecItem.setCommitTime(c.getCommitTime());
-        final TagInfo tagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
-            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime()
+        final TagInfo tagInfo = this.tagService.getLatestById(
+            taggedSpecItem.getShortName()
         );
         final TagInfo newTagInfo = new TagInfo();
-        newTagInfo.setCommitTime(now);
+        newTagInfo.setCommitTime(newCommitTime);
         newTagInfo.setShortName(taggedSpecItem.getShortName());
         newTagInfo.setTags(tagInfo.getTags());
         newVersionOfSpecItem.setTagInfo(newTagInfo);

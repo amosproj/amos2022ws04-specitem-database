@@ -24,8 +24,9 @@ import org.hibernate.annotations.Cache;
 public class TagInfo {
 
     @Id
+    @Column(name = "short_name")
     private String shortName;
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP", name = "commit_time")
     @Id
     private LocalDateTime commitTime;
     // Adding the @Version annotation activates the optimistic locking mechanism.

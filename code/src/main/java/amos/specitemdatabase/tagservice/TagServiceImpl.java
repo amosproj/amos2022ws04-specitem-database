@@ -4,7 +4,11 @@ import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class TagServiceImpl implements TagService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final TagsRepo tagsRepo;
     @Autowired
@@ -29,37 +36,44 @@ public class TagServiceImpl implements TagService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
-                            final String tags) {
-        final TagInfo existingTagInfo = this.tagsRepo.getByShortNameAndCommitTime(specItemShortName, specItemCommitTime);
-        if (existingTagInfo == null) {
-            log.info("No previous entry for the SpecItem with {} and {}", specItemShortName, specItemCommitTime);
-            this.prepareNewTagInfo(specItemShortName, specItemCommitTime, tags);
-        } else {
-            log.info("There are some tags for the SpecItem with {} and {}", specItemShortName, specItemCommitTime);
-            String allTags = existingTagInfo.getTags() + ", " + tags;
+    public TagInfo saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
+                            final String tags, boolean isLockingScenario) {
+        final TagInfo existingTagInfo = this.getLatestById(specItemShortName);
+        String allTags;
+        if (existingTagInfo != null) {
+            if (existingTagInfo.getTags().isEmpty()) {
+                allTags = tags;
+            } else {
+                allTags = existingTagInfo.getTags() + ", " + tags;
+            }
+            allTags = removeDuplicates(allTags);
             existingTagInfo.setTags(allTags);
-            this.tagsRepo.save(existingTagInfo);
+            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, existingTagInfo);
+        } else {
+            final TagInfo newTagInfo = new TagInfo();
+            newTagInfo.setCommitTime(specItemCommitTime);
+            newTagInfo.setShortName(specItemShortName);
+            newTagInfo.setTags(tags);
+            this.tagsRepo.saveAndFlush(newTagInfo);
+            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, newTagInfo);
         }
     }
 
-    private boolean prepareNewTagInfo(final String specItemShortName, final LocalDateTime specItemCommitTime,
-                                      final String tags) {
-        final TagInfo tagInfo = new TagInfo();
-        tagInfo.setTags(tags);
-        tagInfo.setShortName(specItemShortName);
-        tagInfo.setCommitTime(specItemCommitTime);
-        final TagInfo saved = this.tagsRepo.saveAndFlush(tagInfo);
-        final boolean isSaved = saved.getTags().contains(tags);
-        log.info("SaveTags method: Do the saved tags contain the provided tags: {}", isSaved);
-        return isSaved;
+    private String removeDuplicates(final String input) {
+        final Set<String> set = new HashSet<>(Arrays.asList(input.split(", ")));
+        return String.join(", ", set);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Override
-    public boolean saveTagsWithNewCommitTime(final String specItemShortName, final LocalDateTime newCommitTime,
-                                             final String allTags) {
-        return this.prepareNewTagInfo(specItemShortName, newCommitTime, allTags);
+
+    private TagInfo handleSaveAccordingToLockingScenario(final LocalDateTime specItemCommitTime, final boolean isLockingScenario,
+                                                         final TagInfo newTagInfo) {
+        if (isLockingScenario) {
+            log.info("Saving the spec item as a res of res of locking. Commit time: {}", specItemCommitTime);
+            return this.entityManager.merge(newTagInfo);
+        } else {
+            log.info("Saving the spec item normally. Commit time: {}", specItemCommitTime);
+            return this.tagsRepo.saveAndFlush(newTagInfo);
+        }
     }
 
     @Override
@@ -70,25 +84,5 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
         return this.tagsRepo.getByShortNameAndCommitTime(specItemShortName, commitTime);
-    }
-
-    private String fetchCurrentTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
-                                    final List<String> newTags) {
-        final TagInfo previousTagInfo = this.getTagsBySpecItemIdAndCommitTime(
-            specItemShortName, specItemCommitTime);
-        String allTags;
-        if (previousTagInfo != null) {
-            final String previousTags = previousTagInfo.getTags();
-            log.info("The already existing tags for ID={} CommitTime={} are {}",
-                specItemShortName, specItemCommitTime, previousTags);
-            if (previousTags.isEmpty()) {
-                allTags = String.join(",", newTags);
-            } else {
-                allTags = previousTags + "," + String.join(",", newTags);
-            }
-        } else {
-            allTags = String.join(",", newTags);
-        }
-        return allTags;
     }
 }
