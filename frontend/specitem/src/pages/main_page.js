@@ -58,21 +58,24 @@ export default function MainPage() {
     return(
         <div style={{width: '100%'}}>
                 <div className='App-header'>
+                    <div className='logo-text'>SpecItem Database</div>
                     {!inputVisible &&
                     <div>
-                        <button className='button' onClick={() => setInputVisible(true)}> Add Document</button>
+
+
+                        <button className='main-button' onClick={() => setInputVisible(true)}>Add Document</button>
                         
                         <Link to={ROUTES.SPECITEMS}>
-                        <button className='button'> Show Documents</button>
+                        <button className='main-button'> Show Documents</button>
                         </Link>
                         <Link to={ROUTES.EXPORT}>
-                        <button className='button'> Export</button>
+                        <button className='main-button'> Export</button>
                         </Link>
                     </div>
                     }
                     {inputVisible &&
-                    <div style={{justifyContent:'right', alignItems: 'center',display:'block', width:'600px'}}>
-                        <div style={{marginBottom:'50px',marginTop:'20px', marginLeft:'100px'}}>File to Upload : {file?file.name:''}</div>
+                    <div style={{justifyContent:'right', alignItems: 'center', display:'block', width:'600px'}}>
+                        <div style={{marginBottom:'50px', marginTop:'20px', marginLeft:'40px'}}>Selected file: {file?file.name:''}</div>
                         <div style={{marginLeft:'200px'}}>
                             <label className="custom-file-upload">
                                 <input type="file" onChange={handleFileChange}/>
@@ -80,7 +83,7 @@ export default function MainPage() {
                             </label>
                         </div>
                         <div>
-                            <button style={{marginLeft:'200px'}} className='button' onClick={onSubmit}>Upload</button>
+                            <button style={{marginLeft:'200px'}} className='main-button' onClick={onSubmit}>Upload</button>
                         </div>
                         <div>
                             <button style={{marginLeft:'200px'}} className='button-close' onClick={() => setInputVisible(false)}>Back</button>
