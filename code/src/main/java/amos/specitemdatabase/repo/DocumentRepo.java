@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DocumentRepo extends JpaRepository<DocumentEntity, Long> {
+    @Deprecated
     @Query(
         value = "SELECT * " +
                 "FROM document_entity d1 " +
@@ -21,6 +22,7 @@ public interface DocumentRepo extends JpaRepository<DocumentEntity, Long> {
     )
     DocumentEntity getDocumentEntityByID(@Param("id") BigInteger ID);
 
+    @Deprecated
     @Query(
         value = "SELECT document_entity_id " +
                 "FROM document_entity_spec_items d1 " +
@@ -30,6 +32,7 @@ public interface DocumentRepo extends JpaRepository<DocumentEntity, Long> {
     )
     BigInteger getDocumentEntityIDBySpecItem(@Param("short_name")String ID, @Param("time")LocalDateTime time);
 
+    @Deprecated
     @Modifying
     @Query(
         value = "DELETE FROM document_entity_spec_items d1 " +
@@ -38,6 +41,7 @@ public interface DocumentRepo extends JpaRepository<DocumentEntity, Long> {
     )
     void deleteSpecItemByIDFromDocument(@Param("short_name") String ID);
 
+    @Deprecated
     @Query(
         value = "SELECT spec_items_time " +
                 "FROM document_entity_spec_items d1 " +
