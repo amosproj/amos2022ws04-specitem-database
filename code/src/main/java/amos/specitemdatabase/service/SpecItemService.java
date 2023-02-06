@@ -17,9 +17,9 @@ import amos.specitemdatabase.repo.SpecItemRepo;
 import amos.specitemdatabase.tagservice.TagService;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -57,126 +57,68 @@ public class SpecItemService {
         );
     }
 
-    public List<SpecItem> getListOfSpecItemsByContent(String content, int page) {
-        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
-        content = content.replaceAll("%", "\\\\%");
-        System.out.println(content);
-        List<SpecItem> listOfSpecItems = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
-        return listOfSpecItems;
+    private Commit getCommitWithCurrentTime() {
+        final LocalDateTime dateTime = LocalDateTime.now();
+        return new Commit("hash"+ dateTime,"message"+ dateTime,dateTime,
+            "author"+ dateTime);
     }
 
-    @Transactional
-    public List<SpecItem> getListOfSpecItemsByIDAndContent(String shortName, String content) {
-        return specItemRepo.findAllByShortNameAndContentContaining(shortName, content);
+    private String tagNullCheck(TagInfo previousTagInfo) {
+        return previousTagInfo != null ? previousTagInfo.getTags() : "";
     }
 
-    @Transactional
-    public List<SpecItem> getAllSpecItems(int page) {
-        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
-        List<SpecItem> listOfSpecItems = specItemRepo.findAllUpdatedSpecitem(pageable);
-        return listOfSpecItems;
+    private String getTagsFromPreviousVersion(SpecItem latestSpecItem) {
+        TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(latestSpecItem.getShortName(), latestSpecItem.getCommitTime());
+        String allTags = tagNullCheck(previousTagInfo);
+        return allTags;
     }
 
-    @Transactional
-    public SpecItem getSpecItemById(String specItemId) {
-        try {
-            SpecItem specItem =
-                specItemRepo.findFirstByShortNameContainingOrderByCommitTimeDesc(specItemId);
-            log.info("Fetched the spec item with time: {} and ID: {} and tags: {}", specItem.getCommitTime(),
-                specItem.getShortName(), specItem.getTagInfo().getTags());
-            return specItem;
-        } catch (NullPointerException npe) {
-            log.info("Referencing trace ref with ID={} which is not in the DB.", specItemId);
-            return null;
-        }
+    private TagInfo getTagInfoFromLatestVersionOfASpecItem(SpecItem latestSpecItem, SpecItem specItemMarkedAsDeleted) {
+        String allTags = getTagsFromPreviousVersion(latestSpecItem);
+        TagInfo tagInfo = this.createTagInfo(specItemMarkedAsDeleted, String.join(", ", allTags));
+        return tagInfo;
     }
 
-    @Transactional
-    public List<SpecItem> getListOfSpecItemsById(String specItemId) {
-        List<SpecItem> listOfSpecItems = specItemRepo.getAllVersionsOfASpecItemByID(specItemId);
-        return listOfSpecItems;
-    }
-
-    @Deprecated
-    private void deleteSpecItemFromDocument(DocumentEntity documentEntity, SpecItem specItem) {
-        documentEntity.getSpecItems().remove(specItem);
+    private void saveSpecItemViaDocument(SpecItem specItem, Commit commit) {
+        DocumentEntity documentEntity = new DocumentEntity("document_for_updated_versions_of_a_specitem",
+            Arrays.asList(specItem), commit);
         documentRepo.save(documentEntity);
     }
 
-    @Deprecated
-    private void deleteLinkBetweenDocumentAndSpecItem(DocumentEntity documentEntity, String specItemID) {
-        for (SpecItem specItem : documentEntity.getSpecItems()) {
-            if (specItem.getShortName().equals(specItemID)) {
-                deleteSpecItemFromDocument(documentEntity, specItem);
-            }
-        }
-    }
+    private void createNewVersionOfDeletedSpecItem(String specItemId) {
+        SpecItem latestSpecItem = specItemRepo.getLatestSpecItemByID(specItemId);
+        SpecItem newVersionOfTheSpecItem = prepareNewVersionOfSpecItem(latestSpecItem, true);
 
-    @Deprecated
-    @Transactional
-    public void deleteSpecItemByIdInDocument(String specItemId, BigInteger documentId) {
-        DocumentEntity documentEntity = documentRepo.getDocumentEntityByID(documentId);
-        this.deleteLinkBetweenDocumentAndSpecItem(documentEntity, specItemId);
-    }
+        Commit commit = getCommitWithCurrentTime();
+        newVersionOfTheSpecItem.setCommit(commit);
 
-    private SpecItem newVersionOfDeletedSpecItem(final SpecItem taggedSpecItem) {
-        final SpecItem newVersionOfSpecItem = prepareBaseForNewVersionOfSpecItem(taggedSpecItem);
-        newVersionOfSpecItem.setTraceRefs(new ArrayList<>(taggedSpecItem.getTraceRefs()));
-        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
-        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
-        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
-        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
-        newVersionOfSpecItem.setMarkedAsDeleted(true);
-        return newVersionOfSpecItem;
-    }
+        TagInfo tagInfo = getTagInfoFromLatestVersionOfASpecItem(latestSpecItem, newVersionOfTheSpecItem);
+        newVersionOfTheSpecItem.setTagInfo(tagInfo);
 
-    private SpecItem prepareBaseForNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
+        saveSpecItemViaDocument(newVersionOfTheSpecItem,commit);
+    }
+    private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem, boolean markedAsDeleted) {
         final SpecItem newVersionOfSpecItem = new SpecItem();
-        //newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
         newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
         newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
         newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
         newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
         newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        newVersionOfSpecItem.setTraceRefs(new ArrayList<>(taggedSpecItem.getTraceRefs()));
+        newVersionOfSpecItem.setUseInstead(taggedSpecItem.getUseInstead());
+        newVersionOfSpecItem.setLongName(taggedSpecItem.getLongName());
+        newVersionOfSpecItem.setContent(taggedSpecItem.getContent());
+        newVersionOfSpecItem.setStatus(taggedSpecItem.getStatus());
+        newVersionOfSpecItem.setMarkedAsDeleted(markedAsDeleted);
         return newVersionOfSpecItem;
     }
 
-    @Transactional
-    public void deleteSpecItemById(String specItemId) {
-        try {
-            createNewVersionOfDeletedSpecItem(specItemId);
-        } catch (Exception lockingFailureException) {
-            System.err.println(lockingFailureException.getMessage());
-        }
-    }
-
-    @Transactional
-    public int getPageNumber() {
-        return (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
-    }
-
-    @Transactional
-    public void saveDocument(String filename) throws IOException{
-        String filepath = fileConfig.getUploadDir() + filename;
-        ProcessedDocument pDoc = specItemParser.processFile(new File(filepath));
-
-        addTags(pDoc.getSpecItems());
-
-        DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
-        documentRepo.save(documentEntity);
-    }
-
-    @Transactional
-    public void completeTagAdditionProcess(final SpecItem taggedSpecItem, final List<String> newTags) {
-    private TagInfo createTagInfo(final SpecItem specItem, final String tags, boolean isGuiUpdate) {
+    private TagInfo createTagInfo(final SpecItem specItem, final String tags) {
         String allTags;
-        if (!isGuiUpdate) {
-            final String previousTags = this.tagService.fetchTags(specItem);
-            log.debug("The previous tags of the SpecItem are: {}", previousTags);
-            allTags = previousTags + tags;
-        } else {
-            allTags = tags;
-        }
+        final String previousTags = this.tagService.fetchTags(specItem);
+        log.debug("The previous tags of the SpecItem are: {}", previousTags);
+        allTags = previousTags + tags;
         final TagInfo tagInfo = new TagInfo();
         tagInfo.setShortName(specItem.getShortName());
         tagInfo.setCommitTime(specItem.getCommitTime());
@@ -239,24 +181,6 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
     }
 
-    private String fetchCurrentTags(final SpecItem taggedSpecItem, final List<String> newTags) {
-        final TagInfo previousTagInfo = this.tagService.getTagsBySpecItemIdAndCommitTime(
-            taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-        String allTags;
-        if (previousTagInfo != null) {
-            final String previousTags = previousTagInfo.getTags();
-            log.info("The already existing tags for ID={} CommitTime={} are {}",
-                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(), previousTags);
-            if (previousTags.isEmpty()) {
-                allTags = String.join(",", newTags);
-            } else {
-                allTags = previousTags + "," + String.join(",", newTags);
-            }
-        } else {
-            allTags = String.join(",", newTags);
-        }
-        return allTags;
-    }
 
     private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
         final SpecItem newVersionOfSpecItem = prepareBaseForNewVersionOfSpecItem(taggedSpecItem);
@@ -268,6 +192,84 @@ public class SpecItemService {
         newVersionOfSpecItem.setMarkedAsDeleted(false);
         return newVersionOfSpecItem;
     }
+
+    private SpecItem prepareBaseForNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
+        final SpecItem newVersionOfSpecItem = new SpecItem();
+        //newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
+        newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
+        newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
+        newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());
+        newVersionOfSpecItem.setCategory(taggedSpecItem.getCategory());
+        newVersionOfSpecItem.setLcStatus(taggedSpecItem.getLcStatus());
+        return newVersionOfSpecItem;
+    }
+    @Transactional
+    public List<SpecItem> getListOfSpecItemsByContent(String content, int page) {
+        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
+        content = content.replaceAll("%", "\\\\%");
+        List<SpecItem> listOfSpecItems = specItemRepo.findUpdatedSpecItemByContent(content, pageable);
+        return listOfSpecItems;
+    }
+
+    @Transactional
+    public List<SpecItem> getListOfSpecItemsByIDAndContent(String shortName, String content) {
+        return specItemRepo.findAllByShortNameAndContentContaining(shortName, content);
+    }
+
+    @Transactional
+    public List<SpecItem> getAllSpecItems(int page) {
+        Pageable pageable = getPageableSortedByShortNameInAscendingOrder(page);
+        List<SpecItem> listOfSpecItems = specItemRepo.findAllUpdatedSpecitem(pageable);
+        return listOfSpecItems;
+    }
+
+    @Transactional
+    public SpecItem getSpecItemById(String specItemId) {
+        SpecItem specItem = specItemRepo.getLatestSpecItemByID(specItemId);
+        return specItem;
+    }
+
+    @Transactional
+    public List<SpecItem> getListOfSpecItemsById(String specItemId) {
+        List<SpecItem> listOfSpecItems = specItemRepo.getAllVersionsOfASpecItemByID(specItemId);
+        return listOfSpecItems;
+    }
+
+    @Transactional
+    public void deleteSpecItemById(String specItemId) {
+        try {
+            createNewVersionOfDeletedSpecItem(specItemId);
+        } catch (Exception lockingFailureException) {
+            System.err.println(lockingFailureException.getMessage());
+        }
+    }
+
+    @Transactional
+    public int getPageNumber() {
+        return (int) Math.ceil(specItemRepo.getCount()*1.0/MAX_PER_PAGE);
+    }
+
+    @Transactional
+    public void saveDocument(String filename) throws IOException{
+        String filepath = fileConfig.getUploadDir() + filename;
+        ProcessedDocument pDoc = specItemParser.processFile(new File(filepath));
+
+        addTags(pDoc.getSpecItems());
+
+        DocumentEntity documentEntity = new DocumentEntity(filename, pDoc.getSpecItems(), pDoc.getCommit());
+        documentRepo.save(documentEntity);
+    }
+
+    private void addTags(final List<SpecItem> specItems) {
+        // Step 1: Fetch current tags
+        specItems.forEach(specItem -> {
+            final String tags = this.tagService.fetchTags(specItem);
+            final TagInfo tagInfo = createTagInfo(specItem, tags);
+            specItem.setTagInfo(tagInfo);
+        });
+    }
+
+    // Time bug?
 
     public List<CompareResult> compare(String shortName, LocalDateTime timeOld, LocalDateTime timeNew) throws IllegalAccessException {
         Optional<SpecItem> optionalsOld = specItemRepo.findById(new SpecItemId(shortName, timeOld));
@@ -304,14 +306,14 @@ public class SpecItemService {
 //                LocalDateTime.now(),
 //                "author"
 //            );
-//
+
 //            Commit commit2 = new Commit(
 //                    "hash",
 //                    "message",
 //                    LocalDateTime.of(2019, 03, 28, 14, 33, 48, 640000),
 //                    "author"
 //                );
-//
+
 //            SpecItem specItem = new SpecItem();
 //            specItem.setShortName("ID1");
 //            specItem.setContent("content");
@@ -323,7 +325,7 @@ public class SpecItemService {
 //            specItem.setCommitTime(commit.getCommitTime());
 //            specItem.setCategory(Category.CATEGORY1);
 //            specItem.setLcStatus(LcStatus.STATUS1);
-//
+
 //            SpecItem specItem2 = new SpecItem();
 //            specItem2.setShortName("ID1");
 //            specItem2.setContent("content2");
@@ -335,7 +337,7 @@ public class SpecItemService {
 //            specItem2.setCommitTime(commit2.getCommitTime());
 //            specItem2.setCategory(Category.CATEGORY1);
 //            specItem2.setLcStatus(LcStatus.STATUS1);
-//
+
 //            SpecItem specItem3 = new SpecItem();
 //            specItem3.setShortName("ID3");
 //            specItem3.setContent("content");
@@ -347,22 +349,22 @@ public class SpecItemService {
 //            specItem3.setCommitTime(commit.getCommitTime());
 //            specItem3.setCategory(Category.CATEGORY1);
 //            specItem3.setLcStatus(LcStatus.STATUS1);
-//
+
 //            List<SpecItem> specItems = new ArrayList<>();
 //            specItems.add(specItem);
 //            specItems.add(specItem3);
 //            DocumentEntity documentEntity = new DocumentEntity("name",specItems,commit);
 //            documentRepo.save(documentEntity);
-//
+
 //            List<SpecItem> specItems2 = new ArrayList<>();
 //            specItems2.add(specItem2);
 //            DocumentEntity documentEntity2 = new DocumentEntity("name2",specItems2,commit2);
 //            documentRepo.save(documentEntity2);
-//
-//
+
+
 //            // List<String> tags = List.of("Key1:Value1","Key2:Value2");
 //            // specItems.forEach(specs -> saveTags(specs, tags));
-//
+
 //            //this.deleteSpecItemById(specItem.getShortName(), documentEntity.getName());
 //        };
 //    }
