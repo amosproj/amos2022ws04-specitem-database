@@ -6,7 +6,7 @@ import java.util.Map;
 
 public enum Category {
 
-    CATEGORY1("Category1"),
+    SPECIFICATION_ITEM("SPECIFICATION_ITEM"), // Unstable
     CATEGORY2("Category2"),
     CATEGORY3("Category3"),
     CATEGORY4("Category4"),
