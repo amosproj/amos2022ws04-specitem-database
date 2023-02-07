@@ -348,7 +348,7 @@ export default function SpecitemsPage() {
                     }
                     {specitemsList.length === 0 &&
                         <div className='App-tb' style={{marginTop:'200px'}}> 
-                            Loading...
+                            No items found
                         </div>
                     }
                     <div className='App-tb' style={{marginTop: '15px'}}>

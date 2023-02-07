@@ -47,7 +47,7 @@
   margin-top: 5px;
 }
 
-.button {
+.main-button {
   background-color: #4CAF50; /* Green */
   border: none;
   color: white;
@@ -55,28 +55,30 @@
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 20px;
+  font-family: Calibri, serif;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   margin-right: 15px;
   margin-bottom: 15px;
-  height: 50px;
-  width: 200px;
+  height: 60px;
+  width: 210px;
 }
 
 .button-close {
-  background-color: red; /* Green */
+  background-color: red; /* Red */
   border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 20px;
+  font-family: Calibri, serif;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
   margin-right: 15px;
   margin-bottom: 15px;
-  height: 50px;
-  width: 200px;
+  height: 60px;
+  width: 210px;
 }
 
 .fileinput {
@@ -97,17 +99,18 @@ input[type="file"] {
 }
 
 .custom-file-upload {
-  background-color: gray; /* Green */
+  background-color: gray; /* Gray */
   border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 20px;
+  font-family: Calibri, serif;
   margin-bottom: 15px;
-  height: 20px;
-  width: 135px;
+  height: 30px;
+  width: 145px;
   box-sizing: content-box;
 }
 
@@ -203,4 +206,17 @@ td > .LongNameCell, div .ContentCell, div {
 .history-button-container {
   display: flex;
   justify-content: center;
+}
+
+.logo-text {
+  width: 420px;
+  height: 100px;
+  text-align: center;
+  margin-bottom: 3cm;
+  padding-top: 25px;
+  font-size: 36px;
+  font-family: Calibri, serif;
+  color: white;
+  background-color: #43a9d1;
+  border-radius: 15px;
 }
