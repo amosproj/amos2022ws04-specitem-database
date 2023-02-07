@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class TagServiceImpl implements TagService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final TagsRepo tagsRepo;
     @Autowired
@@ -33,35 +28,6 @@ public class TagServiceImpl implements TagService {
         final TagInfo tagInfos = this.tagsRepo.findFirstByShortNameOrderByCommitTimeDesc(specItem.getShortName());
         return tagInfos != null ? tagInfos.getTags() : "";
     }
-
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    @Override
-//    public TagInfo saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
-//                            final String tags, boolean isLockingScenario) {
-//        final TagInfo existingTagInfo = this.getLatestById(specItemShortName);
-//        String allTags;
-//        if (existingTagInfo != null) {
-//            if (existingTagInfo.getTags().isEmpty()) {
-//                allTags = tags;
-//            } else {
-//                if (existingTagInfo.getTags().length() > tags.length()) {
-//                    allTags = tags;
-//                } else {
-//                    allTags = existingTagInfo.getTags() + ", " + tags;
-//                }
-//            }
-//            allTags = removeDuplicates(allTags);
-//            existingTagInfo.setTags(allTags);
-//            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, existingTagInfo);
-//        } else {
-//            final TagInfo newTagInfo = new TagInfo();
-//            newTagInfo.setCommitTime(specItemCommitTime);
-//            newTagInfo.setShortName(specItemShortName);
-//            newTagInfo.setTags(tags);
-//            this.tagsRepo.saveAndFlush(newTagInfo);
-//            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, newTagInfo);
-//        }
-//    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -91,18 +57,6 @@ public class TagServiceImpl implements TagService {
     private String removeDuplicates(final String input) {
         final Set<String> set = new HashSet<>(Arrays.asList(input.split(", ")));
         return String.join(", ", set);
-    }
-
-
-    private TagInfo handleSaveAccordingToLockingScenario(final LocalDateTime specItemCommitTime, final boolean isLockingScenario,
-                                                         final TagInfo newTagInfo) {
-        if (isLockingScenario) {
-            log.info("Saving the spec item as a res of res of locking. Commit time: {}", specItemCommitTime);
-            return this.entityManager.merge(newTagInfo);
-        } else {
-            log.info("Saving the spec item normally. Commit time: {}", specItemCommitTime);
-            return this.tagsRepo.saveAndFlush(newTagInfo);
-        }
     }
 
     @Override

@@ -132,38 +132,6 @@ public class SpecItemService {
         return result;
     }
 
-//    public TagInfo completeTagAdditionProcess(final SpecItem taggedSpecItem, final String newTags)
-//        throws InterruptedException {
-//        final LocalDateTime newCommitTime = LocalDateTime.now();
-//        TagInfo result;
-//        boolean wentThroughLockingFallback = false;
-//        try {
-//            log.info("Saving the tags: {} for SpecItem with ID:{} and CommitTime: {}",
-//                newTags, taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-//            result = this.tagService.saveTags(taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime(),
-//                newTags, false);
-//
-//        } catch (ObjectOptimisticLockingFailureException lockingFailureException) {
-//            log.info("There was a concurrent update. The new version will be saved.");
-//            // 1. Wait a bit
-//            Thread.sleep(3000);
-//            // 2. Get the tags for the item that caused the locking (ID, Old)
-//            final TagInfo currentTagOfTaggedSpecItem = this.tagService.getTagsBySpecItemIdAndCommitTime(
-//                taggedSpecItem.getShortName(), taggedSpecItem.getCommitTime());
-//            // 3. Save the tag info of the new version as the version has been increased,
-//            // and it is not possible to save under the same primary key
-//            String allTags = currentTagOfTaggedSpecItem.getTags() + ", " + newTags;
-//            result = this.tagService.saveTags(taggedSpecItem.getShortName(), newCommitTime, allTags, true);
-//            wentThroughLockingFallback = true;
-//        }
-//        if (wentThroughLockingFallback) {
-//            this.createAndSaveNewVersion(taggedSpecItem, LocalDateTime.now());
-//        } else {
-//            this.createAndSaveNewVersion(taggedSpecItem, newCommitTime);
-//        }
-//        return result;
-//    }
-
     private void createAndSaveNewVersion(final SpecItem taggedSpecItem, final LocalDateTime newCommitTime,
                                          final TagInfo addedTags) {
         Commit c = new Commit(
@@ -179,7 +147,6 @@ public class SpecItemService {
         documentRepo.save(documentEntity);
     }
 
-
     private SpecItem prepareNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
         final SpecItem newVersionOfSpecItem = prepareBaseForNewVersionOfSpecItem(taggedSpecItem);
         newVersionOfSpecItem.setTraceRefs(taggedSpecItem.getTraceRefs());
@@ -194,7 +161,6 @@ public class SpecItemService {
 
     private SpecItem prepareBaseForNewVersionOfSpecItem(final SpecItem taggedSpecItem) {
         final SpecItem newVersionOfSpecItem = new SpecItem();
-        //newVersionOfSpecItem.setCommitTime(LocalDateTime.now());
         newVersionOfSpecItem.setCreationTime(taggedSpecItem.getCreationTime());
         newVersionOfSpecItem.setShortName(taggedSpecItem.getShortName());
         newVersionOfSpecItem.setFingerprint(taggedSpecItem.getFingerprint());

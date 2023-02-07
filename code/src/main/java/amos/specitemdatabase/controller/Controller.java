@@ -152,8 +152,6 @@ public class Controller {
         final int minute = Integer.parseInt(dateParts[4]);
         final int second = Integer.parseInt(dateParts[5]);
         final LocalDateTime originalCommitDateTime = LocalDateTime.of(year, month, day, hour, minute, second);
-        //final LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
         final Commit c = new Commit("hash", "msg", originalCommitDateTime, "auth");
         sb.setCommit(c);
 
