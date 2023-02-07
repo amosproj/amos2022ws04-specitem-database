@@ -7,6 +7,8 @@ import java.util.Map;
 public enum LcStatus {
     VALID("VALID"), // Unstable
     INVALID("INVALID"), // Unstable
+    STATUS1("Status1"),
+    STATUS2("Status2"),
     STATUS3("Status3"),
     STATUS4("Status4"),
     EMPTY("");
