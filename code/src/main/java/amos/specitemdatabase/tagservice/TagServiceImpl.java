@@ -34,41 +34,12 @@ public class TagServiceImpl implements TagService {
         return tagInfos != null ? tagInfos.getTags() : "";
     }
 
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    @Override
-//    public TagInfo saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
-//                            final String tags, boolean isLockingScenario) {
-//        final TagInfo existingTagInfo = this.getLatestById(specItemShortName);
-//        String allTags;
-//        if (existingTagInfo != null) {
-//            if (existingTagInfo.getTags().isEmpty()) {
-//                allTags = tags;
-//            } else {
-//                if (existingTagInfo.getTags().length() > tags.length()) {
-//                    allTags = tags;
-//                } else {
-//                    allTags = existingTagInfo.getTags() + ", " + tags;
-//                }
-//            }
-//            allTags = removeDuplicates(allTags);
-//            existingTagInfo.setTags(allTags);
-//            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, existingTagInfo);
-//        } else {
-//            final TagInfo newTagInfo = new TagInfo();
-//            newTagInfo.setCommitTime(specItemCommitTime);
-//            newTagInfo.setShortName(specItemShortName);
-//            newTagInfo.setTags(tags);
-//            this.tagsRepo.saveAndFlush(newTagInfo);
-//            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, newTagInfo);
-//        }
-//    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public TagInfo saveTagsNoConcurrency(final String specItemShortName, final LocalDateTime newCommitTime,
-                                         final String tags) {
+    public TagInfo saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
+                            final String tags, boolean isLockingScenario) {
         final TagInfo existingTagInfo = this.getLatestById(specItemShortName);
-        String allTags = "";
+        String allTags;
         if (existingTagInfo != null) {
             if (existingTagInfo.getTags().isEmpty()) {
                 allTags = tags;
@@ -79,13 +50,17 @@ public class TagServiceImpl implements TagService {
                     allTags = existingTagInfo.getTags() + ", " + tags;
                 }
             }
+            allTags = removeDuplicates(allTags);
+            existingTagInfo.setTags(allTags);
+            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, existingTagInfo);
+        } else {
+            final TagInfo newTagInfo = new TagInfo();
+            newTagInfo.setCommitTime(specItemCommitTime);
+            newTagInfo.setShortName(specItemShortName);
+            newTagInfo.setTags(tags);
+            this.tagsRepo.saveAndFlush(newTagInfo);
+            return handleSaveAccordingToLockingScenario(specItemCommitTime, isLockingScenario, newTagInfo);
         }
-        allTags = removeDuplicates(allTags);
-        final TagInfo newTagInfo = new TagInfo();
-        newTagInfo.setShortName(specItemShortName);
-        newTagInfo.setCommitTime(newCommitTime);
-        newTagInfo.setTags(allTags);
-        return this.tagsRepo.saveAndFlush(newTagInfo);
     }
 
     private String removeDuplicates(final String input) {

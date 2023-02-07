@@ -114,7 +114,7 @@ public class Controller {
         try {
             final Pair<SpecItem, String> specItemTagPair =
                 this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
-            result = this.service.completeTagAdditionProcessNoConcurrency(
+            result = this.service.completeTagAdditionProcess(
                 specItemTagPair.getFirst(), specItemTagPair.getSecond());
             if (result.getTags().contains(specItemTagPair.getSecond())) {
                 resultContainsTargetTags = true;
