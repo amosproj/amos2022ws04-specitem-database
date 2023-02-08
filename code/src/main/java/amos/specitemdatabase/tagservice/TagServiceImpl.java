@@ -4,10 +4,16 @@ import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.repo.TagsRepo;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class TagServiceImpl implements TagService {
 
@@ -19,24 +25,47 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public String fetchTags(final SpecItem specItem) {
-        List<TagInfo> tagInfos = this.tagsRepo.getLatestTagInfo(specItem.getShortName());
-        if (tagInfos.size() > 1) {
-            // TODO: A correct mechanism must be implemented here
-            return tagInfos.get(tagInfos.size() -1).getTags();
-        } else if (tagInfos.size() == 1) {
-            return tagInfos.get(0).getTags();
-        } else {
-            return "";
+        final TagInfo tagInfos = this.tagsRepo.findFirstByShortNameOrderByCommitTimeDesc(specItem.getShortName());
+        return tagInfos != null ? tagInfos.getTags() : "";
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public TagInfo saveTagsNoConcurrency(final String specItemShortName, final LocalDateTime newCommitTime,
+                                         final String tags) {
+        final TagInfo existingTagInfo = this.getLatestById(specItemShortName);
+        String allTags = "";
+        if (existingTagInfo != null) {
+            if (existingTagInfo.getTags().isEmpty()) {
+                allTags = tags;
+            } else {
+                if (existingTagInfo.getTags().length() > tags.length()) {
+                    allTags = tags;
+                } else {
+                    allTags = existingTagInfo.getTags() + ", " + tags;
+                }
+            }
         }
+        allTags = removeDuplicates(allTags);
+        final TagInfo newTagInfo = new TagInfo();
+        newTagInfo.setShortName(specItemShortName);
+        newTagInfo.setCommitTime(newCommitTime);
+        newTagInfo.setTags(allTags);
+        return this.tagsRepo.saveAndFlush(newTagInfo);
+    }
+
+    private String removeDuplicates(final String input) {
+        final Set<String> set = new HashSet<>(Arrays.asList(input.split(", ")));
+        return String.join(", ", set);
     }
 
     @Override
-    public void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags) {
-        this.tagsRepo.updateTags(specItemShortName, specItemCommitTime, tags);
+    public TagInfo getLatestById(final String specItemId) {
+        return this.tagsRepo.findFirstByShortNameOrderByCommitTimeDesc(specItemId);
     }
 
     @Override
     public TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime) {
-        return this.tagsRepo.getByShortNameCommitTime(specItemShortName, commitTime);
+        return this.tagsRepo.getByShortNameAndCommitTime(specItemShortName, commitTime);
     }
 }

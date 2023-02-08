@@ -11,9 +11,9 @@ ShortName: ID1
 Category: Category1
 LC-Status: Status1
 UseInstead: 
-TraceRefs: ID22, ID3, ID4
+TraceRefs:
 LongName: bla bla bla
-Content: 
+Content:
 fdasfasdfdskjakldsajaflsaldsafkjlds;alfjds dsahf:g
 dsalhfjakdlfkdslajf;l j,, ,,,dafkdsajf j;
 
@@ -24,19 +24,8 @@ Fingerprint: def
 ShortName: ID22
 Category: Category2
 LC-Status: Status2
-UseInstead: 
-TraceRefs: ID2, ID3, ID4
-LongName: bla bla bla bla bal abla
-Content: 
-fdasfasdfds:
-
-
-Fingerprint: ghi
-ShortName: ID3
-Category: Category2
-LC-Status: Status2
-UseInstead: 
-TraceRefs: ID2, ID3, ID4
+UseInstead:
+TraceRefs:
 LongName: bla bla bla bla bal abla
 Content: 
 fdasfasdfds:

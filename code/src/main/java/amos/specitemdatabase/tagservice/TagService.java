@@ -8,7 +8,14 @@ public interface TagService {
 
     String fetchTags(final SpecItem specItem);
 
-    void saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime, final String tags);
+//    TagInfo saveTags(final String specItemShortName, final LocalDateTime specItemCommitTime,
+//                  final String tags, final boolean fromLocking);
 
-    TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemId, final LocalDateTime commitTime);
+    TagInfo saveTagsNoConcurrency(final String specItemShortName, final LocalDateTime specItemCommitTime,
+                                  final String tags);
+
+    TagInfo getLatestById(final String specItemId);
+
+    TagInfo getTagsBySpecItemIdAndCommitTime(final String specItemShortName, final LocalDateTime commitTime);
+
 }

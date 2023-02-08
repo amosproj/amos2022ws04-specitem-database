@@ -5,14 +5,13 @@ import amos.specitemdatabase.model.CompareResult;
 import amos.specitemdatabase.model.CompareResultMarkup;
 import amos.specitemdatabase.model.SpecItem;
 import amos.specitemdatabase.model.SpecItemBuilder;
+import amos.specitemdatabase.model.TagInfo;
 import amos.specitemdatabase.service.FileStorageService;
 import amos.specitemdatabase.service.SpecItemService;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -110,21 +109,28 @@ public class Controller {
     @PostMapping(path = "post/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateTags(@RequestBody final String specItemAsJsonString){
         log.info("Received a request for updating the tags.");
+        TagInfo result;
+        boolean resultContainsTargetTags = false;
         try {
-            // Step 1: Create a spec item out of the json representation
-            final Pair<SpecItem, String> specItemTagPair = this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
-            // Step 2: Complete the tag addition procedure, which involves
-            // 1. fetching current tags for ID & Time
-            // 2. saving the previous + new tags
-            // 3. creating a new spec item and a new taginfo entry
-            this.service.completeTagAdditionProcess(specItemTagPair.getFirst(),
-                Collections.singletonList(specItemTagPair.getSecond()));
+            final Pair<SpecItem, String> specItemTagPair =
+                this.extractSpecItemAndTagOutOfJsonRepresentation(specItemAsJsonString);
+            result = this.service.completeTagAdditionProcessNoConcurrency(
+                specItemTagPair.getFirst(), specItemTagPair.getSecond());
+            if (result.getTags().contains(specItemTagPair.getSecond())) {
+                resultContainsTargetTags = true;
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        log.info("Tags have been added successfully!");
-        return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
+        if (resultContainsTargetTags) {
+            log.info("Tags have been added successfully!");
+            return new ResponseEntity<>("Tags have been added successfully!", HttpStatus.CREATED);
+        } else {
+            log.info("There was an error creating tags");
+            return new ResponseEntity<>("There was an error creating tags", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     private Pair<SpecItem, String> extractSpecItemAndTagOutOfJsonRepresentation(final String specItemAsJsonString) throws JSONException {
@@ -139,28 +145,25 @@ public class Controller {
 
         final String[] dateParts = json.getString("commitTime")
             .replace("[", "").replace("]", "").split(",");
-        int year = Integer.parseInt(dateParts[0]);
-        int month = Integer.parseInt(dateParts[1]);
-        int day = Integer.parseInt(dateParts[2]);
-        int hour = Integer.parseInt(dateParts[3]);
-        int minute = Integer.parseInt(dateParts[4]);
-        int second = Integer.parseInt(dateParts[5]);
-        final LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
-        Commit c = new Commit("hash"+ dateTime.toString(),"message"+ dateTime.toString(),dateTime,"author"+ dateTime.toString());
+        final int year = Integer.parseInt(dateParts[0]);
+        final int month = Integer.parseInt(dateParts[1]);
+        final int day = Integer.parseInt(dateParts[2]);
+        final int hour = Integer.parseInt(dateParts[3]);
+        final int minute = Integer.parseInt(dateParts[4]);
+        final int second = Integer.parseInt(dateParts[5]);
+        final LocalDateTime originalCommitDateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+        final Commit c = new Commit("hash", "msg", originalCommitDateTime, "auth");
         sb.setCommit(c);
 
         final SpecItem specItem = new SpecItem(sb);
         final String tagList = json.getString("tagList");
-
-        // TODO: frontend must provide the info about the creation time
         return Pair.of(specItem, tagList);
     }
 
     
     @PostMapping("upload/{filename}")
     public ResponseEntity<String> uploadDocument (@PathVariable(name="filename") String filename, @RequestParam("file") MultipartFile uploadedFile) {
-
+        log.info("Uploading the document: {}", filename);
         try {
             fileStorageService.storeFile(uploadedFile, filename);
             service.saveDocument(filename);
@@ -261,10 +264,10 @@ public class Controller {
 
     @GetMapping("/compare/markup/{shortName}")
     public ResponseEntity compareVersionsMarkup(@PathVariable(value = "shortName") String shortName,
-                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
-                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime updated) {
+        System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
         try {
-            System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
             List<CompareResultMarkup> results = service.compareMarkup(shortName, old, updated);
             return ResponseEntity.status(HttpStatus.OK).body(results);
         } catch (IllegalArgumentException e) {
