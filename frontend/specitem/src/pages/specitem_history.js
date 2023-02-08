@@ -205,11 +205,10 @@ export default function SpecitemsPage() {
         if (checkedSum === 2) {
             setCompList(itemsForComparisonList)
 
-            let arrOld = specitemsList[itemsForComparisonList[0]].commit.commitTime;
-            let arrNew = specitemsList[itemsForComparisonList[1]].commit.commitTime;
+            let arrOld = specitemsList[itemsForComparisonList[0]].commitTime;
+            let arrNew = specitemsList[itemsForComparisonList[1]].commitTime;
             let firstTime = new Date(arrOld[0], arrOld[1], arrOld[2], arrOld[3], arrOld[4], arrOld[5]);
             let secondTime = new Date(arrNew[0], arrNew[1], arrNew[2], arrNew[3], arrNew[4], arrNew[5]);
-
             if (firstTime > secondTime) {
                 let tmp = arrOld;
                 arrOld = arrNew;
@@ -218,11 +217,21 @@ export default function SpecitemsPage() {
 
             let arrToDigOld = arrOld.map(num => num.toString().padStart(2, '0'));
             let strOld = arrToDigOld[0]+'-'+arrToDigOld[1]+'-'+arrToDigOld[2]+' ' + arrToDigOld[3]+':'+arrToDigOld[4]+':'+arrToDigOld[5];
+            if (arrOld.length > 6) {
+                strOld += "." + arrOld[6].toString().substring(0, 6);
+            }
+            else 
+                strOld += ".000000";
 
             let arrToDigNew = arrNew.map(num => num.toString().padStart(2, '0'));
             let strNew = arrToDigNew[0]+'-'+arrToDigNew[1]+'-'+arrToDigNew[2]+' ' + arrToDigNew[3]+':'+arrToDigNew[4]+':'+arrToDigNew[5];
-
+            if (arrNew.length > 6) {
+                strNew += "." + arrNew[6].toString().substring(0, 6);
+            }
+            else 
+                strNew += ".000000";
             console.log(strNew)
+
             const response = await fetch(SERVER_ADRESS+'compare/markup/'+id+'?old='+strOld+'&new='+strNew , {
                 method: 'GET',
             });
