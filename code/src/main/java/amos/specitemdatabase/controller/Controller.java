@@ -264,10 +264,10 @@ public class Controller {
 
     @GetMapping("/compare/markup/{shortName}")
     public ResponseEntity compareVersionsMarkup(@PathVariable(value = "shortName") String shortName,
-                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime old,
-                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updated) {
+                                          @RequestParam("old") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime old,
+                                          @RequestParam("new") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS") LocalDateTime updated) {
+        System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
         try {
-            System.out.println("GET compare versions of "+ shortName + " between " + old + " and " + updated);
             List<CompareResultMarkup> results = service.compareMarkup(shortName, old, updated);
             return ResponseEntity.status(HttpStatus.OK).body(results);
         } catch (IllegalArgumentException e) {
